@@ -50,7 +50,7 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 | 👛 **Wallet/Auth** | MetaMask, WalletConnect | User authentication |
 | 🖥️ **Frontend** | React (web) or Flutter (mobile) | User interface |
 | 🌐 **API Gateway** | Spring Cloud Gateway | Service coordination |
-| 💾 **Database** | PostgreSQL + Redis | Metadata & caching |
+| 💾 **Database** | MySQL 8.0 + Redis | Metadata & caching |
 
 ---
 
@@ -85,7 +85,7 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 │                  External Services                          │
 ├─────────────────────┬─────────────────────┬─────────────────┤
 │       IPFS          │    Blockchain       │    Database     │
-│   (Pinata/Web3)     │  (Polygon Network)  │  (PostgreSQL)   │
+│   (Pinata/Web3)     │  (Polygon Network)  │    (MySQL)      │
 └─────────────────────┴─────────────────────┴─────────────────┘
 ```
 
@@ -630,7 +630,7 @@ access-control-service/
 ---
 
 ### 📊 metadata-service
-**Technology:** Spring Boot + PostgreSQL + JPA
+**Technology:** Spring Boot + MySQL + JPA
 
 #### Internal Components:
 
@@ -716,59 +716,98 @@ metadata-service/
 
 ## 📊 Database Schema
 
-### PostgreSQL Tables
+### MySQL Tables
 
 **users**
 ```sql
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
+    id CHAR(36) PRIMARY KEY,
     wallet_address VARCHAR(42) UNIQUE NOT NULL,
     public_key TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN DEFAULT true
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    INDEX idx_wallet_address (wallet_address),
+    INDEX idx_created_at (created_at)
 );
 ```
 
 **files**
 ```sql
 CREATE TABLE files (
-    id UUID PRIMARY KEY,
-    owner_id UUID REFERENCES users(id),
+    id CHAR(36) PRIMARY KEY,
+    owner_id CHAR(36) NOT NULL,
     name VARCHAR(255) NOT NULL,
     mime_type VARCHAR(100),
     size_bytes BIGINT,
     cid VARCHAR(100) UNIQUE NOT NULL,
     file_hash VARCHAR(64) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_deleted BOOLEAN DEFAULT false
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_owner_id (owner_id),
+    INDEX idx_cid (cid),
+    INDEX idx_file_hash (file_hash),
+    INDEX idx_created_at (created_at)
 );
 ```
 
 **file_versions**
 ```sql
 CREATE TABLE file_versions (
-    id UUID PRIMARY KEY,
-    file_id UUID REFERENCES files(id),
+    id CHAR(36) PRIMARY KEY,
+    file_id CHAR(36) NOT NULL,
     version_number INTEGER NOT NULL,
     cid VARCHAR(100) UNIQUE NOT NULL,
     file_hash VARCHAR(64) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_current BOOLEAN DEFAULT false
+    is_current BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE,
+    INDEX idx_file_id (file_id),
+    INDEX idx_version_number (version_number),
+    INDEX idx_cid (cid),
+    INDEX idx_is_current (is_current)
 );
 ```
 
 **access_permissions**
 ```sql
 CREATE TABLE access_permissions (
-    id UUID PRIMARY KEY,
-    file_id UUID REFERENCES files(id),
-    user_id UUID REFERENCES users(id),
+    id CHAR(36) PRIMARY KEY,
+    file_id CHAR(36) NOT NULL,
+    user_id CHAR(36) NOT NULL,
     encrypted_key TEXT NOT NULL,
     granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    revoked_at TIMESTAMP,
-    is_active BOOLEAN DEFAULT true
+    revoked_at TIMESTAMP NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_file_user (file_id, user_id),
+    INDEX idx_file_id (file_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_is_active (is_active),
+    INDEX idx_granted_at (granted_at)
+);
+```
+
+**audit_logs**
+```sql
+CREATE TABLE audit_logs (
+    id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36),
+    action VARCHAR(50) NOT NULL,
+    resource_type VARCHAR(50) NOT NULL,
+    resource_id CHAR(36),
+    details JSON,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_action (action),
+    INDEX idx_resource_type (resource_type),
+    INDEX idx_created_at (created_at)
 );
 ```
 
@@ -789,40 +828,39 @@ challenge:{wallet_address} -> {nonce, expires_at}
 file:{file_id} -> {metadata, access_list, version_info}
 ```
 
+**User Cache**
+```
+user:{wallet_address} -> {user_profile, public_key}
+```
+
 ---
 
 ## 🚀 Development Guidelines
 
-### Setup Instructions
+### Project Structure
 
-1. **Prerequisites**
-   - Java 17+
-   - Node.js 18+
-   - PostgreSQL 14+
-   - Redis 6+
-   - Docker & Docker Compose
-
-2. **Environment Setup**
-   ```bash
-   # Clone repository
-   git clone https://github.com/omvaultchain/platform.git
-   
-   # Start infrastructure
-   docker-compose up -d postgres redis
-   
-   # Setup environment variables
-   cp .env.example .env
-   ```
-
-3. **Service Startup Order**
-   1. auth-service
-   2. encryption-service
-   3. storage-service
-   4. blockchain-service
-   5. access-control-service
-   6. metadata-service
-   7. API Gateway
-   8. Frontend
+```
+om-vaultchain/
+├── services/
+│   ├── auth-service/
+│   ├── encryption-service/
+│   ├── storage-service/
+│   ├── blockchain-service/
+│   ├── access-control-service/
+│   └── metadata-service/
+├── gateway/
+│   └── api-gateway/
+├── frontend/
+│   ├── user-app/
+│   └── admin-app/
+├── contracts/
+│   ├── FileRegistry.sol
+│   ├── AccessControl.sol
+│   └── VersionManager.sol
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
 
 ### Development Standards
 
@@ -844,6 +882,16 @@ file:{file_id} -> {metadata, access_list, version_info}
 - System availability: 99.9%
 - Concurrent users: 10,000+
 
+### Technology Versions
+
+- **Java**: 17+
+- **Spring Boot**: 3.2+
+- **MySQL**: 8.0+
+- **Redis**: 7.0+
+- **Node.js**: 18+
+- **React**: 18+
+- **Solidity**: 0.8.19+
+
 ### Deployment Architecture
 
 ```
@@ -851,8 +899,8 @@ Production Environment:
 ├── Load Balancer (nginx)
 ├── API Gateway (2 instances)
 ├── Microservices (3 instances each)
-├── Database Cluster (PostgreSQL)
-├── Cache Cluster (Redis)
+├── Database Cluster (MySQL Master/Slave)
+├── Cache Cluster (Redis Sentinel)
 └── Monitoring (Prometheus + Grafana)
 ```
 
@@ -877,6 +925,45 @@ Production Environment:
 - Encrypted keys per user
 - Secure key rotation
 - GDPR compliance
+
+### Smart Contract Security
+- Multi-signature wallet integration
+- Upgradeable proxy pattern
+- Emergency pause functionality
+- Gas optimization strategies
+
+---
+
+## 📱 Mobile Support
+
+### Flutter Mobile App
+- Cross-platform iOS/Android support
+- Native wallet integration
+- Biometric authentication
+- Offline file management
+- Push notifications for access grants
+
+### Progressive Web App (PWA)
+- Mobile-optimized interface
+- Offline functionality
+- Push notifications
+- App-like experience
+
+---
+
+## 🌍 Scalability & Performance
+
+### Horizontal Scaling
+- Kubernetes deployment
+- Auto-scaling based on load
+- Database sharding strategies
+- CDN for static assets
+
+### Optimization Strategies
+- Database query optimization
+- Redis caching layers
+- IPFS gateway load balancing
+- Blockchain call batching
 
 ---
 
