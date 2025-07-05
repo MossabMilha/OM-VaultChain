@@ -89,7 +89,7 @@ OM VaultChain is a SaaS platform for encrypted file storage that leverages:
 
 **Workflow:**
 1. 📁 Local file selection
-2. 🔐 Client-side encryption (JavaScript or via microservice)
+2. 🔐 **Encryption:** Files are encrypted client-side (JavaScript) or securely via the encryption-service before upload to IPFS
 3. ⬆️ Upload to IPFS
 4. 👥 Choose users to grant access (via public address)
 5. 🔧 Call encryption-service + blockchain-service
@@ -128,8 +128,10 @@ OM VaultChain is a SaaS platform for encrypted file storage that leverages:
 
 **Features:**
 - 💳 Display wallet address
-- 🔑 (Optional) View public keys
+- 🔑 Public key management (optional registration)
 - 🗑️ Delete account or files
+
+> **📝 Note:** Users may optionally register their public key in the smart contract or backend for others to encrypt files for them.
 </details>
 
 ---
@@ -360,6 +362,7 @@ OM VaultChain is a SaaS platform for encrypted file storage that leverages:
 
 - Map wallet → user metadata (e.g., publicKey)
 - Add internal SaaS profile data
+- **Public Key Registration:** Users may optionally register their public key in the smart contract or backend for others to encrypt files for them
 - Storage: MongoDB, PostgreSQL, or Redis
 </details>
 
@@ -465,6 +468,8 @@ auth-service/
 3. Generate hash
 4. For each recipient, encrypt AES key
 5. Return all info needed for upload + blockchain
+
+> **🔄 AES Key Versioning:** New versions of a file may be encrypted with a new AES key for additional security.
 </details>
 
 <details>
@@ -668,6 +673,8 @@ auth-service/
 **Role:** Share file with multiple users simultaneously (group)
 
 **Benefits:** Simplifies enterprise SaaS management
+
+**Future Enhancement (v2):** Implement group policies like "Share with Team Marketing = 5 wallets"
 </details>
 
 #### 📋 Example Logic
@@ -720,6 +727,8 @@ auth-service/
 - v3 → CID: ghi789
 
 **Maintains:** consultable history for user
+
+> **🔄 AES Key Rotation:** When updating file versions, new AES keys may be generated for enhanced security.
 </details>
 
 <details>
@@ -773,6 +782,8 @@ auth-service/
 - **blockchain-service:** provides owner + file ID (fileId)
 - **access-control-service:** can display files accessible by user
 - **frontend:** lists user's files, metadata, history
+
+> **💾 Storage Architecture:** All human-readable metadata is stored off-chain in MongoDB/PostgreSQL. Critical hashes and permissions are stored on-chain for immutability.
 
 ---
 
