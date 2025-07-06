@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KeyEnvelopeBuilder {
+
     private final AsymmetricEncryptionService asymmetricEncryptionService;
+
     public KeyEnvelopeBuilder(AsymmetricEncryptionService asymmetricEncryptionService) {
         this.asymmetricEncryptionService = asymmetricEncryptionService;
     }
+
     public KeyEnvelope buildEnvelope(byte[] AES_Key, Map<String, PublicKey> recipientPublicKeys) throws Exception {
         Map<String, byte[]> encryptedKeys = new HashMap<>();
         for (Map.Entry<String, PublicKey> entry : recipientPublicKeys.entrySet()){
