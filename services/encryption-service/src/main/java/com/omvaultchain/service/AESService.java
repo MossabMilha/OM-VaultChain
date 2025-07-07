@@ -21,7 +21,6 @@ import java.util.Base64;
 
 
 public class AESService {
-    private SecretKey key;
     private final int KEY_SIZE = 256;
     private final int T_LEN = 128;
     private Cipher encryptionCipher;
@@ -33,16 +32,16 @@ public class AESService {
     {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(KEY_SIZE);
-        return key = generator.generateKey();
+        return generator.generateKey();
     }
 
     /**
      * Encrypt the data using AES-256-GCM.
      */
     public byte[] encrypt(byte[] data, SecretKey key, byte[] iv) throws Exception {
-
         encryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
-        encryptionCipher.init(Cipher.ENCRYPT_MODE,key);
+        GCMParameterSpec spec = new GCMParameterSpec(T_LEN, iv);
+        encryptionCipher.init(Cipher.ENCRYPT_MODE,key,spec);
         return encryptionCipher.doFinal(data);
     }
     /**
@@ -50,7 +49,7 @@ public class AESService {
      */
     public byte[] decrypt(byte[] encryptedData, SecretKey key, byte[] iv) throws Exception {
         Cipher decryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
-        GCMParameterSpec spec = new GCMParameterSpec(T_LEN,encryptionCipher.getIV());
+        GCMParameterSpec spec = new GCMParameterSpec(T_LEN,iv);
         decryptionCipher.init(Cipher.DECRYPT_MODE, key,spec);
         return decryptionCipher.doFinal(encryptedData);
     }

@@ -1,8 +1,13 @@
 package com.omvaultchain.service;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+
 /**
  * AsymmetricEncryptionService
  * This service handles RSA-based asymmetric encryption used to securely wrap and unwrap AES keys.
@@ -23,13 +28,31 @@ import java.security.PublicKey;
 
 public class AsymmetricEncryptionService {
 
-    public byte[] wrapAESKey(byte[] aesKey, PublicKey recipientPublicKey) throws Exception{
+    public  byte[] wrapAESKey(byte[] aesKey, PublicKey recipientPublicKey) throws Exception{
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
         cipher.init(Cipher.ENCRYPT_MODE,recipientPublicKey);
         return cipher.doFinal(aesKey);
     }
+    public byte[] wrapAESKey(SecretKey aesKey, PublicKey recipientPublicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, recipientPublicKey);
+        return cipher.doFinal(aesKey.getEncoded());
+    }
+    // 3. Accept SecretKey and String base64-encoded public key
+    public byte[] wrapAESKey(SecretKey aesKey, String base64RecipientPublicKey) throws Exception {
+        PublicKey publicKey = loadPublicKeyFromBase64(base64RecipientPublicKey);
+        return wrapAESKey(aesKey, publicKey);
+    }
 
-    public byte[] unwrapAESKey(byte[] wrappedKey, PrivateKey privateKey)throws Exception{
+
+    public PublicKey loadPublicKeyFromBase64(String base64) throws Exception {
+        byte[] decoded = Base64.getDecoder().decode(base64);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(keySpec);
+    }
+
+    public  byte[] unwrapAESKey(byte[] wrappedKey, PrivateKey privateKey)throws Exception{
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
         cipher.init(Cipher.DECRYPT_MODE,privateKey);
         return cipher.doFinal(wrappedKey);
