@@ -6,6 +6,12 @@ A comprehensive SaaS platform for encrypted file storage utilizing client-side e
 
 ---
 
+## 🌟 What is OM VaultChain?
+
+**OM VaultChain (OMVC)** is a decentralized application that allows users to securely upload, store, and share their digital files with full privacy and traceability. When a user selects a file to upload, the application first encrypts it directly on their device using strong client-side encryption (AES-256), ensuring that no one  not even the platform itself  can view the file's contents without permission. Once encrypted, the file is uploaded to the IPFS (InterPlanetary File System), a decentralized storage network where files are distributed across multiple nodes for durability and censorship resistance. This process generates a unique content identifier (CID), which acts as a permanent reference to the file in the IPFS network. To ensure transparency, traceability, and tamper-proof access, OMVC registers the CID along with a secure hash of the encrypted file on a public blockchain like Polygon. This creates a verifiable record that proves the file's existence and integrity without exposing its content. Access control is also managed through smart contracts, allowing users to grant or revoke permissions in a transparent and auditable way. With this approach, OMVC guarantees that data remains private, unchangeable, and always under the control of its rightful owner  without relying on centralized servers or traditional cloud storage providers.
+
+---
+
 ## 📋 Table of Contents
 
 - [🎯 Project Overview](#-project-overview)
@@ -68,7 +74,7 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 │                     API Gateway                             │
 │              Spring Cloud Gateway                           │
 └─────────────────────────────────────────────────────────────┘
-                              │
+                            │
 ┌─────────────────────────────────────────────────────────────┐
 │                   Backend Microservices                     │
 ├─────────────┬─────────────┬─────────────┬───────────────────┤
@@ -78,9 +84,9 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 │             │             │             │                   │
 ├─────────────┴─────────────┴─────────────┴───────────────────┤
 │access-control-service     │ metadata-service                │
-│                          │                                  │
+│                           │                                 │
 └─────────────────────────────────────────────────────────────┘
-                              │
+                            │
 ┌─────────────────────────────────────────────────────────────┐
 │                  External Services                          │
 ├─────────────────────┬─────────────────────┬─────────────────┤
