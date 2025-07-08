@@ -74,7 +74,7 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 │                     API Gateway                             │
 │              Spring Cloud Gateway                           │
 └─────────────────────────────────────────────────────────────┘
-                              │
+                            │
 ┌─────────────────────────────────────────────────────────────┐
 │                   Backend Microservices                     │
 ├─────────────┬─────────────┬─────────────┬───────────────────┤
@@ -84,9 +84,9 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 │             │             │             │                   │
 ├─────────────┴─────────────┴─────────────┴───────────────────┤
 │access-control-service     │ metadata-service                │
-│                          │                                  │
+│                           │                                 │
 └─────────────────────────────────────────────────────────────┘
-                              │
+                            │
 ┌─────────────────────────────────────────────────────────────┐
 │                  External Services                          │
 ├─────────────────────┬─────────────────────┬─────────────────┤
