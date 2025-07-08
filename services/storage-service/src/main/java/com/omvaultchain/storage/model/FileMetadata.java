@@ -7,6 +7,7 @@ public class FileMetadata {
     private String mimeType;
     private long size;
     private Instant uploadAt;
+    private String cid;
 
     public FileMetadata(){}
     public FileMetadata(String fileName,String mimeType,long size,Instant uploadAt){
@@ -20,9 +21,11 @@ public class FileMetadata {
     public String getMimeType() {return mimeType;}
     public long getSize() {return size;}
     public Instant getUploadAt() {return uploadAt;}
+    public String getCid() { return cid; }
 
     public void setFileName(String fileName){this.fileName = fileName;}
     public void setMimeType(String mimeType) {this.mimeType = mimeType;}
     public void setSize(long size) {this.size = size;}
     public void setUploadAt(Instant uploadAt){this.uploadAt = uploadAt;}
+    public void setCid(String cid) { this.cid = cid; }
 }
