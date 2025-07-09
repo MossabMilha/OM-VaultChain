@@ -1,5 +1,7 @@
 package com.omvaultchain.storage.service;
 
+import org.springframework.stereotype.Service;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +34,7 @@ import java.security.MessageDigest;
  * - This class is stateless and thread-safe.
  *
  */
+@Service
 public class FileHashService {
     public String computeSHA256(byte[] Data)throws Exception{
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

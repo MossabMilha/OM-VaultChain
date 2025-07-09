@@ -20,7 +20,7 @@ public class IPFSClientIntegrationTest {
     @Test
     public void testRealPinataUpload() throws Exception {
         // Create a test file
-        MockMultipartFile file = new MockMultipartFile("file", "test-file.txt", "text/plain", "Hello, IPFS!".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "test-file.txt", "text/plain", "Hello,Test In Video".getBytes());
 
         // Call the real Pinata API
         String cid = ipfsClient.UploadData(file);

@@ -14,12 +14,12 @@ public class BatchUploader {
 
     private final IPFSClient ipfsClient;
     private final MetadataExtractor metadataExtractor;
-    private final CIDVerifier cidVerifier;
 
-    public BatchUploader(IPFSClient ipfsClient, MetadataExtractor metadataExtractor, CIDVerifier cidVerifier) {
+
+    public BatchUploader(IPFSClient ipfsClient, MetadataExtractor metadataExtractor) {
         this.ipfsClient = ipfsClient;
         this.metadataExtractor = metadataExtractor;
-        this.cidVerifier = cidVerifier;
+
     }
     public List<FileMetadata> uploadBatch(List<MultipartFile> files){
         List<FileMetadata> fileMetadataList = new ArrayList<>();
@@ -27,7 +27,6 @@ public class BatchUploader {
             try {
                 FileMetadata metadata = metadataExtractor.extract(file);
                 String cid = ipfsClient.UploadData(file);
-                cidVerifier.verifyCID(file.getBytes(),cid);
                 metadata.setCid(cid);
                 fileMetadataList.add(metadata);
             }catch (Exception e){

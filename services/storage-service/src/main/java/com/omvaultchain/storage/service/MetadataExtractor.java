@@ -2,11 +2,12 @@ package com.omvaultchain.storage.service;
 
 import com.omvaultchain.storage.model.FileMetadata;
 import org.apache.tika.Tika;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.Instant;
-
+@Service
 public class MetadataExtractor {
     private final Tika tika = new Tika();
     public FileMetadata extract(MultipartFile file) throws Exception{
