@@ -23,6 +23,7 @@ public class FileStorageController {
     }
     @PostMapping("/upload")
     public ResponseEntity<List<FileMetadata>> uploadFiles(@RequestParam("files")List<MultipartFile> files){
+
         List<FileMetadata> uploadFiles = batchUploader.uploadBatch(files);
         return ResponseEntity.ok(uploadFiles);
     }

@@ -1,5 +1,7 @@
 package com.omvaultchain.service;
 
+import org.springframework.stereotype.Service;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +33,7 @@ import java.security.MessageDigest;
  * - This class is stateless and thread-safe.
  *
  */
+@Service
 public class FileHashService {
     public String computeSHA256(byte[] Data)throws Exception{
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -50,10 +53,12 @@ public class FileHashService {
         return bytesToHex(digest.digest());
     }
 
-    public String bytesToHex(byte[] hash){
+    public String bytesToHex(byte[] hash) {
         StringBuilder hex = new StringBuilder();
-        for(byte b : hash){
-            hex.append(String.format("%02x",b));
+        for (byte b : hash) {
+            int v = b & 0xFF; // unsigned conversion
+            if (v < 16) hex.append('0');
+            hex.append(Integer.toHexString(v));
         }
         return hex.toString();
     }

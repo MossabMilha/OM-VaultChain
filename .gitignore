@@ -1,0 +1,31 @@
+# IntelliJ IDEA project files
+.idea/
+*.iml
+out/
+
+# Maven build output
+target/
+
+# Maven wrapper files (optional)
+.mvn/wrapper/maven-wrapper.jar
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment files (if you use any)
+.env
+
+# Docker files you may want to ignore locally (optional)
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+
+# Others
+*.class

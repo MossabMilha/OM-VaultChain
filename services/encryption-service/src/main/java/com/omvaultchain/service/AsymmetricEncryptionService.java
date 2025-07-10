@@ -1,5 +1,7 @@
 package com.omvaultchain.service;
 
+import org.springframework.stereotype.Service;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.security.KeyFactory;
@@ -25,7 +27,7 @@ import java.util.Base64;
  * - This approach ensures that only the intended user can access the file's AES key
  *   and decrypt the file locally, preserving end-to-end confidentiality.
  */
-
+@Service
 public class AsymmetricEncryptionService {
 
     public  byte[] wrapAESKey(byte[] aesKey, PublicKey recipientPublicKey) throws Exception{

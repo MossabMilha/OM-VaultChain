@@ -16,12 +16,12 @@ class MetadataExtractorIntegrationTest {
     @Test
     void shouldExtractMetadataSuccessfully() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "document.pdf", "application/pdf", "Hello World".getBytes()
+                "files", "example.txt", "text/plain", "Test data 123".getBytes()
         );
 
         FileMetadata metadata = metadataExtractor.extract(file);
-        assertEquals("document.pdf", metadata.getFileName());
-        assertEquals("application/pdf", metadata.getMimeType());
+        assertEquals("example.txt", metadata.getFileName());
+        assertEquals("text/plain", metadata.getMimeType());
         assertEquals(file.getSize(), metadata.getSize());
     }
 }

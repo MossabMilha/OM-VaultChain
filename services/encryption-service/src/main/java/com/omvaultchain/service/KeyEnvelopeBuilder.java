@@ -1,11 +1,12 @@
 package com.omvaultchain.service;
 
 import com.omvaultchain.model.KeyEnvelope;
+import org.springframework.stereotype.Service;
 
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
-
+@Service
 public class KeyEnvelopeBuilder {
 
     private final AsymmetricEncryptionService asymmetricEncryptionService;

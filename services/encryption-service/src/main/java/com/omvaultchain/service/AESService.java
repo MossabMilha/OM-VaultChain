@@ -1,5 +1,7 @@
 package com.omvaultchain.service;
 
+import org.springframework.stereotype.Service;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -19,7 +21,7 @@ import java.util.Base64;
  * Key generation and IV management are handled by separate services.
  */
 
-
+@Service
 public class AESService {
     private final int KEY_SIZE = 256;
     private final int T_LEN = 128;

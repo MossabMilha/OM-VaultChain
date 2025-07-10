@@ -36,7 +36,7 @@ public class FileStorageIntegrationTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].filename").value("example.txt"))
+                .andExpect(jsonPath("$[0].fileName").value("example.txt"))
                 .andExpect(jsonPath("$[0].cid", not(emptyString())))
                 .andExpect(jsonPath("$[0].size", greaterThan(0)));
     }

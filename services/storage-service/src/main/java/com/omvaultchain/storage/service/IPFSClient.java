@@ -25,7 +25,8 @@ public class IPFSClient {
     @Value("${pinata.base-url}")
     String gatewayUrl;
 
-    private static final String PINATA_PINING_URL ="https://api.pinata.cloud/pinning/pinFileToIPFS";
+    @Value("${pinata.pinning-url:https://api.pinata.cloud/pinning/pinFileToIPFS}")
+    private String pinningUrl;
 
     private final RestTemplate restTemplate= new RestTemplate();
 
@@ -48,7 +49,7 @@ public class IPFSClient {
             };
             body.add("file",fileAsResource);
             HttpEntity<MultiValueMap<String,Object>> requestEntity = new HttpEntity<>(body,headers);
-            ResponseEntity<PinataUploadResponse> response = restTemplate.postForEntity(PINATA_PINING_URL, requestEntity, PinataUploadResponse.class);
+            ResponseEntity<PinataUploadResponse> response = restTemplate.postForEntity(pinningUrl, requestEntity, PinataUploadResponse.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 return response.getBody().getIpfsHash();

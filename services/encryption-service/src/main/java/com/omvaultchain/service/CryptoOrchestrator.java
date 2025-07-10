@@ -3,6 +3,7 @@ package com.omvaultchain.service;
 import com.omvaultchain.model.EncryptionResponse;
 import com.omvaultchain.model.KeyEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 
@@ -10,6 +11,7 @@ import java.security.PublicKey;
 
 import java.util.Map;
 
+@Service
 public class CryptoOrchestrator {
     @Autowired
     public AESService AES_Service;

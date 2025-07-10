@@ -1,5 +1,7 @@
 package com.omvaultchain.service;
 
+import org.springframework.stereotype.Service;
+
 import java.security.SecureRandom;
 /**
  * IVGenerator
@@ -22,7 +24,8 @@ import java.security.SecureRandom;
  * - IVs do not need to be secret, but **must never be reused** with the same key.
  * - SecureRandom ensures strong randomness suitable for cryptographic purposes.
  */
- public class IVGenerator {
+@Service
+public class IVGenerator {
     private static final int IV_SIZE = 12; // GCM recommended
 
     public static byte[] generateIV() {
