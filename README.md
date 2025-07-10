@@ -454,7 +454,52 @@ storage-service/
 ├── Dockerfile
 └── pom.xml
 ```
+**🔄 UploadStatusManager**
+```java
+@Service
+public class UploadStatusManager {
+    // Status transitions
+    // Error handling
+    // Retry logic
+    // Completion tracking
+}
+```
 
+**🗂️ UploadMetadataExtractor**
+```java
+@Component
+public class UploadMetadataExtractor {
+    // File metadata extraction
+    // MIME type detection
+    // Size calculation
+    // Checksum generation
+}
+```
+
+#### Project Structure:
+```
+upload-tracker-service/
+├── src/main/java/com/omvaultchain/tracker/
+│   ├── controller/UploadTrackerController.java
+│   ├── service/
+│   │   ├── UploadTrackerService.java
+│   │   ├── UploadQueryService.java
+│   │   ├── UploadValidator.java
+│   │   ├── UploadMetricsService.java
+│   │   ├── UploadStatusManager.java
+│   │   └── UploadMetadataExtractor.java
+│   ├── model/
+│   │   ├── UploadRecord.java
+│   │   ├── UploadRequest.java
+│   │   ├── UploadStatus.java
+│   │   └── UploadMetrics.java
+│   ├── repository/
+│   │   ├── UploadRecordRepository.java
+│   │   └── UploadMetricsRepository.java
+│   └── config/TrackerConfig.java
+├── Dockerfile
+└── pom.xml
+```
 ---
 
 ### ⛓️ blockchain-service
