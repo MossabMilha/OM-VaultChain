@@ -40,7 +40,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/api/encryption") //Base URL OF THIS CLASS => http://localhost:8080/api/encryption
+@RequestMapping("/encryption") //Base URL OF THIS CLASS => http://localhost:8080/encryption
 public class CryptoController {
     @Autowired
     private CryptoOrchestrator orchestrator;

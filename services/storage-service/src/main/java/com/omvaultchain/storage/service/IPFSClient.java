@@ -2,16 +2,19 @@ package com.omvaultchain.storage.service;
 import com.omvaultchain.storage.model.PinataUploadResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.io.InputStream;
+
 
 @Service
 public class IPFSClient {
@@ -30,44 +33,73 @@ public class IPFSClient {
 
     private final RestTemplate restTemplate= new RestTemplate();
 
+    private static final Logger logger = LoggerFactory.getLogger(IPFSClient.class);
+
+
     /*
     * This Methode Will Upload Data To Pinata And Return The CID
     */
-    public String UploadData(MultipartFile file) {
-        try{
+    public String uploadFile(File file) {
+        try (InputStream inputStream = new FileInputStream(file)) {
+            return uploadFile(inputStream, file.getName());
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading file " + file.getName(), e);
+        }
+    }
+    /**
+     * Upload using InputStream + fileName
+     */
+    public String uploadFile(InputStream inputStream, String fileName) {
+        try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set("pinata_api_key",ApiKey);
-            headers.set("pinata_secret_api_key",SecretApiKey);
+            headers.set("pinata_api_key", ApiKey);
+            headers.set("pinata_secret_api_key", SecretApiKey);
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-            MultiValueMap<String,Object> body = new LinkedMultiValueMap<>();
-            ByteArrayResource fileAsResource = new ByteArrayResource(file.getBytes()){
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+
+            ByteArrayResource resource = new ByteArrayResource(inputStream.readAllBytes()) {
                 @Override
-                public String getFilename(){
-                    return file.getOriginalFilename();
+                public String getFilename() {
+                    return fileName; // supply your file name here
                 }
             };
-            body.add("file",fileAsResource);
-            HttpEntity<MultiValueMap<String,Object>> requestEntity = new HttpEntity<>(body,headers);
-            ResponseEntity<PinataUploadResponse> response = restTemplate.postForEntity(pinningUrl, requestEntity, PinataUploadResponse.class);
+
+            body.add("file", resource);
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<PinataUploadResponse> response =
+                    restTemplate.postForEntity(pinningUrl, requestEntity, PinataUploadResponse.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 return response.getBody().getIpfsHash();
-            }else {
-                throw new RuntimeException("Failed To Upload To Pinata : " + response.getStatusCode());
+            } else {
+                throw new RuntimeException("Failed to upload to Pinata: " + response.getStatusCode());
             }
-
-        }catch (IOException e){
-            throw new RuntimeException("Error reading File ", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error uploading file to Pinata", e);
         }
     }
-    public byte[] DownLoadData(String cid){
+    /**
+     * Download a file from IPFS using CID
+     */
+    public byte[] DownloadData(String cid){
         String url = gatewayUrl + cid;
-        ResponseEntity<byte[]> response = restTemplate.getForEntity(url,byte[].class);
-        if (response.getStatusCode() == HttpStatus.OK){
-            return response.getBody();
-        }else{
-            throw new RuntimeException("Failed To Download From IPFS : " + response.getStatusCode());
+        logger.info("Downloading file from IPFS : {}",url);
+        try{
+            ResponseEntity<byte[]> response = restTemplate.getForEntity(url,byte[].class);
+            if (response.getStatusCode()== HttpStatus.OK){
+                logger.info("Successfully downloaded file with CID: {}", cid);
+                return response.getBody();
+            }else{
+                logger.error("Failed to download from IPFS: {}, StatusCode: {}", cid, response.getStatusCode());
+                throw new RuntimeException("Failed to download from IPFS : " + response.getStatusCode());
+            }
+        }catch (Exception e){
+            logger.error("Error while downloading from IPFS for CID {}: {}", cid, e.getMessage());
+            throw new RuntimeException("Download failed", e);
         }
     }
+
 }
