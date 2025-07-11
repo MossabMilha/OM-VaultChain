@@ -399,9 +399,53 @@ encryption-service/
 @Service
 public class IPFSClient {
     // Pinata/Web3.Storage integration
-    // File upload/download
-    // Pin management
-    // Gateway communication
+    // File upload/download operations
+    // Pin management and lifecycle
+    // Gateway communication and failover
+    // Multi-gateway support for redundancy
+    // Timeout handling and retry logic
+}
+```
+
+**⬆️ FileUploadService**
+```java
+@Service
+public class FileUploadService {
+    // Encrypted file upload orchestration
+    // Multi-part upload handling
+    // Progress tracking and callbacks
+    // Upload validation and verification
+    // Duplicate detection and deduplication
+    // Bandwidth optimization
+    // Error recovery and resume capability
+}
+```
+
+**⬇️ FileDownloadService**
+```java
+@Service
+public class FileDownloadService {
+    // Secure file retrieval from IPFS
+    // Access permission validation
+    // Content streaming and partial downloads
+    // Download resume capability
+    // Bandwidth throttling
+    // Download audit logging
+    // Cache management for frequently accessed files
+}
+```
+
+**🔄 FileStreamingService**
+```java
+@Service
+public class FileStreamingService {
+    // HTTP range request handling
+    // Chunked transfer encoding
+    // Streaming optimization for large files
+    // Memory-efficient data transfer
+    // Connection pooling
+    // Concurrent download management
+    // Stream compression/decompression
 }
 ```
 
@@ -409,9 +453,12 @@ public class IPFSClient {
 ```java
 @Service
 public class CIDVerifier {
-    // CID validation
-    // Hash verification
+    // CID format validation
+    // Hash verification against blockchain
     // Content integrity checks
+    // Multihash validation
+    // Version compatibility checking
+    // Corrupted file detection
 }
 ```
 
@@ -419,10 +466,13 @@ public class CIDVerifier {
 ```java
 @Service
 public class MetadataExtractor {
-    // File metadata extraction
-    // MIME type detection
-    // Size calculation
-    // Upload timestamp
+    // File metadata extraction (size, type, etc.)
+    // MIME type detection and validation
+    // File signature verification
+    // Encoding detection
+    // Timestamp capture
+    // Checksum generation
+    // Content analysis for security
 }
 ```
 
@@ -430,9 +480,81 @@ public class MetadataExtractor {
 ```java
 @Service
 public class BatchUploader {
-    // Multi-file upload
-    // Merkle root generation
-    // Batch processing
+    // Multi-file upload coordination
+    // Parallel upload processing
+    // Merkle root generation for batches
+    // Batch transaction optimization
+    // Progress aggregation
+    // Failure handling and partial retry
+    // Resource management
+}
+```
+
+**🗃️ FileAvailabilityChecker**
+```java
+@Service
+public class FileAvailabilityChecker {
+    // IPFS node availability monitoring
+    // File pinning status verification
+    // Gateway health checking
+    // Redundancy validation
+    // Automatic re-pinning on failure
+    // Performance metrics collection
+}
+```
+
+**🔄 DownloadManager**
+```java
+@Service
+public class DownloadManager {
+    // Download queue management
+    // Concurrent download limits
+    // Priority-based scheduling
+    // Download history tracking
+    // Bandwidth allocation
+    // User quota enforcement
+    // Download analytics
+}
+```
+
+**🎯 ContentDeliveryOptimizer**
+```java
+@Service
+public class ContentDeliveryOptimizer {
+    // Gateway selection optimization
+    // Geographic proximity routing
+    // Load balancing across gateways
+    // Performance monitoring
+    // Failover management
+    // Cache hit optimization
+    // Network latency reduction
+}
+```
+
+**📈 StorageMetricsCollector**
+```java
+@Service
+public class StorageMetricsCollector {
+    // Upload/download statistics
+    // Storage usage analytics
+    // Performance metrics
+    // Error rate monitoring
+    // User activity tracking
+    // Cost analysis
+    // Capacity planning data
+}
+```
+
+**🔒 AccessControlValidator**
+```java
+@Service
+public class AccessControlValidator {
+    // Download permission verification
+    // User authorization checking
+    // Access token validation
+    // Rate limiting enforcement
+    // Audit trail generation
+    // Suspicious activity detection
 }
 ```
 
@@ -440,28 +562,55 @@ public class BatchUploader {
 ```
 storage-service/
 ├── src/main/java/com/omvaultchain/storage/
-│   ├── controller/FileStorageController.java
+│   ├── controller/
+│   │   ├── FileStorageController.java
+│   │   ├── FileDownloadController.java
+│   │   ├── FileStreamingController.java
+│   │   └── StorageMetricsController.java
 │   ├── service/
 │   │   ├── IPFSClient.java
+│   │   ├── FileUploadService.java
+│   │   ├── FileDownloadService.java
+│   │   ├── FileStreamingService.java
 │   │   ├── CIDVerifier.java
 │   │   ├── MetadataExtractor.java
-│   │   └── BatchUploader.java
+│   │   ├── BatchUploader.java
+│   │   ├── FileAvailabilityChecker.java
+│   │   ├── DownloadManager.java
+│   │   ├── ContentDeliveryOptimizer.java
+│   │   ├── StorageMetricsCollector.java
+│   │   └── AccessControlValidator.java
 │   ├── model/
 │   │   ├── FileMetadata.java
 │   │   ├── UploadRequest.java
-│   │   └── UploadResponse.java
-│   └── config/StorageConfig.java
+│   │   ├── UploadResponse.java
+│   │   ├── DownloadRequest.java
+│   │   ├── DownloadResponse.java
+│   │   ├── StreamingRequest.java
+│   │   ├── StorageMetrics.java
+│   │   └── IPFSGatewayConfig.java
+│   ├── repository/
+│   │   ├── FileMetadataRepository.java
+│   │   ├── DownloadHistoryRepository.java
+│   │   └── StorageMetricsRepository.java
+│   └── config/
+│       ├── StorageConfig.java
+│       ├── IPFSConfig.java
+│       └── DownloadConfig.java
 ├── Dockerfile
 └── pom.xml
 ```
+
 **🔄 UploadStatusManager**
 ```java
 @Service
 public class UploadStatusManager {
-    // Status transitions
-    // Error handling
-    // Retry logic
-    // Completion tracking
+    // Upload progress tracking
+    // Status transitions (queued → processing → completed)
+    // Error handling and retry logic
+    // Completion notifications
+    // Status persistence
+    // Real-time status updates
 }
 ```
 
@@ -469,37 +618,15 @@ public class UploadStatusManager {
 ```java
 @Component
 public class UploadMetadataExtractor {
-    // File metadata extraction
+    // File metadata extraction during upload
     // MIME type detection
-    // Size calculation
+    // Size calculation and validation
     // Checksum generation
+    // Content analysis
+    // Security scanning
 }
 ```
 
-#### Project Structure:
-```
-upload-tracker-service/
-├── src/main/java/com/omvaultchain/tracker/
-│   ├── controller/UploadTrackerController.java
-│   ├── service/
-│   │   ├── UploadTrackerService.java
-│   │   ├── UploadQueryService.java
-│   │   ├── UploadValidator.java
-│   │   ├── UploadMetricsService.java
-│   │   ├── UploadStatusManager.java
-│   │   └── UploadMetadataExtractor.java
-│   ├── model/
-│   │   ├── UploadRecord.java
-│   │   ├── UploadRequest.java
-│   │   ├── UploadStatus.java
-│   │   └── UploadMetrics.java
-│   ├── repository/
-│   │   ├── UploadRecordRepository.java
-│   │   └── UploadMetricsRepository.java
-│   └── config/TrackerConfig.java
-├── Dockerfile
-└── pom.xml
-```
 ---
 
 ### ⛓️ blockchain-service
