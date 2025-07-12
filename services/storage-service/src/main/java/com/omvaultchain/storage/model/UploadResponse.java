@@ -1,8 +1,5 @@
 package com.omvaultchain.storage.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.Instant;
 
 
