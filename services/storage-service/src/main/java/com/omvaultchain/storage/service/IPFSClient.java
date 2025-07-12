@@ -9,12 +9,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.List;
 
 
 @Service
@@ -85,21 +85,25 @@ public class IPFSClient {
     /**
      * Download a file from IPFS using CID
      */
-    public byte[] DownloadData(String cid){
+    public File DownloadFile(String cid){
         String url = gatewayUrl + cid;
-        logger.info("Downloading file from IPFS : {}",url);
         try{
-            ResponseEntity<byte[]> response = restTemplate.getForEntity(url,byte[].class);
-            if (response.getStatusCode()== HttpStatus.OK){
-                logger.info("Successfully downloaded file with CID: {}", cid);
-                return response.getBody();
-            }else{
-                logger.error("Failed to download from IPFS: {}, StatusCode: {}", cid, response.getStatusCode());
-                throw new RuntimeException("Failed to download from IPFS : " + response.getStatusCode());
-            }
+            RequestCallback requestCallback = request -> request.getHeaders().setAccept(List.of(MediaType.APPLICATION_OCTET_STREAM));
+            ResponseExtractor<File> responseExtractor = response -> {
+                File tempFile = File.createTempFile("ipfs_" + cid, ".enc");
+                try (InputStream is = response.getBody();FileOutputStream fos = new FileOutputStream(tempFile)){
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = is.read(buffer)) != -1){
+                        fos.write(buffer,0,bytesRead);
+                    }
+                }
+                return tempFile;
+            };
+            return restTemplate.execute(url,HttpMethod.GET,requestCallback,responseExtractor);
+
         }catch (Exception e){
-            logger.error("Error while downloading from IPFS for CID {}: {}", cid, e.getMessage());
-            throw new RuntimeException("Download failed", e);
+            throw new RuntimeException("Failed to stream IPFS file", e);
         }
     }
 
