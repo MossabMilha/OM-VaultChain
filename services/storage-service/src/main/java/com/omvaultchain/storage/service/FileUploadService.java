@@ -1,7 +1,10 @@
 package com.omvaultchain.storage.service;
 
+import com.omvaultchain.storage.model.FileMetadata;
 import com.omvaultchain.storage.model.UploadRequest;
 import com.omvaultchain.storage.model.UploadResponse;
+import com.omvaultchain.storage.repository.FileMetadataRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -12,32 +15,37 @@ import java.util.Base64;
 import java.util.List;
 
 @Service
-
+@RequiredArgsConstructor
 public class FileUploadService {
 
     private final IPFSClient ipfsClient;
     private final CIDVerifier cidVerifier;
-
-    public FileUploadService(IPFSClient ipfsClient, CIDVerifier cidVerifier) {
-        this.ipfsClient = ipfsClient;
-        this.cidVerifier = cidVerifier;
-    }
+    private final FileMetadataRepository fileMetadataRepository;
+    private final MetadataExtractor metadataExtractor;
 
     public List<UploadResponse> uploadEncryptedFile(UploadRequest request){
-
+        // Step 1: Decode and write encrypted data to temp file
         byte[] encryptedData = Base64.getDecoder().decode(request.getEncryptedData());
         File tempFile = writeBytesToEncFile(encryptedData,request.getFileName());
+        // Step 2: Upload to IPFS
         String cid = ipfsClient.uploadFile(tempFile);
+        // Step 3: Verify CID
         cidVerifier.verifyCID(cid);
+        // Step 4: Save metadata to DB
+        FileMetadata metadata = metadataExtractor.extract(request);
+        metadata.setCid(cid);
+        fileMetadataRepository.save(metadata);
+
+        // Step 5: Build and return response
         UploadResponse response = new UploadResponse();
-        response.setFileName(request.getFileName());
-        response.setMimeType(request.getMimeType());
-        response.setSize(request.getSize());
-        response.setCid(cid);
-        response.setFileHash(request.getHashedData());
-        response.setOwnerWallet("0xE39544aEFf809062b10Ea7e33a7a392105108976");
-        response.setUploadAt(Instant.now());
-        response.setStatus("COMPLETED");
+        response.setFileName(metadata.getFileName());
+        response.setMimeType(metadata.getMimeType());
+        response.setSize(metadata.getSize());
+        response.setCid(metadata.getCid());
+        response.setFileHash(metadata.getFileHash());
+        response.setOwnerWallet(metadata.getOwnerWallet());
+        response.setUploadAt(metadata.getUploadAt());
+        response.setStatus(metadata.getStatus());
 
         return List.of(response);
 

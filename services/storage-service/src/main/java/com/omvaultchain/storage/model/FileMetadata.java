@@ -1,31 +1,28 @@
 package com.omvaultchain.storage.model;
 
-import java.time.Instant;
+import jakarta.persistence.*;
+import lombok.Data;
 
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Data
+@Table(name = "files")
 public class FileMetadata {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false)
     private String fileName;
     private String mimeType;
     private long size;
-    private Instant uploadAt;
     private String cid;
+    private String fileHash;
+    private String ownerWallet;
+    private Instant uploadAt;
+    private String status;// Currently We Have  : QUEUE,PROCESSING,COMPLETED,FAILED
 
-    public FileMetadata(){}
-    public FileMetadata(String fileName,String mimeType,long size,Instant uploadAt){
-        this.fileName = fileName;
-        this.mimeType = mimeType;
-        this.size = size;
-        this.uploadAt = uploadAt;
-    }
 
-    public String getFileName(){return this.fileName;}
-    public String getMimeType() {return mimeType;}
-    public long getSize() {return size;}
-    public Instant getUploadAt() {return uploadAt;}
-    public String getCid() { return cid; }
-
-    public void setFileName(String fileName){this.fileName = fileName;}
-    public void setMimeType(String mimeType) {this.mimeType = mimeType;}
-    public void setSize(long size) {this.size = size;}
-    public void setUploadAt(Instant uploadAt){this.uploadAt = uploadAt;}
-    public void setCid(String cid) { this.cid = cid; }
 }

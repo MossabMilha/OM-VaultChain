@@ -1,4 +1,6 @@
 package com.omvaultchain.storage.repository;
+import com.omvaultchain.storage.model.FileMetadata;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.UUID;
 
-public class FileMetadataRepository {
-}
+public interface FileMetadataRepository extends JpaRepository<FileMetadata, UUID> {}
