@@ -55,6 +55,10 @@ public class CryptoController {
             publicKeys.put(entry.getKey(), AE_Service.loadPublicKeyFromBase64(entry.getValue()));
         }
         EncryptionResponse response = orchestrator.encryptFile(request.getData(), publicKeys);
+        response.setFileName(request.getFileName());
+        response.setMimeType(request.getMimeType());
+        response.setSize(request.getData().length);
+
         return ResponseEntity.ok(response);
     }
 

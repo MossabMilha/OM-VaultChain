@@ -15,6 +15,7 @@ import java.util.List;
 @Service
 
 public class FileUploadService {
+
     private final IPFSClient ipfsClient;
     private final CIDVerifier cidVerifier;
 
@@ -35,7 +36,7 @@ public class FileUploadService {
         response.setSize(request.getSize());
         response.setCid(cid);
         response.setFileHash(request.getHashedData());
-        response.setOwnerWallet(request.getOwnerWallet());
+        response.setOwnerWallet("0xE39544aEFf809062b10Ea7e33a7a392105108976");
         response.setUploadAt(Instant.now());
         response.setStatus("COMPLETED");
 

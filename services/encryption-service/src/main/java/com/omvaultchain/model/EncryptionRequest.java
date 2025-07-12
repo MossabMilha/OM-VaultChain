@@ -27,6 +27,9 @@ import java.util.Map;
  */
 
 public class EncryptionRequest {
+
+    private String fileName;
+    private String mimeType;
     private byte[] Data;
     private Map<String,String> recipientPublicKeys;
 
@@ -36,9 +39,13 @@ public class EncryptionRequest {
         this.recipientPublicKeys = recipientPublicKeys;
     }
 
+    public String getFileName(){return this.fileName;}
+    public String getMimeType() {return mimeType;}
     public byte[] getData(){return this.Data;}
     public Map<String,String> getRecipientPublicKeys(){return this.recipientPublicKeys;}
 
+    public void setFileName(String fileName){this.fileName = fileName;}
+    public void getFileName(String mineType){this.mimeType = mimeType;}
     public void setData(byte[] Data){this.Data = Data;}
     public void setRecipientPublicKeys(Map<String,String> recipientPublicKeys){this.recipientPublicKeys = recipientPublicKeys;}
 

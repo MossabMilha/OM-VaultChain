@@ -30,28 +30,39 @@ import java.util.Map;
  * }
  */
 public class EncryptionResponse {
+    private String fileName;
+    private String mimeType;
     private String HashedData;
     private byte[] EncryptedData;
     private byte[] IV;
+    private long size;
     private Map<String, byte[]> EncryptedKeys;
 
     public EncryptionResponse() {}
 
-    public EncryptionResponse(String fileHash, byte[] encryptedFileData, byte[] iv, Map<String, byte[]> encryptedKeys) {
+    public EncryptionResponse(String fileHash, byte[] encryptedFileData, byte[] iv,Map<String, byte[]> encryptedKeys) {
         this.HashedData = fileHash;
         this.EncryptedData = encryptedFileData;
         this.IV = iv;
+        this.size = size;
         this.EncryptedKeys = encryptedKeys;
     }
+
+    public String getFileName(){return this.fileName;}
+    public String getMimeType(){return this.mimeType;}
     public String getHashedData(){return this.HashedData;}
     public byte[] getEncryptedData(){return this.EncryptedData;}
     public byte[] getIV(){return this.IV;}
+    public long getSize(){return this.size;}
     public Map<String,byte[]> getEncryptedKeys(){return this.EncryptedKeys;}
 
-    public void getHashedData(String HashedData){this.HashedData = HashedData;}
-    public void getEncryptedData(byte[] EncryptedData){this.EncryptedData = EncryptedData;}
-    public void getIV(byte[] IV){this.IV = IV;}
-    public void getEncryptedKeys(Map<String,byte[]> EncryptedKeys){this.EncryptedKeys = EncryptedKeys;}
+    public void setFileName(String fileName){this.fileName = fileName;}
+    public void setMimeType(String mimeType){this.mimeType = mimeType;}
+    public void setHashedData(String HashedData){this.HashedData = HashedData;}
+    public void setEncryptedData(byte[] EncryptedData){this.EncryptedData = EncryptedData;}
+    public void setIV(byte[] IV){this.IV = IV;}
+    public void setSize(long size){this.size = size;}
+    public void setEncryptedKeys(Map<String,byte[]> EncryptedKeys){this.EncryptedKeys = EncryptedKeys;}
 
 
 }
