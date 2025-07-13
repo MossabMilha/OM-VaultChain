@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,13 +66,23 @@ public class CryptoController {
 
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/decrypt")
     public ResponseEntity<byte[]> decrypt(@RequestBody DecryptionRequest request) throws Exception{
+        if (request.getEncryptedData() == null) throw new IllegalArgumentException("Missing encryptedData");
+        if (request.getEncryptedAESKey() == null) throw new IllegalArgumentException("Missing encryptedAesKey");
+        if (request.getPrivateKeyBase64() == null) throw new IllegalArgumentException("Missing privateKeyBase64");
+        if (request.getIv() == null) throw new IllegalArgumentException("Missing iv");
+        //Decode Base64
+        byte[] encryptedData = Base64.getDecoder().decode(request.getEncryptedData());
+        byte[] encryptedAesKey = Base64.getDecoder().decode(request.getEncryptedAESKey());
+        byte[] iv = Base64.getDecoder().decode(request.getIv());
         //Load Private Key from Base 64
         PrivateKey privateKey = AE_Service.loadPrivateKeyFromBase64(request.getPrivateKeyBase64());
         //Decrypt AES Key using AES
-        SecretKey aesKey = AE_Service.unwrapAESKey(request.getEncryptedAESKey(),privateKey);
-        byte[] originData = orchestrator.decryptFile(request.getEncryptedData(),aesKey,request.getIv());
+        SecretKey aesKey = AE_Service.unwrapAESKey(encryptedAesKey,privateKey);
+
+        byte[] originData = orchestrator.decryptFile(encryptedData,aesKey,iv);
         return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"decrypted_file\"").body(originData);
     }
 

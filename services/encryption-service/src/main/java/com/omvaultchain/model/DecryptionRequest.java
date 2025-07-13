@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class DecryptionRequest {
-    private byte[] encryptedData;
-    private byte[] encryptedAESKey;
+    private String encryptedData;
+    private String encryptedAESKey;
     private String privateKeyBase64;
-    private byte[] iv;
+    private String iv;
 }
