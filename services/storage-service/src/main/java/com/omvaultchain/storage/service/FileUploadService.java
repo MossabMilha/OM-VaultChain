@@ -52,8 +52,8 @@ public class FileUploadService {
     }
     private File writeBytesToEncFile(byte[] data,String originalFileName){
         try{
-          String fileName = originalFileName+".enc";
-          File tempFile = File.createTempFile(fileName,null);
+          String fileName = originalFileName.endsWith(".enc") ? originalFileName : originalFileName + ".enc";
+          File tempFile = new File(System.getProperty("java.io.tmpdir"), fileName);
           try (FileOutputStream fos = new FileOutputStream(tempFile)){
               fos.write(data);
           }

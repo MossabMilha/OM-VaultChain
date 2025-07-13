@@ -1,8 +1,10 @@
 
 package com.omvaultchain.controller;
 
+import com.omvaultchain.model.DecryptionRequest;
 import com.omvaultchain.model.EncryptionRequest;
 import com.omvaultchain.model.EncryptionResponse;
+import com.omvaultchain.service.AESService;
 import com.omvaultchain.service.AsymmetricEncryptionService;
 import com.omvaultchain.service.CryptoOrchestrator;
 import org.apache.coyote.Response;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.crypto.SecretKey;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +64,15 @@ public class CryptoController {
         response.setSize(request.getData().length);
 
         return ResponseEntity.ok(response);
+    }
+    @PostMapping("/decrypt")
+    public ResponseEntity<byte[]> decrypt(@RequestBody DecryptionRequest request) throws Exception{
+        //Load Private Key from Base 64
+        PrivateKey privateKey = AE_Service.loadPrivateKeyFromBase64(request.getPrivateKeyBase64());
+        //Decrypt AES Key using AES
+        SecretKey aesKey = AE_Service.unwrapAESKey(request.getEncryptedAESKey(),privateKey);
+        byte[] originData = orchestrator.decryptFile(request.getEncryptedData(),aesKey,request.getIv());
+        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"decrypted_file\"").body(originData);
     }
 
 }

@@ -47,5 +47,8 @@ public class CryptoOrchestrator {
         return new EncryptionResponse(DataHash,encryptedData, IV, keyEnvelope.getEncryptedKeys());
 
     }
+    public byte[] decryptFile(byte[] encryptedData,SecretKey aesKey,byte[] iv)throws Exception{
+        return  AES_Service.decrypt(encryptedData,aesKey,iv);
+    }
 
 }

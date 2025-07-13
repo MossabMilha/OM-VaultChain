@@ -33,7 +33,16 @@ public class FileDownloadService {
                 output.write(buffer,0,length);
             }
         }
+    }
+    public byte[] downloadEncryptedFileAsBytes(String cid, String walletAddress)throws IOException{
+        if (!accessControlValidator.hasAccess(cid, walletAddress)) {
+            throw new SecurityException("Access denied for wallet: " + walletAddress);
+        }
+        // 2. Fetch encrypted file from IPFS
+        File encryptedFile = ipfsClient.DownloadFile(cid);
 
+        // 3. Read the file and return raw bytes
+        return java.nio.file.Files.readAllBytes(encryptedFile.toPath());
 
     }
 }

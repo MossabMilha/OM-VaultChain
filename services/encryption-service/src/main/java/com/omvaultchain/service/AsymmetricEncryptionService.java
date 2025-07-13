@@ -4,9 +4,11 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
@@ -53,11 +55,21 @@ public class AsymmetricEncryptionService {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return keyFactory.generatePublic(keySpec);
     }
+    public PrivateKey loadPrivateKeyFromBase64(String base64)throws Exception{
+        byte[] decode = Base64.getDecoder().decode(base64);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decode);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
+    }
 
-    public  byte[] unwrapAESKey(byte[] wrappedKey, PrivateKey privateKey)throws Exception{
+
+    public SecretKey unwrapAESKey(byte[] wrappedKey, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-        cipher.init(Cipher.DECRYPT_MODE,privateKey);
-        return cipher.doFinal(wrappedKey);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
+        byte[] unwrappedKeyBytes = cipher.doFinal(wrappedKey);
+
+        // Create AES key from the decrypted bytes
+        return new SecretKeySpec(unwrappedKeyBytes, 0, unwrappedKeyBytes.length, "AES");
     }
 }
