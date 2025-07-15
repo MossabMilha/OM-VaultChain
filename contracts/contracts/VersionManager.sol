@@ -16,7 +16,12 @@ contract VersionManager {
         versions[fileId].push(Version(cid, newVersion, block.timestamp));
         emit VersionAdded(fileId, cid, newVersion, block.timestamp);
     }
-    function getVersionHistory(string memory fileId) public view returns(Version[] memory) {
-        return versions[fileId];
+    function getVersionCount(string memory fileId) public view returns (uint256) {
+        return versions[fileId].length;
+    }
+
+    function getVersionAt(string memory fileId, uint256 index) public view returns (string memory, uint256, uint256) {
+        Version memory v = versions[fileId][index];
+        return (v.cid, v.version, v.timestamp);
     }
 }

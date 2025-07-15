@@ -1,17 +1,16 @@
 package com.omvaultchain.blockchain.contracts;
 
 import io.reactivex.Flowable;
+import io.reactivex.functions.Function;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.web3j.abi.EventEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Event;
-import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
@@ -24,7 +23,6 @@ import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.BaseEventResponse;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.tuples.generated.Tuple4;
 import org.web3j.tx.Contract;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
@@ -34,15 +32,13 @@ import org.web3j.tx.gas.ContractGasProvider;
  * <p><strong>Do not modify!</strong>
  * <p>Please use the <a href="https://docs.web3j.io/command_line.html">web3j command line tools</a>,
  * or the org.web3j.codegen.SolidityFunctionWrapperGenerator in the 
- * <a href="https://github.com/LFDT-web3j/web3j/tree/main/codegen">codegen module</a> to update.
+ * <a href="https://github.com/web3j/web3j/tree/master/codegen">codegen module</a> to update.
  *
- * <p>Generated with web3j version 1.7.0.
+ * <p>Generated with web3j version 4.5.2.
  */
 @SuppressWarnings("rawtypes")
 public class FileRegistry extends Contract {
-    public static final String BINARY = "0x6080604052348015600f57600080fd5b50610b888061001f6000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063e0876aa81461003b578063ed7917241461006e575b600080fd5b6100556004803603810190610050919061055c565b61008a565b604051610065949392919061067e565b60405180910390f35b610088600480360381019061008391906106d1565b610264565b005b606080600080600080866040516100a19190610785565b90815260200160405180910390206040518060800160405290816000820180546100ca906107cb565b80601f01602080910402602001604051908101604052809291908181526020018280546100f6906107cb565b80156101435780601f1061011857610100808354040283529160200191610143565b820191906000526020600020905b81548152906001019060200180831161012657829003601f168201915b5050505050815260200160018201805461015c906107cb565b80601f0160208091040260200160405190810160405280929190818152602001828054610188906107cb565b80156101d55780601f106101aa576101008083540402835291602001916101d5565b820191906000526020600020905b8154815290600101906020018083116101b857829003601f168201915b505050505081526020016002820160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001600382015481525050905080600001518160200151826040015183606001519450945094509450509193509193565b60008251116102a8576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161029f90610848565b60405180910390fd5b60008151116102ec576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102e3906108b4565b60405180910390fd5b60405180608001604052808381526020018281526020013373ffffffffffffffffffffffffffffffffffffffff168152602001428152506000836040516103339190610785565b908152602001604051809103902060008201518160000190816103569190610a80565b50602082015181600101908161036c9190610a80565b5060408201518160020160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550606082015181600301559050507f74b9e971bf0eb1e5ee312ca8bc28858c06a1a84681cbb90f76cefdb20d77e6ca828233426040516103f6949392919061067e565b60405180910390a15050565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b61046982610420565b810181811067ffffffffffffffff8211171561048857610487610431565b5b80604052505050565b600061049b610402565b90506104a78282610460565b919050565b600067ffffffffffffffff8211156104c7576104c6610431565b5b6104d082610420565b9050602081019050919050565b82818337600083830152505050565b60006104ff6104fa846104ac565b610491565b90508281526020810184848401111561051b5761051a61041b565b5b6105268482856104dd565b509392505050565b600082601f83011261054357610542610416565b5b81356105538482602086016104ec565b91505092915050565b6000602082840312156105725761057161040c565b5b600082013567ffffffffffffffff8111156105905761058f610411565b5b61059c8482850161052e565b91505092915050565b600081519050919050565b600082825260208201905092915050565b60005b838110156105df5780820151818401526020810190506105c4565b60008484015250505050565b60006105f6826105a5565b61060081856105b0565b93506106108185602086016105c1565b61061981610420565b840191505092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061064f82610624565b9050919050565b61065f81610644565b82525050565b6000819050919050565b61067881610665565b82525050565b6000608082019050818103600083015261069881876105eb565b905081810360208301526106ac81866105eb565b90506106bb6040830185610656565b6106c8606083018461066f565b95945050505050565b600080604083850312156106e8576106e761040c565b5b600083013567ffffffffffffffff81111561070657610705610411565b5b6107128582860161052e565b925050602083013567ffffffffffffffff81111561073357610732610411565b5b61073f8582860161052e565b9150509250929050565b600081905092915050565b600061075f826105a5565b6107698185610749565b93506107798185602086016105c1565b80840191505092915050565b60006107918284610754565b915081905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b600060028204905060018216806107e357607f821691505b6020821081036107f6576107f561079c565b5b50919050565b7f4349442052657175697265640000000000000000000000000000000000000000600082015250565b6000610832600c836105b0565b915061083d826107fc565b602082019050919050565b6000602082019050818103600083015261086181610825565b9050919050565b7f46696c6520486173682052657175697265640000000000000000000000000000600082015250565b600061089e6012836105b0565b91506108a982610868565b602082019050919050565b600060208201905081810360008301526108cd81610891565b9050919050565b60008190508160005260206000209050919050565b60006020601f8301049050919050565b600082821b905092915050565b6000600883026109367fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff826108f9565b61094086836108f9565b95508019841693508086168417925050509392505050565b6000819050919050565b600061097d61097861097384610665565b610958565b610665565b9050919050565b6000819050919050565b61099783610962565b6109ab6109a382610984565b848454610906565b825550505050565b600090565b6109c06109b3565b6109cb81848461098e565b505050565b5b818110156109ef576109e46000826109b8565b6001810190506109d1565b5050565b601f821115610a3457610a05816108d4565b610a0e846108e9565b81016020851015610a1d578190505b610a31610a29856108e9565b8301826109d0565b50505b505050565b600082821c905092915050565b6000610a5760001984600802610a39565b1980831691505092915050565b6000610a708383610a46565b9150826002028217905092915050565b610a89826105a5565b67ffffffffffffffff811115610aa257610aa1610431565b5b610aac82546107cb565b610ab78282856109f3565b600060209050601f831160018114610aea5760008415610ad8578287015190505b610ae28582610a64565b865550610b4a565b601f198416610af8866108d4565b60005b82811015610b2057848901518255600182019150602085019450602081019050610afb565b86831015610b3d5784890151610b39601f891682610a46565b8355505b6001600288020188555050505b50505050505056fea2646970667358221220c14a4363260c9648afa6204f3514067e6dcfc40b4365024c0ad8e84db295381b64736f6c634300081c0033";
-
-    private static String librariesLinkedBinary;
+    private static final String BINARY = "0x6080604052348015600f57600080fd5b50610b888061001f6000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063e0876aa81461003b578063ed7917241461006e575b600080fd5b6100556004803603810190610050919061055c565b61008a565b604051610065949392919061067e565b60405180910390f35b610088600480360381019061008391906106d1565b610264565b005b606080600080600080866040516100a19190610785565b90815260200160405180910390206040518060800160405290816000820180546100ca906107cb565b80601f01602080910402602001604051908101604052809291908181526020018280546100f6906107cb565b80156101435780601f1061011857610100808354040283529160200191610143565b820191906000526020600020905b81548152906001019060200180831161012657829003601f168201915b5050505050815260200160018201805461015c906107cb565b80601f0160208091040260200160405190810160405280929190818152602001828054610188906107cb565b80156101d55780601f106101aa576101008083540402835291602001916101d5565b820191906000526020600020905b8154815290600101906020018083116101b857829003601f168201915b505050505081526020016002820160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001600382015481525050905080600001518160200151826040015183606001519450945094509450509193509193565b60008251116102a8576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161029f90610848565b60405180910390fd5b60008151116102ec576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102e3906108b4565b60405180910390fd5b60405180608001604052808381526020018281526020013373ffffffffffffffffffffffffffffffffffffffff168152602001428152506000836040516103339190610785565b908152602001604051809103902060008201518160000190816103569190610a80565b50602082015181600101908161036c9190610a80565b5060408201518160020160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550606082015181600301559050507f74b9e971bf0eb1e5ee312ca8bc28858c06a1a84681cbb90f76cefdb20d77e6ca828233426040516103f6949392919061067e565b60405180910390a15050565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b61046982610420565b810181811067ffffffffffffffff8211171561048857610487610431565b5b80604052505050565b600061049b610402565b90506104a78282610460565b919050565b600067ffffffffffffffff8211156104c7576104c6610431565b5b6104d082610420565b9050602081019050919050565b82818337600083830152505050565b60006104ff6104fa846104ac565b610491565b90508281526020810184848401111561051b5761051a61041b565b5b6105268482856104dd565b509392505050565b600082601f83011261054357610542610416565b5b81356105538482602086016104ec565b91505092915050565b6000602082840312156105725761057161040c565b5b600082013567ffffffffffffffff8111156105905761058f610411565b5b61059c8482850161052e565b91505092915050565b600081519050919050565b600082825260208201905092915050565b60005b838110156105df5780820151818401526020810190506105c4565b60008484015250505050565b60006105f6826105a5565b61060081856105b0565b93506106108185602086016105c1565b61061981610420565b840191505092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061064f82610624565b9050919050565b61065f81610644565b82525050565b6000819050919050565b61067881610665565b82525050565b6000608082019050818103600083015261069881876105eb565b905081810360208301526106ac81866105eb565b90506106bb6040830185610656565b6106c8606083018461066f565b95945050505050565b600080604083850312156106e8576106e761040c565b5b600083013567ffffffffffffffff81111561070657610705610411565b5b6107128582860161052e565b925050602083013567ffffffffffffffff81111561073357610732610411565b5b61073f8582860161052e565b9150509250929050565b600081905092915050565b600061075f826105a5565b6107698185610749565b93506107798185602086016105c1565b80840191505092915050565b60006107918284610754565b915081905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b600060028204905060018216806107e357607f821691505b6020821081036107f6576107f561079c565b5b50919050565b7f4349442052657175697265640000000000000000000000000000000000000000600082015250565b6000610832600c836105b0565b915061083d826107fc565b602082019050919050565b6000602082019050818103600083015261086181610825565b9050919050565b7f46696c6520486173682052657175697265640000000000000000000000000000600082015250565b600061089e6012836105b0565b91506108a982610868565b602082019050919050565b600060208201905081810360008301526108cd81610891565b9050919050565b60008190508160005260206000209050919050565b60006020601f8301049050919050565b600082821b905092915050565b6000600883026109367fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff826108f9565b61094086836108f9565b95508019841693508086168417925050509392505050565b6000819050919050565b600061097d61097861097384610665565b610958565b610665565b9050919050565b6000819050919050565b61099783610962565b6109ab6109a382610984565b848454610906565b825550505050565b600090565b6109c06109b3565b6109cb81848461098e565b505050565b5b818110156109ef576109e46000826109b8565b6001810190506109d1565b5050565b601f821115610a3457610a05816108d4565b610a0e846108e9565b81016020851015610a1d578190505b610a31610a29856108e9565b8301826109d0565b50505b505050565b600082821c905092915050565b6000610a5760001984600802610a39565b1980831691505092915050565b6000610a708383610a46565b9150826002028217905092915050565b610a89826105a5565b67ffffffffffffffff811115610aa257610aa1610431565b5b610aac82546107cb565b610ab78282856109f3565b600060209050601f831160018114610aea5760008415610ad8578287015190505b610ae28582610a64565b865550610b4a565b601f198416610af8866108d4565b60005b82811015610b2057848901518255600182019150602085019450602081019050610afb565b86831015610b3d5784890151610b39601f891682610a46565b8355505b6001600288020188555050505b50505050505056fea2646970667358221220c14a4363260c9648afa6204f3514067e6dcfc40b4365024c0ad8e84db295381b64736f6c634300081c0033";
 
     public static final String FUNC_GETFILE = "getFile";
 
@@ -53,30 +49,25 @@ public class FileRegistry extends Contract {
     ;
 
     @Deprecated
-    protected FileRegistry(String contractAddress, Web3j web3j, Credentials credentials,
-            BigInteger gasPrice, BigInteger gasLimit) {
+    protected FileRegistry(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
         super(BINARY, contractAddress, web3j, credentials, gasPrice, gasLimit);
     }
 
-    protected FileRegistry(String contractAddress, Web3j web3j, Credentials credentials,
-            ContractGasProvider contractGasProvider) {
+    protected FileRegistry(String contractAddress, Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
         super(BINARY, contractAddress, web3j, credentials, contractGasProvider);
     }
 
     @Deprecated
-    protected FileRegistry(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+    protected FileRegistry(String contractAddress, Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
         super(BINARY, contractAddress, web3j, transactionManager, gasPrice, gasLimit);
     }
 
-    protected FileRegistry(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+    protected FileRegistry(String contractAddress, Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
-    public static List<FileRegisteredEventResponse> getFileRegisteredEvents(
-            TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(FILEREGISTERED_EVENT, transactionReceipt);
+    public List<FileRegisteredEventResponse> getFileRegisteredEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = extractEventParametersWithLog(FILEREGISTERED_EVENT, transactionReceipt);
         ArrayList<FileRegisteredEventResponse> responses = new ArrayList<FileRegisteredEventResponse>(valueList.size());
         for (Contract.EventValuesWithLog eventValues : valueList) {
             FileRegisteredEventResponse typedResponse = new FileRegisteredEventResponse();
@@ -90,48 +81,38 @@ public class FileRegistry extends Contract {
         return responses;
     }
 
-    public static FileRegisteredEventResponse getFileRegisteredEventFromLog(Log log) {
-        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(FILEREGISTERED_EVENT, log);
-        FileRegisteredEventResponse typedResponse = new FileRegisteredEventResponse();
-        typedResponse.log = log;
-        typedResponse.cid = (String) eventValues.getNonIndexedValues().get(0).getValue();
-        typedResponse.fileHash = (String) eventValues.getNonIndexedValues().get(1).getValue();
-        typedResponse.owner = (String) eventValues.getNonIndexedValues().get(2).getValue();
-        typedResponse.timestamp = (BigInteger) eventValues.getNonIndexedValues().get(3).getValue();
-        return typedResponse;
-    }
-
     public Flowable<FileRegisteredEventResponse> fileRegisteredEventFlowable(EthFilter filter) {
-        return web3j.ethLogFlowable(filter).map(log -> getFileRegisteredEventFromLog(log));
+        return web3j.ethLogFlowable(filter).map(new Function<Log, FileRegisteredEventResponse>() {
+            @Override
+            public FileRegisteredEventResponse apply(Log log) {
+                Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(FILEREGISTERED_EVENT, log);
+                FileRegisteredEventResponse typedResponse = new FileRegisteredEventResponse();
+                typedResponse.log = log;
+                typedResponse.cid = (String) eventValues.getNonIndexedValues().get(0).getValue();
+                typedResponse.fileHash = (String) eventValues.getNonIndexedValues().get(1).getValue();
+                typedResponse.owner = (String) eventValues.getNonIndexedValues().get(2).getValue();
+                typedResponse.timestamp = (BigInteger) eventValues.getNonIndexedValues().get(3).getValue();
+                return typedResponse;
+            }
+        });
     }
 
-    public Flowable<FileRegisteredEventResponse> fileRegisteredEventFlowable(
-            DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+    public Flowable<FileRegisteredEventResponse> fileRegisteredEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
         filter.addSingleTopic(EventEncoder.encode(FILEREGISTERED_EVENT));
         return fileRegisteredEventFlowable(filter);
     }
 
-    public RemoteFunctionCall<Tuple4<String, String, String, BigInteger>> getFile(String cid) {
-        final Function function = new Function(FUNC_GETFILE, 
+    public RemoteFunctionCall<TransactionReceipt> getFile(String cid) {
+        final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
+                FUNC_GETFILE, 
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid)), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Utf8String>() {}, new TypeReference<Address>() {}, new TypeReference<Uint256>() {}));
-        return new RemoteFunctionCall<Tuple4<String, String, String, BigInteger>>(function,
-                new Callable<Tuple4<String, String, String, BigInteger>>() {
-                    @Override
-                    public Tuple4<String, String, String, BigInteger> call() throws Exception {
-                        List<Type> results = executeCallMultipleValueReturn(function);
-                        return new Tuple4<String, String, String, BigInteger>(
-                                (String) results.get(0).getValue(), 
-                                (String) results.get(1).getValue(), 
-                                (String) results.get(2).getValue(), 
-                                (BigInteger) results.get(3).getValue());
-                    }
-                });
+                Collections.<TypeReference<?>>emptyList());
+        return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<TransactionReceipt> registerFile(String cid, String fileHash) {
-        final Function function = new Function(
+        final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
                 FUNC_REGISTERFILE, 
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid), 
                 new org.web3j.abi.datatypes.Utf8String(fileHash)), 
@@ -140,59 +121,39 @@ public class FileRegistry extends Contract {
     }
 
     @Deprecated
-    public static FileRegistry load(String contractAddress, Web3j web3j, Credentials credentials,
-            BigInteger gasPrice, BigInteger gasLimit) {
+    public static FileRegistry load(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
         return new FileRegistry(contractAddress, web3j, credentials, gasPrice, gasLimit);
     }
 
     @Deprecated
-    public static FileRegistry load(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+    public static FileRegistry load(String contractAddress, Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
         return new FileRegistry(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
     }
 
-    public static FileRegistry load(String contractAddress, Web3j web3j, Credentials credentials,
-            ContractGasProvider contractGasProvider) {
+    public static FileRegistry load(String contractAddress, Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
         return new FileRegistry(contractAddress, web3j, credentials, contractGasProvider);
     }
 
-    public static FileRegistry load(String contractAddress, Web3j web3j,
-            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+    public static FileRegistry load(String contractAddress, Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
         return new FileRegistry(contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
-    public static RemoteCall<FileRegistry> deploy(Web3j web3j, Credentials credentials,
-            ContractGasProvider contractGasProvider) {
-        return deployRemoteCall(FileRegistry.class, web3j, credentials, contractGasProvider, getDeploymentBinary(), "");
+    public static RemoteCall<FileRegistry> deploy(Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
+        return deployRemoteCall(FileRegistry.class, web3j, credentials, contractGasProvider, BINARY, "");
     }
 
     @Deprecated
-    public static RemoteCall<FileRegistry> deploy(Web3j web3j, Credentials credentials,
-            BigInteger gasPrice, BigInteger gasLimit) {
-        return deployRemoteCall(FileRegistry.class, web3j, credentials, gasPrice, gasLimit, getDeploymentBinary(), "");
+    public static RemoteCall<FileRegistry> deploy(Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
+        return deployRemoteCall(FileRegistry.class, web3j, credentials, gasPrice, gasLimit, BINARY, "");
     }
 
-    public static RemoteCall<FileRegistry> deploy(Web3j web3j,
-            TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
-        return deployRemoteCall(FileRegistry.class, web3j, transactionManager, contractGasProvider, getDeploymentBinary(), "");
+    public static RemoteCall<FileRegistry> deploy(Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+        return deployRemoteCall(FileRegistry.class, web3j, transactionManager, contractGasProvider, BINARY, "");
     }
 
     @Deprecated
-    public static RemoteCall<FileRegistry> deploy(Web3j web3j,
-            TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
-        return deployRemoteCall(FileRegistry.class, web3j, transactionManager, gasPrice, gasLimit, getDeploymentBinary(), "");
-    }
-
-    public static void linkLibraries(List<Contract.LinkReference> references) {
-        librariesLinkedBinary = linkBinaryWithReferences(BINARY, references);
-    }
-
-    private static String getDeploymentBinary() {
-        if (librariesLinkedBinary != null) {
-            return librariesLinkedBinary;
-        } else {
-            return BINARY;
-        }
+    public static RemoteCall<FileRegistry> deploy(Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+        return deployRemoteCall(FileRegistry.class, web3j, transactionManager, gasPrice, gasLimit, BINARY, "");
     }
 
     public static class FileRegisteredEventResponse extends BaseEventResponse {

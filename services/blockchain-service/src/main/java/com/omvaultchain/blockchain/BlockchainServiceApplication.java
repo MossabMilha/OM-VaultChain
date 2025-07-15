@@ -1,4 +1,4 @@
-package com.omvaultchain.blockchain_service;
+package com.omvaultchain.blockchain;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

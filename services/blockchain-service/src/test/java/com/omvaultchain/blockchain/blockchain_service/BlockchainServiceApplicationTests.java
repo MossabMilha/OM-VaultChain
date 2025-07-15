@@ -1,4 +1,4 @@
-package com.omvaultchain.blockchain_service;
+package com.omvaultchain.blockchain.blockchain_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
