@@ -66,9 +66,9 @@ class EncryptionServiceApplicationTests {
 		KeyPair keyPair = keyGen.generateKeyPair();
 
 		byte[] wrappedKey = asymmetricEncryptionService.wrapAESKey(aesKey, keyPair.getPublic());
-		byte[] unwrappedKey = asymmetricEncryptionService.unwrapAESKey(wrappedKey, keyPair.getPrivate());
+		SecretKey unwrappedKey = asymmetricEncryptionService.unwrapAESKey(wrappedKey, keyPair.getPrivate());
 
-		assertArrayEquals(aesKey.getEncoded(), unwrappedKey);
+		assertArrayEquals(aesKey.getEncoded(), unwrappedKey.getEncoded());
 	}
 
 	@Test
