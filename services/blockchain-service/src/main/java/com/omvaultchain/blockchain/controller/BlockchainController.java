@@ -2,6 +2,8 @@ package com.omvaultchain.blockchain.controller;
 
 import com.omvaultchain.blockchain.contracts.FileRegistry;
 import com.omvaultchain.blockchain.controller.dto.FileRegisterRequest;
+import com.omvaultchain.blockchain.controller.dto.GrantAccessRequest;
+import com.omvaultchain.blockchain.service.AccessRightsService;
 import com.omvaultchain.blockchain.service.FileRegistryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +19,23 @@ import java.util.Map;
 public class BlockchainController {
     @Autowired
     private FileRegistryService fileRegistryService;
+    @Autowired
+    private AccessRightsService accessRightsService;
 
     @PostMapping("/register-file")
     public ResponseEntity<?> registerFile(@RequestBody FileRegisterRequest request ){
         String txHash = fileRegistryService.registerFileOnBlockChain(request.getCid(), request.getFileHash());
         return ResponseEntity.ok(Map.of("transactionHash", txHash));
+    }
+
+    @PostMapping("/grant-access")
+    public ResponseEntity<?> grantAccess(@RequestBody GrantAccessRequest request){
+        try {
+            String txHash = accessRightsService.grantAccess(request.getCid(),request.getGranteeWallet(), request.getEncryptedKey());
+            return ResponseEntity.ok(Map.of("transactionHash", txHash));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(Map.of("error",e.getMessage()));
+        }
     }
 
 }
