@@ -34,14 +34,24 @@ services:
       - "8004:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      # MySQL DB config
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      # Blockchain config
       - PRIVATE_KEY=${PRIVATE_KEY}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - WEB3_RPC_URL=${WEB3_RPC_URL}
+      - WEB3_RPC_URL=http://host.docker.internal:7545
       - CONTRACT_FILE_REGISTRY=${CONTRACT_FILE_REGISTRY}
       - CONTRACT_ACCESS_CONTROL=${CONTRACT_ACCESS_CONTROL}
       - CONTRACT_VERSION_MANAGER=${CONTRACT_VERSION_MANAGER}
     networks:
       - omvc-net
+    depends_on:
+      - redis
+
 
   redis:
     image: redis:7
