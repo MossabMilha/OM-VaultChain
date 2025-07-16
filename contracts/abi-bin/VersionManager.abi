@@ -3,6 +3,44 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum VersionManager.FileStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "FileStatusChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "toVersion",
+        "type": "uint256"
+      }
+    ],
+    "name": "RolledBack",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "string",
         "name": "fileId",
@@ -54,6 +92,67 @@
         "internalType": "string",
         "name": "fileId",
         "type": "string"
+      }
+    ],
+    "name": "deleteFile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      }
+    ],
+    "name": "getCurrentVersion",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "cid",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "version",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      }
+    ],
+    "name": "getFileStatus",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
       },
       {
         "internalType": "uint256",
@@ -65,17 +164,17 @@
     "outputs": [
       {
         "internalType": "string",
-        "name": "",
+        "name": "cid",
         "type": "string"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "version",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "timestamp",
         "type": "uint256"
       }
     ],
@@ -105,34 +204,18 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "",
+        "name": "fileId",
         "type": "string"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "versionNumber",
         "type": "uint256"
       }
     ],
-    "name": "versions",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "cid",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "version",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "rollbackToVersion",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

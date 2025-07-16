@@ -4,18 +4,22 @@ import com.omvaultchain.blockchain.contracts.AccessControl;
 import com.omvaultchain.blockchain.contracts.FileRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tuples.generated.Tuple3;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 import java.util.List;
 
-@Service
+@Component
+@RequiredArgsConstructor
 public class SmartContractClient {
     @Value("${contract.address.file-registry}")
     private String contractAddress;
@@ -47,6 +51,22 @@ public class SmartContractClient {
     }
     public List<FileRegistry.FileRegisteredEventResponse> getFileRegisteredEvents(TransactionReceipt receipt)throws Exception{
         return fileRegistry.getFileRegisteredEvents(receipt);
+    }
+
+    public void revokeAccessOnChain(String cid,String walletAddress){
+        try{
+            TransactionReceipt receipt = accessControl.revokeAccess(cid, walletAddress).send();
+        } catch (Exception e) {
+            throw new RuntimeException("Smart contract revokeAccess failed", e);
+        }
+    }
+
+    public Tuple3<Boolean, BigInteger, String> getAccess(String cid, String walletAddress) {
+        try {
+            return accessControl.getAccess(cid, walletAddress).send();
+        } catch (Exception e) {
+            throw new RuntimeException("Smart contract getAccess failed", e);
+        }
     }
 
 }

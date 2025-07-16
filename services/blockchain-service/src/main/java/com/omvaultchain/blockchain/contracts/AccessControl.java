@@ -9,10 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import org.web3j.abi.EventEncoder;
 import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Event;
-import org.web3j.abi.datatypes.Type;
-import org.web3j.abi.datatypes.Utf8String;
+import org.web3j.abi.datatypes.*;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -23,6 +20,7 @@ import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.BaseEventResponse;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tuples.generated.Tuple3;
 import org.web3j.tx.Contract;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
@@ -46,11 +44,11 @@ public class AccessControl extends Contract {
 
     public static final String FUNC_REVOKEACCESS = "revokeAccess";
 
-    public static final Event ACCESSGRANTED_EVENT = new Event("AccessGranted", 
+    public static final Event ACCESSGRANTED_EVENT = new Event("AccessGranted",
             Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Address>() {}, new TypeReference<Uint256>() {}, new TypeReference<Utf8String>() {}));
     ;
 
-    public static final Event ACCESSREVOKED_EVENT = new Event("AccessRevoked", 
+    public static final Event ACCESSREVOKED_EVENT = new Event("AccessRevoked",
             Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Address>() {}, new TypeReference<Uint256>() {}));
     ;
 
@@ -144,30 +142,42 @@ public class AccessControl extends Contract {
         return accessRevokedEventFlowable(filter);
     }
 
-    public RemoteFunctionCall<TransactionReceipt> getAccess(String cid, String user) {
+    public RemoteFunctionCall<Tuple3<Boolean, BigInteger, String>> getAccess(String cid, String user) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
-                FUNC_GETACCESS, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid), 
-                new org.web3j.abi.datatypes.Address(160, user)), 
-                Collections.<TypeReference<?>>emptyList());
-        return executeRemoteCallTransaction(function);
+                FUNC_GETACCESS,
+                Arrays.asList(new Utf8String(cid), new Address(160, user)),
+                Arrays.asList(
+                        new TypeReference<Bool>() {},
+                        new TypeReference<Uint256>() {},
+                        new TypeReference<Utf8String>() {}
+                )
+        );
+
+        return new RemoteFunctionCall<>(function, () -> {
+            List<Type> results = executeCallMultipleValueReturn(function);
+            return new Tuple3<>(
+                    (Boolean) results.get(0).getValue(),
+                    (BigInteger) results.get(1).getValue(),
+                    (String) results.get(2).getValue()
+            );
+        });
     }
 
     public RemoteFunctionCall<TransactionReceipt> grantAccess(String cid, String user, String encryptedKey) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
-                FUNC_GRANTACCESS, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid), 
-                new org.web3j.abi.datatypes.Address(160, user), 
-                new org.web3j.abi.datatypes.Utf8String(encryptedKey)), 
+                FUNC_GRANTACCESS,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid),
+                new org.web3j.abi.datatypes.Address(160, user),
+                new org.web3j.abi.datatypes.Utf8String(encryptedKey)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
 
     public RemoteFunctionCall<TransactionReceipt> revokeAccess(String cid, String user) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
-                FUNC_REVOKEACCESS, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid), 
-                new org.web3j.abi.datatypes.Address(160, user)), 
+                FUNC_REVOKEACCESS,
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(cid),
+                new org.web3j.abi.datatypes.Address(160, user)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
