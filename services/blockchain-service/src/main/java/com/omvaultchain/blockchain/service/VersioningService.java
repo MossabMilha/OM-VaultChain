@@ -1,6 +1,8 @@
 package com.omvaultchain.blockchain.service;
 
+import com.omvaultchain.blockchain.contracts.AccessControl;
 import com.omvaultchain.blockchain.contracts.VersionManager;
+import com.omvaultchain.blockchain.controller.dto.FileStatusRespond;
 import com.omvaultchain.blockchain.controller.dto.VersionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 public class VersioningService {
     @Autowired
     private VersionManager versionManager;
+    @Autowired
+    private SmartContractClient smartContractClient;
 
     public String addVersion(String fileId,String cid){
         try{
@@ -55,7 +59,7 @@ public class VersioningService {
     }
     public VersionInfo getCurrentVersion(String fileId) {
         try {
-            // Use the properly generated getCurrentVersion method that returns a Tuple3
+
             Tuple3<String, BigInteger, BigInteger> result = versionManager.getCurrentVersion(fileId).send();
 
             String cid = result.component1();
@@ -68,6 +72,39 @@ public class VersioningService {
             throw new RuntimeException("Failed To Get Current Version : " + e.getMessage());
         }
     }
+
+    public VersionInfo getVersionAt(String fileId, BigInteger versionNumber) {
+        try {
+            Tuple3<String, BigInteger, BigInteger> result = versionManager.getVersionAt(fileId,versionNumber).send();
+            String cid = result.component1();
+            BigInteger version = result.component2();
+            BigInteger timestamp = result.component3();
+
+            return new VersionInfo(version.longValue(), cid, timestamp.longValue());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed To Get Version At : " + e.getMessage());
+        }
+    }
+
+    public FileStatusRespond getFileStatus(String fileId ) {
+        try{
+            String status = versionManager.getFileStatus(fileId).send();
+            return new FileStatusRespond(fileId,status);
+        }catch (Exception e){
+            throw new RuntimeException("Failed To Get File Status : " + e.getMessage());
+        }
+    }
+    public String deleteFile(String fileId) {
+        try {
+            TransactionReceipt receipt = versionManager.deleteFile(fileId).send();
+            return receipt.getTransactionHash();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed To Delete File : " + e.getMessage());
+        }
+    }
+
+
 
 
 }
