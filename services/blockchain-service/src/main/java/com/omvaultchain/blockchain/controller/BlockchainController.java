@@ -48,13 +48,9 @@ public class BlockchainController {
     }
 
     @GetMapping("/has-access")
-    public ResponseEntity<?> hasAccess(@RequestParam String cid, @RequestParam String walletAddress){
-        try {
-            AccessCheckResponse response = accessRightsService.hasAccess(cid, walletAddress);
-            return ResponseEntity.ok(response);
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(Map.of("error",e.getMessage()));
-        }
+    public ResponseEntity<AccessCheckResponse> hasAccess(@RequestParam String cid, @RequestParam String walletAddress){
+        AccessCheckResponse response = accessRightsService.hasAccess(cid, walletAddress);
+        return ResponseEntity.ok(response);
     }
     /* File Versioning */
     @PostMapping("/add-version")
@@ -72,6 +68,11 @@ public class BlockchainController {
         return ResponseEntity.ok(versioningService.getVersionHistory(fileId));
     }
 
+    @GetMapping("/current-version")
+    public ResponseEntity<VersionInfo> getCurrentVersion(@RequestBody CurrentVersionRequest request ){
+        VersionInfo versionInfo = versioningService.getCurrentVersion(request.getFileId());
+        return ResponseEntity.ok(versionInfo);
+    }
 
 
 
