@@ -95,16 +95,9 @@ OM VaultChain provides secure, decentralized file storage with immutable access 
 └─────────────────────┴─────────────────────┴─────────────────┘
 ```
 
----
-
 ## 🖥️ Frontend Layer
 
-
----
-
 ## 🌐 API Gateway
-
----
 
 ## 🔧 Backend Microservices
 
