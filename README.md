@@ -486,9 +486,9 @@ public class EventListenerService {
 - ✅ `/grant-access` — Grant encrypted AES key to a wallet  
 - ✅ `/revoke-access` — Revoke access from a wallet  
 - ✅ `/has-access` — Check if a wallet has access to CID  
-- ❌ `/access-list` — List all wallets with access to a file (B2B auditing)  
-- ❌ `/grant-multiple-access` — Grant access to multiple wallets at once  
-- ❌ `/verify-access` — Return blockchain proof of access for validation
+- ✅ `/access-list` — List all wallets with access to a file (B2B auditing)  
+- ✅ `/grant-multiple-access` — Grant access to multiple wallets at once  
+- ✅ `/verify-access` — Return blockchain proof of access for validation
 #### 3. File Versioning  
 - ✅ `/add-version` — Add a new file version  
 - ✅ `/rollback-version` — Roll back to a specific version  
@@ -497,9 +497,9 @@ public class EventListenerService {
 - ✅ `/version-at` — Get version metadata by version number  
 - ✅ `/file-status` — Get current file status (active/deleted)  
 - ✅ `/delete-file` — Mark a file as deleted  
-- ❌ `/compare-versions` — Compare two versions for diff (optional enhancement)  
-- ❌ `/revoke-all-access` — Emergency revoke for all users (security feature)  
-- ❌ `/lock-version` — Mark version as immutable (for legal use cases)
+- ✅ `/compare-versions` — Compare two versions for diff (optional enhancement)  
+- ✅ `/revoke-all-access` — Emergency revoke for all users (security feature)  
+- ✅ `/lock-version` — Mark version as immutable (for legal use cases)
 ---
 
 #### Project Structure:
