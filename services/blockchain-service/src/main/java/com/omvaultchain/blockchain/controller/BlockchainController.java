@@ -1,4 +1,5 @@
 package com.omvaultchain.blockchain.controller;
+
 import com.omvaultchain.blockchain.controller.dto.*;
 import com.omvaultchain.blockchain.service.AccessRightsService;
 import com.omvaultchain.blockchain.service.FileRegistryService;
@@ -13,6 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/blockchain")
 public class BlockchainController {
+
     @Autowired
     private FileRegistryService fileRegistryService;
     @Autowired
@@ -23,10 +25,10 @@ public class BlockchainController {
     /**
      * Registers a file on the blockchain.
      *
-     * @param request FileRegisterRequest containing:
-     *                - cid: the IPFS content identifier of the file (String)
+     * @param request FileRegisterRequest with fields:
+     *                - cid: the IPFS content identifier (String)
      *                - fileHash: the hash of the file content (String)
-     * @return ResponseEntity containing a map with the transaction hash key "transactionHash".
+     * @return ResponseEntity with a map containing the blockchain transaction hash.
      *
      * Example request body:
      * {
@@ -39,16 +41,16 @@ public class BlockchainController {
         String txHash = fileRegistryService.registerFileOnBlockChain(request.getCid(), request.getFileHash());
         return ResponseEntity.ok(Map.of("transactionHash", txHash));
     }
-    /*
-     * Access Rights Management API
-     * */
 
+    /*
+     * Access Rights Management APIs
+     */
 
     /**
-     * Retrieves the access list (users who have access) for a given content identifier (CID).
+     * Retrieves the list of users who have access to a given CID.
      *
-     * @param cid The IPFS content identifier (String)
-     * @return ResponseEntity containing a List of AccessRecord for the given CID.
+     * @param cid The content identifier (String)
+     * @return ResponseEntity with a list of AccessRecord objects.
      *
      * Example GET request:
      * /blockchain/access-list?cid=QmXyz123abc...
@@ -58,14 +60,15 @@ public class BlockchainController {
         List<AccessRecord> accessList = accessRightsService.getAccessList(cid);
         return ResponseEntity.ok(accessList);
     }
+
     /**
      * Grants access to a single user for a specific CID.
      *
-     * @param request GrantAccessRequest containing:
+     * @param request GrantAccessRequest with fields:
      *                - cid: the content identifier (String)
-     *                - granteeWallet: the wallet address of the user to grant access (String)
-     *                - encryptedKey: the encrypted key for secure access (String)
-     * @return ResponseEntity containing a TransactionResponse with the transaction hash.
+     *                - granteeWallet: wallet address to grant access (String)
+     *                - encryptedKey: encrypted key for secure access (String)
+     * @return ResponseEntity with TransactionResponse containing the transaction hash.
      *
      * Example request body:
      * {
@@ -78,18 +81,17 @@ public class BlockchainController {
     public ResponseEntity<TransactionResponse> grantAccess(@RequestBody GrantAccessRequest request){
         String txHash = accessRightsService.grantAccess(request.getCid(),request.getGranteeWallet(), request.getEncryptedKey());
         return ResponseEntity.ok(new TransactionResponse(txHash));
-
     }
+
     /**
-     * Grants access rights to multiple users for a given content identified by CID.
+     * Grants access rights to multiple users for a given CID.
      *
-     * @param request GrantMultipleAccessRequest containing:
-     *                - cid: the content identifier for which access is granted
-     *                - userId: a list of maps where each map contains:
-     *                    - "walletAddress": the user's wallet address (as a String)
-     *                    - "encryptedKey": the encrypted key for the user (as a String)
-     * @return ResponseEntity containing a TransactionResponse with the transaction hash
-     *         of the access granting operation on the blockchain or smart contract.
+     * @param request GrantMultipleAccessRequest with fields:
+     *                - cid: the content identifier (String)
+     *                - userId: list of maps each containing:
+     *                    - walletAddress: user's wallet address (String)
+     *                    - encryptedKey: encrypted key for user (String)
+     * @return ResponseEntity with TransactionResponse containing transaction hash.
      *
      * Example request body:
      * {
@@ -111,12 +113,13 @@ public class BlockchainController {
         String txHash = accessRightsService.grantMultipleAccess(request.getCid(), request.getUserId());
         return ResponseEntity.ok(new TransactionResponse(txHash));
     }
+
     /**
      * Revokes access for a specific user on a given CID.
      *
-     * @param request AccessRevokeRequest containing:
+     * @param request AccessRevokeRequest with fields:
      *                - cid: the content identifier (String)
-     *                - walletAddress: the wallet address to revoke (String)
+     *                - walletAddress: wallet address to revoke (String)
      * @return ResponseEntity with a confirmation message.
      *
      * Example request body:
@@ -130,12 +133,13 @@ public class BlockchainController {
         accessRightsService.revokeAccess(request.getCid(),request.getWalletAddress());
         return ResponseEntity.ok(Map.of("Message", "Access Revoked Successfully"));
     }
+
     /**
      * Revokes access for all users on a given CID.
      *
-     * @param request RevokeAllAccessRequest containing:
+     * @param request RevokeAllAccessRequest with field:
      *                - cid: the content identifier (String)
-     * @return ResponseEntity containing a TransactionResponse with the transaction hash.
+     * @return ResponseEntity with TransactionResponse containing transaction hash.
      *
      * Example request body:
      * {
@@ -147,12 +151,13 @@ public class BlockchainController {
         String txHash = accessRightsService.revokeAllAccess(request.getCid());
         return ResponseEntity.ok(new TransactionResponse(txHash));
     }
+
     /**
-     * Checks if a specific wallet address has access to a content identified by CID.
+     * Checks if a wallet address has access to a given CID.
      *
      * @param cid The content identifier (String)
-     * @param walletAddress The wallet address to check access for (String)
-     * @return ResponseEntity containing AccessCheckResponse with access info.
+     * @param walletAddress Wallet address to check (String)
+     * @return ResponseEntity with AccessCheckResponse indicating access status.
      *
      * Example request:
      * GET /blockchain/has-access?cid=QmXyz123abc...&walletAddress=0xAbC1234...
@@ -163,12 +168,17 @@ public class BlockchainController {
         return ResponseEntity.ok(response);
     }
 
-    /* File Versioning */
+    /*
+     * File Versioning APIs
+     */
+
     /**
-     * Add a new version for a given file.
+     * Adds a new version for a given file.
      *
-     * @param request AddVersionRequest containing fileId and cid (new file version on IPFS)
-     * @return Transaction hash of the addVersion operation on blockchain
+     * @param request AddVersionRequest with fields:
+     *                - fileId: UUID of the file (String)
+     *                - cid: content identifier of the new version (String)
+     * @return ResponseEntity with TransactionResponse containing transaction hash.
      *
      * Example request body:
      * {
@@ -181,11 +191,14 @@ public class BlockchainController {
         String txHash = versioningService.addVersion(request.getFileId(), request.getCid());
         return ResponseEntity.ok(new TransactionResponse(txHash));
     }
+
     /**
-     * Roll back a file to a previous version.
+     * Rolls back a file to a previous version.
      *
-     * @param request RollbackVersionRequest containing fileId and versionNumber
-     * @return Transaction hash of the rollback operation
+     * @param request RollbackVersionRequest with fields:
+     *                - fileId: UUID of the file (String)
+     *                - versionNumber: version number to roll back to (int)
+     * @return ResponseEntity with TransactionResponse containing transaction hash.
      *
      * Example request body:
      * {
@@ -198,40 +211,46 @@ public class BlockchainController {
         String txHash = versioningService.rollbackToVersion(request.getFileId(), request.getVersionNumber());
         return ResponseEntity.ok(new TransactionResponse(txHash));
     }
+
     /**
-     * Get version history of a file.
+     * Gets the full version history for a file.
      *
-     * @param fileId The UUID of the file
-     * @return List of all versions (cid, version number, timestamp)
+     * @param fileId UUID of the file (String)
+     * @return ResponseEntity with list of VersionInfo objects.
      *
-     * Example: /blockchain/version-history?fileId=123e4567-e89b-12d3-a456-426614174000
+     * Example request:
+     * GET /blockchain/version-history?fileId=123e4567-e89b-12d3-a456-426614174000
      */
     @GetMapping("/version-history")
     public ResponseEntity<List<VersionInfo>> getVersionHistory(@RequestParam String fileId) {
         return ResponseEntity.ok(versioningService.getVersionHistory(fileId));
     }
+
     /**
-     * Get the current version of a file.
+     * Gets the current version of a file.
      *
-     * @param request CurrentVersionRequest containing fileId
-     * @return The current VersionInfo
+     * @param request CurrentVersionRequest with field:
+     *                - fileId: UUID of the file (String)
+     * @return ResponseEntity with VersionInfo of current version.
      *
      * Example request body:
      * {
      *   "fileId": "123e4567-e89b-12d3-a456-426614174000"
      * }
      */
-
     @GetMapping("/current-version")
     public ResponseEntity<VersionInfo> getCurrentVersion(@RequestBody CurrentVersionRequest request ){
         VersionInfo versionInfo = versioningService.getCurrentVersion(request.getFileId());
         return ResponseEntity.ok(versionInfo);
     }
+
     /**
-     * Get a specific version by version number.
+     * Gets a specific version of a file by version number.
      *
-     * @param request VersionAtRequest with fileId and versionNumber
-     * @return The corresponding VersionInfo
+     * @param request VersionAtRequest with fields:
+     *                - fileId: UUID of the file (String)
+     *                - versionNumber: the version number to fetch (int)
+     * @return ResponseEntity with VersionInfo of requested version.
      *
      * Example request body:
      * {
@@ -244,27 +263,31 @@ public class BlockchainController {
         VersionInfo version = versioningService.getVersionAt(request.getFileId(), request.getVersionNumber());
         return ResponseEntity.ok(version);
     }
+
     /**
-     * Get the current file status (e.g., active, deleted).
+     * Gets the current status of a file (e.g., active, deleted).
      *
-     * @param request FileStatusRequest with fileId
-     * @return FileStatusRespond with status details
+     * @param request FileStatusRequest with field:
+     *                - fileId: UUID of the file (String)
+     * @return ResponseEntity with FileStatusRespond containing status details.
      *
      * Example request body:
      * {
      *   "fileId": "123e4567-e89b-12d3-a456-426614174000"
      * }
      */
-    @GetMapping("/file-status")
+    @PostMapping("/file-status")
     public ResponseEntity<FileStatusRespond> getFileStatus(@RequestBody FileStatusRequest request) {
         FileStatusRespond result = versioningService.getFileStatus(request.getFileId());
         return ResponseEntity.ok(result);
     }
+
     /**
-     * Permanently mark a file as deleted on the blockchain.
+     * Marks a file as deleted permanently on the blockchain.
      *
-     * @param request DeleteFileRequest with fileId
-     * @return Transaction hash of the delete operation
+     * @param request DeleteFileRequest with field:
+     *                - fileId: UUID of the file (String)
+     * @return ResponseEntity with TransactionResponse containing transaction hash.
      *
      * Example request body:
      * {
@@ -277,5 +300,65 @@ public class BlockchainController {
         return ResponseEntity.ok(new TransactionResponse(txHash));
     }
 
+    /**
+     * Locks a specific version of a file to prevent further changes.
+     *
+     * @param request LockVersionRequest with fields:
+     *                - fileId: UUID of the file (String)
+     *                - versionNumber: version to lock (int)
+     * @return ResponseEntity with TransactionResponse containing transaction hash.
+     *
+     * Example request body:
+     * {
+     *   "fileId": "123e4567-e89b-12d3-a456-426614174000",
+     *   "versionNumber": 2
+     * }
+     */
+    @PostMapping("/lock-version")
+    public ResponseEntity<TransactionResponse> lockVersion(@RequestBody LockVersionRequest request) {
+        String txHash = versioningService.lockVersion(request.getFileId(), request.getVersionNumber());
+        return ResponseEntity.ok(new TransactionResponse(txHash));
+    }
 
+    /**
+     * Checks if a specific version of a file is locked.
+     *
+     * @param request LockStatusRequest with fields:
+     *                - fileId: UUID of the file (String)
+     *                - version: version number to check (int)
+     * @return ResponseEntity with map {"locked": true/false}.
+     *
+     * Example request body:
+     * {
+     *   "fileId": "123e4567-e89b-12d3-a456-426614174000",
+     *   "version": 2
+     * }
+     */
+    @PostMapping("/is-version-locked")
+    public ResponseEntity<Map<String, Boolean>> isVersionLocked(@RequestBody LockStatusRequest request) {
+        boolean locked = versioningService.isVersionLocked(request.getFileId(), request.getVersion());
+        return ResponseEntity.ok(Map.of("locked", locked));
+    }
+
+    /**
+     * Compares two versions of a file to check if they are identical.
+     *
+     * @param request CompareVersionsRequest with fields:
+     *                - fileId: UUID of the file (String)
+     *                - version1: first version number (int)
+     *                - version2: second version number (int)
+     * @return ResponseEntity with map {"isEqual": true/false}.
+     *
+     * Example request body:
+     * {
+     *   "fileId": "123e4567-e89b-12d3-a456-426614174000",
+     *   "version1": 2,
+     *   "version2": 3
+     * }
+     */
+    @PostMapping("/compare-versions")
+    public ResponseEntity<Map<String, Boolean>> compareVersions(@RequestBody CompareVersionsRequest request) {
+        boolean equal = versioningService.compareVersions(request.getFileId(), request.getVersion1(), request.getVersion2());
+        return ResponseEntity.ok(Map.of("isEqual", equal));
+    }
 }

@@ -104,6 +104,31 @@ public class VersioningService {
         }
     }
 
+    public String lockVersion(String fileId,int versionNumber){
+        try{
+            TransactionReceipt receipt = versionManager.lockVersion(fileId,BigInteger.valueOf(versionNumber)).send();
+            return receipt.getTransactionHash();
+        }catch (Exception e){
+            throw new RuntimeException("Error Locking Version : " + e.getMessage());
+        }
+    }
+
+    public boolean compareVersions(String fileId,int version1,int version2) {
+        try{
+            return versionManager.compareVersions(fileId,BigInteger.valueOf(version1),BigInteger.valueOf(version2)).send();
+        } catch (Exception e) {
+            throw new RuntimeException("Error Comparing Versions : " + e.getMessage());
+        }
+    }
+
+    public boolean isVersionLocked(String fileId,int versionNumber){
+        try {
+            return versionManager.isVersionLocked(fileId,BigInteger.valueOf(versionNumber)).send();
+        }catch (Exception e){
+            throw new RuntimeException("Error Checking If Version Is Lock : " + e.getMessage());
+        }
+    }
+
 
 
 

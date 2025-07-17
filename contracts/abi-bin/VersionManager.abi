@@ -69,6 +69,25 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "version",
+        "type": "uint256"
+      }
+    ],
+    "name": "VersionLocked",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "string",
@@ -84,6 +103,35 @@
     "name": "addVersion",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "version1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "version2",
+        "type": "uint256"
+      }
+    ],
+    "name": "compareVersions",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -198,6 +246,48 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "versionNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "isVersionLocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "fileId",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "versionNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "lockVersion",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
