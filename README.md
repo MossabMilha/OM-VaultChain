@@ -427,50 +427,54 @@ public class FileAuditService {
 #### Internal API Endpoints:
 
 **🔄 Upload Operations**
-- `POST /storage/upload` — Single file upload to IPFS
-- `POST /storage/upload/batch` — Bulk file upload
-- `POST /storage/upload/resume` — Resume interrupted upload
-- `GET /storage/upload/status/{uploadId}` — Upload progress status
-- `DELETE /storage/upload/{uploadId}` — Cancel upload operation
+- 🟡❌`POST /storage/upload` — Single file upload to IPFS
+- 🕓❌`POST /storage/upload/batch` — Bulk file upload
+- 🟡❌`POST /storage/upload/resume` — Resume interrupted upload
+- 🟡❌`GET /storage/upload/status/{uploadId}` — Upload progress status
+- 🕓❌`DELETE /storage/upload/{uploadId}` — Cancel upload operation
 
 **⬇️ Download Operations**
-- `GET /storage/download/{fileId}` — Download file by ID
-- `GET /storage/download/cid/{cid}` — Download file by CID
-- `GET /storage/stream/{fileId}` — Stream file content
-- `GET /storage/preview/{fileId}` — Generate file preview
-- `POST /storage/download/batch` — Bulk download
+- 🟡`GET /storage/download/{fileId}` — Download file by ID
+- 🟡`GET /storage/download/cid/{cid}` — Download file by CID
+- 🕓❌`GET /storage/stream/{fileId}` — Stream file content
+- 🕓❌`GET /storage/preview/{fileId}` — Generate file preview
+- 🕓❌`POST /storage/download/batch` — Bulk download
 
 **🔍 Search & Discovery**
-- `GET /storage/search` — Search files by metadata
-- `GET /storage/files` — List user files with pagination
-- `GET /storage/files/recent` — Recently accessed files
-- `GET /storage/files/shared` — Files shared with user
-- `GET /storage/files/public` — Public files
+- 🟡❌`GET /storage/search` — Search files by metadata
+- 🟡❌`GET /storage/files` — List user files with pagination
+- 🕓❌`GET /storage/files/recent` — Recently accessed files
+- 🕓❌`GET /storage/files/shared` — Files shared with user
+- 🕓❌`GET /storage/files/public` — Public files
 
 **🏷️ Tagging & Organization**
-- `POST /storage/tags` — Create new tag
-- `GET /storage/tags` — List all user tags
-- `PUT /storage/files/{fileId}/tags` — Add tags to file
-- `DELETE /storage/files/{fileId}/tags` — Remove tags from file
-- `GET /storage/files/tags/{tagId}` — Files by tag
+- 🕓❌`POST /storage/tags` — Create new tag
+- 🕓❌`GET /storage/tags` — List all user tags
+- 🕓❌`PUT /storage/files/{fileId}/tags` — Add tags to file
+- 🕓❌`DELETE /storage/files/{fileId}/tags` — Remove tags from file
+- 🕓❌`GET /storage/files/tags/{tagId}` — Files by tag
 
 **📊 Metadata Operations**
-- `GET /storage/files/{fileId}/metadata` — Get file metadata
-- `PUT /storage/files/{fileId}/metadata` — Update file metadata
-- `GET /storage/files/{fileId}/versions` — File version history
-- `POST /storage/files/{fileId}/analyze` — Analyze file content
+- 🟡❌`GET /storage/files/{fileId}/metadata` — Get file metadata
+- 🟡❌`PUT /storage/files/{fileId}/metadata` — Update file metadata
+- 🕓❌`GET /storage/files/{fileId}/versions` — File version history
+- 🕓❌`POST /storage/files/{fileId}/analyze` — Analyze file content
 
 **📈 Analytics & Metrics**
-- `GET /storage/metrics/usage` — Storage usage statistics
-- `GET /storage/metrics/performance` — Performance metrics
-- `GET /storage/metrics/activity` — User activity analytics
-- `GET /storage/health` — Service health check
+- 🕓❌`GET /storage/metrics/usage` — Storage usage statistics
+- 🕓❌`GET /storage/metrics/performance` — Performance metrics
+- 🕓❌`GET /storage/metrics/activity` — User activity analytics
+- 🕓❌`GET /storage/health` — Service health check
 
 **🔒 Access Control**
-- `POST /storage/access/validate` — Validate file access
-- `GET /storage/access/history/{fileId}` — Access history
-- `POST /storage/access/audit` — Generate audit report
-
+- 🟡❌`POST /storage/access/validate` — Validate file access
+- 🕓❌`GET /storage/access/history/{fileId}` — Access history
+- 🕓❌`POST /storage/access/audit` — Generate audit report
+  
+**🗑️ File Deletion**
+- 🕓❌`DELETE /storage/files/{fileId}` — Soft-delete a file (sets `is_deleted=true` in the DB)
+  > Note: This does **not remove the file from IPFS** — it only hides it from the user's file list and marks it as deleted in the database.
+  
 #### Project Structure:
 ```
 storage-service/
