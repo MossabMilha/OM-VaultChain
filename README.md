@@ -194,7 +194,9 @@ encryption-service/
 ---
 
 ### 📦 storage-service
-**Technology:** Spring Boot + IPFS Client + Pinata API
+**Technology:** Spring Boot + IPFS Client + Pinata API + Web3.Storage
+
+A comprehensive microservice handling all file-related operations including encrypted uploads, secure downloads, metadata management, file tagging, audit logging, and performance metrics. Supports both B2B enterprise bulk operations and B2C individual user scenarios with IPFS decentralized storage integration.
 
 #### Internal Components:
 
@@ -202,12 +204,13 @@ encryption-service/
 ```java
 @Service
 public class IPFSClient {
-    // Pinata/Web3.Storage integration
-    // File upload/download operations
+    // Pinata/Web3.Storage API integration
+    // Multi-gateway failover support
     // Pin management and lifecycle
-    // Gateway communication and failover
-    // Multi-gateway support for redundancy
-    // Timeout handling and retry logic
+    // Node availability monitoring
+    // Automatic re-pinning on failure
+    // Gateway performance optimization
+    // Connection pooling and retry logic
 }
 ```
 
@@ -216,11 +219,11 @@ public class IPFSClient {
 @Service
 public class FileUploadService {
     // Encrypted file upload orchestration
-    // Multi-part upload handling
-    // Progress tracking and callbacks
-    // Upload validation and verification
+    // Multi-part upload handling for large files
+    // Progress tracking and real-time callbacks
     // Duplicate detection and deduplication
-    // Bandwidth optimization
+    // Upload validation and virus scanning
+    // Bandwidth optimization and throttling
     // Error recovery and resume capability
 }
 ```
@@ -233,9 +236,9 @@ public class FileDownloadService {
     // Access permission validation
     // Content streaming and partial downloads
     // Download resume capability
-    // Bandwidth throttling
-    // Download audit logging
+    // Bandwidth throttling and quota management
     // Cache management for frequently accessed files
+    // Geographic proximity routing
 }
 ```
 
@@ -245,11 +248,95 @@ public class FileDownloadService {
 public class FileStreamingService {
     // HTTP range request handling
     // Chunked transfer encoding
-    // Streaming optimization for large files
-    // Memory-efficient data transfer
-    // Connection pooling
-    // Concurrent download management
+    // Memory-efficient streaming for large files
+    // Connection pooling and concurrent streams
     // Stream compression/decompression
+    // Adaptive bitrate streaming
+    // Real-time progress monitoring
+}
+```
+
+**📊 MetadataExtractor**
+```java
+@Service
+public class MetadataExtractor {
+    // File metadata extraction (size, type, dimensions)
+    // MIME type detection and validation
+    // File signature verification
+    // Encoding detection and charset handling
+    // Timestamp capture and timezone handling
+    // Checksum generation (SHA-256, MD5)
+    // Content analysis for security scanning
+}
+```
+
+**🏷️ FileTaggingService**
+```java
+@Service
+public class FileTaggingService {
+    // Tag creation and management
+    // Tag hierarchy and categorization
+    // Bulk tagging operations
+    // Tag-based search and filtering
+    // Tag analytics and usage statistics
+    // Auto-tagging based on content analysis
+    // Tag permission and access control
+}
+```
+
+**🔍 FileSearchService**
+```java
+@Service
+public class FileSearchService {
+    // Full-text search across file metadata
+    // Advanced filtering (date, size, type, tags)
+    // Search index maintenance
+    // Query optimization and caching
+    // Search analytics and suggestions
+    // Elasticsearch integration
+    // Faceted search capabilities
+}
+```
+
+**📋 FilePreviewService**
+```java
+@Service
+public class FilePreviewService {
+    // Thumbnail generation for images/videos
+    // Document preview generation
+    // Preview caching and optimization
+    // Multiple format support (PDF, images, videos)
+    // Security-aware preview generation
+    // Watermarking for sensitive content
+    // Progressive loading for large previews
+}
+```
+
+**📦 BatchOperationService**
+```java
+@Service
+public class BatchOperationService {
+    // Bulk upload/download operations
+    // Parallel processing management
+    // Progress aggregation and reporting
+    // Failure handling and partial retry
+    // Resource management and throttling
+    // Enterprise-grade bulk operations
+    // Queue management and prioritization
+}
+```
+
+**🔒 AccessControlValidator**
+```java
+@Service
+public class AccessControlValidator {
+    // Download permission verification
+    // User authorization checking
+    // Access token validation
+    // Rate limiting enforcement
+    // Suspicious activity detection
+    // Audit trail generation
+    // IP-based access control
 }
 ```
 
@@ -262,35 +349,36 @@ public class CIDVerifier {
     // Content integrity checks
     // Multihash validation
     // Version compatibility checking
-    // Corrupted file detection
+    // Corrupted file detection and recovery
+    // Blockchain synchronization verification
 }
 ```
 
-**📊 MetadataExtractor**
+**🔄 UploadStatusManager**
 ```java
 @Service
-public class MetadataExtractor {
-    // File metadata extraction (size, type, etc.)
-    // MIME type detection and validation
-    // File signature verification
-    // Encoding detection
-    // Timestamp capture
-    // Checksum generation
-    // Content analysis for security
+public class UploadStatusManager {
+    // Real-time upload progress tracking
+    // Status persistence and recovery
+    // WebSocket notifications
+    // Multi-part upload coordination
+    // Failure detection and retry logic
+    // Upload queue management
+    // Progress aggregation for batch uploads
 }
 ```
 
-**📦 BatchUploader**
+**📈 StorageMetricsCollector**
 ```java
 @Service
-public class BatchUploader {
-    // Multi-file upload coordination
-    // Parallel upload processing
-    // Merkle root generation for batches
-    // Batch transaction optimization
-    // Progress aggregation
-    // Failure handling and partial retry
-    // Resource management
+public class StorageMetricsCollector {
+    // Upload/download statistics
+    // Storage usage analytics
+    // Performance metrics collection
+    // Error rate monitoring
+    // User activity tracking
+    // Cost analysis and optimization
+    // Capacity planning data
 }
 ```
 
@@ -304,20 +392,7 @@ public class FileAvailabilityChecker {
     // Redundancy validation
     // Automatic re-pinning on failure
     // Performance metrics collection
-}
-```
-
-**🔄 DownloadManager**
-```java
-@Service
-public class DownloadManager {
-    // Download queue management
-    // Concurrent download limits
-    // Priority-based scheduling
-    // Download history tracking
-    // Bandwidth allocation
-    // User quota enforcement
-    // Download analytics
+    // Alerting for unavailable files
 }
 ```
 
@@ -328,62 +403,108 @@ public class ContentDeliveryOptimizer {
     // Gateway selection optimization
     // Geographic proximity routing
     // Load balancing across gateways
-    // Performance monitoring
+    // Performance monitoring and analysis
     // Failover management
     // Cache hit optimization
     // Network latency reduction
 }
 ```
 
-**📈 StorageMetricsCollector**
+**📋 FileAuditService**
 ```java
 @Service
-public class StorageMetricsCollector {
-    // Upload/download statistics
-    // Storage usage analytics
-    // Performance metrics
-    // Error rate monitoring
-    // User activity tracking
-    // Cost analysis
-    // Capacity planning data
+public class FileAuditService {
+    // Comprehensive audit logging
+    // File access tracking
+    // User activity monitoring
+    // Compliance reporting
+    // Security event logging
+    // Forensic analysis support
+    // Automated compliance checks
 }
 ```
 
-**🔒 AccessControlValidator**
-```java
-@Service
-public class AccessControlValidator {
-    // Download permission verification
-    // User authorization checking
-    // Access token validation
-    // Rate limiting enforcement
-    // Audit trail generation
-    // Suspicious activity detection
-}
-```
+#### Internal API Endpoints:
 
+**🔄 Upload Operations**
+- 🟡❌`POST /storage/upload` — Single file upload to IPFS
+- 🕓❌`POST /storage/upload/batch` — Bulk file upload
+- 🟡❌`POST /storage/upload/resume` — Resume interrupted upload
+- 🟡❌`GET /storage/upload/status/{uploadId}` — Upload progress status
+- 🕓❌`DELETE /storage/upload/{uploadId}` — Cancel upload operation
+
+**⬇️ Download Operations**
+- 🟡`GET /storage/download/{fileId}` — Download file by ID
+- 🟡`GET /storage/download/cid/{cid}` — Download file by CID
+- 🕓❌`GET /storage/stream/{fileId}` — Stream file content
+- 🕓❌`GET /storage/preview/{fileId}` — Generate file preview
+- 🕓❌`POST /storage/download/batch` — Bulk download
+
+**🔍 Search & Discovery**
+- 🟡❌`GET /storage/search` — Search files by metadata
+- 🟡❌`GET /storage/files` — List user files with pagination
+- 🕓❌`GET /storage/files/recent` — Recently accessed files
+- 🕓❌`GET /storage/files/shared` — Files shared with user
+- 🕓❌`GET /storage/files/public` — Public files
+
+**🏷️ Tagging & Organization**
+- 🕓❌`POST /storage/tags` — Create new tag
+- 🕓❌`GET /storage/tags` — List all user tags
+- 🕓❌`PUT /storage/files/{fileId}/tags` — Add tags to file
+- 🕓❌`DELETE /storage/files/{fileId}/tags` — Remove tags from file
+- 🕓❌`GET /storage/files/tags/{tagId}` — Files by tag
+
+**📊 Metadata Operations**
+- 🟡❌`GET /storage/files/{fileId}/metadata` — Get file metadata
+- 🟡❌`PUT /storage/files/{fileId}/metadata` — Update file metadata
+- 🕓❌`GET /storage/files/{fileId}/versions` — File version history
+- 🕓❌`POST /storage/files/{fileId}/analyze` — Analyze file content
+
+**📈 Analytics & Metrics**
+- 🕓❌`GET /storage/metrics/usage` — Storage usage statistics
+- 🕓❌`GET /storage/metrics/performance` — Performance metrics
+- 🕓❌`GET /storage/metrics/activity` — User activity analytics
+- 🕓❌`GET /storage/health` — Service health check
+
+**🔒 Access Control**
+- 🟡❌`POST /storage/access/validate` — Validate file access
+- 🕓❌`GET /storage/access/history/{fileId}` — Access history
+- 🕓❌`POST /storage/access/audit` — Generate audit report
+  
+**🗑️ File Deletion**
+- 🕓❌`DELETE /storage/files/{fileId}` — Soft-delete a file (sets `is_deleted=true` in the DB)
+  > Note: This does **not remove the file from IPFS** — it only hides it from the user's file list and marks it as deleted in the database.
+  
 #### Project Structure:
 ```
 storage-service/
 ├── src/main/java/com/omvaultchain/storage/
 │   ├── controller/
-│   │   ├── FileStorageController.java
-│   │   ├── FileDownloadController.java
-│   │   ├── FileStreamingController.java
-│   │   └── StorageMetricsController.java
+│   │   ├── FileController.java
+│   │   ├── UploadController.java
+│   │   ├── DownloadController.java
+│   │   ├── StreamingController.java
+│   │   ├── SearchController.java
+│   │   ├── TaggingController.java
+│   │   ├── MetricsController.java
+│   │   └── AuditController.java
 │   ├── service/
 │   │   ├── IPFSClient.java
 │   │   ├── FileUploadService.java
 │   │   ├── FileDownloadService.java
 │   │   ├── FileStreamingService.java
-│   │   ├── CIDVerifier.java
 │   │   ├── MetadataExtractor.java
-│   │   ├── BatchUploader.java
-│   │   ├── FileAvailabilityChecker.java
-│   │   ├── DownloadManager.java
-│   │   ├── ContentDeliveryOptimizer.java
+│   │   ├── FileTaggingService.java
+│   │   ├── FileSearchService.java
+│   │   ├── FilePreviewService.java
+│   │   ├── BatchOperationService.java
+│   │   ├── AccessControlValidator.java
+│   │   ├── CIDVerifier.java
+│   │   ├── UploadStatusManager.java
 │   │   ├── StorageMetricsCollector.java
-│   │   └── AccessControlValidator.java
+│   │   ├── FileAvailabilityChecker.java
+│   │   ├── ContentDeliveryOptimizer.java
+│   │   └── FileAuditService.java
 │   ├── model/
 │   │   ├── FileMetadata.java
 │   │   ├── UploadRequest.java
@@ -391,19 +512,41 @@ storage-service/
 │   │   ├── DownloadRequest.java
 │   │   ├── DownloadResponse.java
 │   │   ├── StreamingRequest.java
+│   │   ├── SearchRequest.java
+│   │   ├── TagRequest.java
 │   │   ├── StorageMetrics.java
+│   │   ├── AuditRecord.java
 │   │   └── IPFSGatewayConfig.java
 │   ├── repository/
 │   │   ├── FileMetadataRepository.java
+│   │   ├── UploadStatusRepository.java
+│   │   ├── FileTagRepository.java
+│   │   ├── FilePreviewRepository.java
+│   │   ├── FileAuditLogRepository.java
 │   │   ├── DownloadHistoryRepository.java
 │   │   └── StorageMetricsRepository.java
 │   └── config/
 │       ├── StorageConfig.java
 │       ├── IPFSConfig.java
-│       └── DownloadConfig.java
+│       ├── CacheConfig.java
+│       └── MetricsConfig.java
 ├── Dockerfile
 └── pom.xml
 ```
+
+#### Database Tables Used:
+- **`files`** — Core file metadata and ownership
+- **`upload_status`** — Upload progress and status tracking
+- **`file_tags`** — File tagging and categorization
+- **`file_previews`** — Generated previews and thumbnails
+- **`file_audit_logs`** — Comprehensive audit trail
+
+#### Caching Strategy:
+- **Redis** for file metadata caching
+- **Redis** for upload status and progress tracking
+- **Redis** for frequently accessed file previews
+- **Redis** for search result caching
+- **Redis** for user activity metrics
 
 **🔄 UploadStatusManager**
 
