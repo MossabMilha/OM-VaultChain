@@ -1,9 +1,14 @@
 package com.omvaultchain.storage.model;
 
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
+@AllArgsConstructor
 public class UploadResponse {
-    private UUID fileId;
+    private String fileId;
+    private String cid;
     private String fileName;
     private String status;
+
 }

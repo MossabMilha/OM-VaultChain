@@ -1,16 +1,16 @@
 package com.omvaultchain.storage.model;
 
 import lombok.Data;
-
-import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UploadRequest {
     private String fileName;
     private String mimeType;
-    private long size;
-    private String encryptedCid;
-    private String fileHash;
-    private UUID ownerId;
-
+    private String ownerId;
+    public String getEncryptedFileName(String originalFileName) {
+        int lastDotIndex = originalFileName.lastIndexOf('.');
+        String baseName = lastDotIndex > 0 ? originalFileName.substring(0, lastDotIndex) : originalFileName;
+        return baseName + ".enc";
+    }
 }
