@@ -1,5 +1,6 @@
 package com.omvaultchain.storage.service;
 
+import com.omvaultchain.storage.model.BatchUploadResponse;
 import com.omvaultchain.storage.model.FileMetadata;
 import com.omvaultchain.storage.model.UploadRequest;
 import com.omvaultchain.storage.model.UploadResponse;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,5 +45,36 @@ public class FileUploadService {
         }catch (Exception e){
             throw new RuntimeException("Upload Failed : " + e.getMessage(), e);
         }
+    }
+    public List<BatchUploadResponse> uploadBatchFiles(List<MultipartFile> files, String ownerId) {
+        List<BatchUploadResponse> results = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            try {
+                UploadRequest request = new UploadRequest();
+                request.setOwnerId(ownerId);
+                request.setFileName(file.getOriginalFilename());
+                request.setMimeType(file.getContentType());
+
+                UploadResponse singleResponse = uploadSingleFile(request, file);
+
+                results.add(new BatchUploadResponse(
+                        singleResponse.getFileName(),
+                        singleResponse.getCid(),
+                        singleResponse.getStatus(),
+                        "Uploaded successfully"
+                ));
+
+            } catch (Exception e) {
+                results.add(new BatchUploadResponse(
+                        file.getOriginalFilename(),
+                        null,
+                        "UPLOAD_FAILED",
+                        e.getMessage()
+                ));
+            }
+        }
+
+        return results;
     }
 }
