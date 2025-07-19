@@ -1,6 +1,9 @@
 package com.omvaultchain.storage.service;
 
 import com.omvaultchain.storage.model.PinataUploadResponse;
+import com.omvaultchain.storage.model.UploadResponse;
+import com.omvaultchain.storage.model.UploadStatus;
+import com.omvaultchain.storage.repository.UploadStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +16,18 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class IPFSClient {
 
+    private final UploadStatusRepository uploadStatusRepository;
     @Value("${pinata.api-key}")
     private String apiKey;
 
@@ -90,6 +97,8 @@ public class IPFSClient {
             throw new RuntimeException("Error uploading file to Pinata", e);
         }
     }
+
+
 
 
 

@@ -1,16 +1,15 @@
 package com.omvaultchain.storage.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-
-public class UploadResponse {
+@Builder
+public class ResumeUploadResponse {
     private String fileId;
-    private String cid;
     private String fileName;
     private String status;
-
+    private long uploadedBytes;
+    private long totalBytes;
+    private String cid;
 }
