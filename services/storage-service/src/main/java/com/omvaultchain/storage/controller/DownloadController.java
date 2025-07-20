@@ -81,10 +81,7 @@ public class DownloadController {
         return fileDownloadService.downloadBatchByCIDs(request.getCIDs());
     }
 
-    @GetMapping("/stream/id")
-    public ResponseEntity<Resource> streamFileById(@RequestBody StreamRequest request, HttpServletRequest servletRequest) {
-        return fileDownloadService.streamFileById(request.getFileId(),servletRequest);
-    }
+
 
 
 
