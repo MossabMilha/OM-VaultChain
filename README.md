@@ -427,18 +427,17 @@ public class FileAuditService {
 #### Internal API Endpoints:
 
 **🔄 Upload Operations**
-- 🟡❌`POST /storage/upload` — Single file upload to IPFS
-- 🕓❌`POST /storage/upload/batch` — Bulk file upload
-- 🟡❌`POST /storage/upload/resume` — Resume interrupted upload
-- 🟡❌`GET /storage/upload/status/{uploadId}` — Upload progress status
-- 🕓❌`DELETE /storage/upload/{uploadId}` — Cancel upload operation
+- ✅`POST /storage/upload` — Single file upload to IPFS
+- ✅`POST /storage/upload/batch` — Bulk file upload
+- ✅`POST /storage/upload/resume` — Resume interrupted upload
+- ✅`GET /storage/upload/status/{uploadId}` — Upload progress status
+- ✅`DELETE /storage/upload/{uploadId}` — Cancel upload operation
 
 **⬇️ Download Operations**
-- 🟡`GET /storage/download/{fileId}` — Download file by ID
-- 🟡`GET /storage/download/cid/{cid}` — Download file by CID
-- 🕓❌`GET /storage/stream/{fileId}` — Stream file content
-- 🕓❌`GET /storage/preview/{fileId}` — Generate file preview
-- 🕓❌`POST /storage/download/batch` — Bulk download
+- ✅`GET /storage/download/id` — Download file by ID
+- ✅`GET /storage/download/cid/cid` — Download file by CID
+- ✅`POST /storage/download/batch/id` — Bulk download by ID
+- ✅`POST /storage/download/batch/cid` — Bulk download by CID
 
 **🔍 Search & Discovery**
 - 🟡❌`GET /storage/search` — Search files by metadata
@@ -455,10 +454,10 @@ public class FileAuditService {
 - 🕓❌`GET /storage/files/tags/{tagId}` — Files by tag
 
 **📊 Metadata Operations**
-- 🟡❌`GET /storage/files/{fileId}/metadata` — Get file metadata
-- 🟡❌`PUT /storage/files/{fileId}/metadata` — Update file metadata
-- 🕓❌`GET /storage/files/{fileId}/versions` — File version history
-- 🕓❌`POST /storage/files/{fileId}/analyze` — Analyze file content
+- 🟡❌`GET /storage/files/metadata` — Get file metadata
+- 🟡❌`PUT /storage/files/metadata` — Update file metadata
+- 🕓❌`GET /storage/files/versions` — File version history
+- 🕓❌`POST /storage/files/analyze` — Analyze file content
 
 **📈 Analytics & Metrics**
 - 🕓❌`GET /storage/metrics/usage` — Storage usage statistics
