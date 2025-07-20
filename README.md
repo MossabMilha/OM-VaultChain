@@ -440,11 +440,12 @@ public class FileAuditService {
 - ✅`POST /storage/download/batch/cid` — Bulk download by CID
 
 **🔍 Search & Discovery**
-- 🟡❌`GET /storage/search` — Search files by metadata
-- 🟡❌`GET /storage/files` — List user files with pagination
+- 🟡❌`GET /storage/search/metadata` — Search files by metadata
+- 🟡❌`GET /storage/files/owned` — List user files with pagination
+- 🟡❌`GET /storage/files/access` — List user files with pagination
+- 🟡❌`GET /storage/files/available` — List user files with pagination
 - 🕓❌`GET /storage/files/recent` — Recently accessed files
-- 🕓❌`GET /storage/files/shared` — Files shared with user
-- 🕓❌`GET /storage/files/public` — Public files
+
 
 **🏷️ Tagging & Organization**
 - 🕓❌`POST /storage/tags` — Create new tag
