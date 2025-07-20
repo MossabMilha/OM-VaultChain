@@ -3,7 +3,7 @@ package com.omvaultchain.storage.model;
 import lombok.Data;
 
 @Data
-public class DownloadRequest {
+public class StreamRequest {
     private String fileId;
-    private String cid;
+    private String CID;
 }

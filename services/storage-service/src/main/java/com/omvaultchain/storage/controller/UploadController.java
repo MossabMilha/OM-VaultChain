@@ -142,7 +142,7 @@ public class UploadController {
         ResumeUploadResponse response = fileUploadService.resumeUpload(uploadId,file);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("/cancel}")
+    @DeleteMapping("/cancel")
     public ResponseEntity<GenericResponse> cancelUpload(@RequestBody CancelUploadRequest request){
         fileUploadService.cancelUpload(request.getUploadId());
         return ResponseEntity.ok(new GenericResponse("Upload cancelled successfully"));

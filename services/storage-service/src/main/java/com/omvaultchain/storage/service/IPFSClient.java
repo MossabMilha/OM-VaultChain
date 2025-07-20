@@ -98,6 +98,46 @@ public class IPFSClient {
         }
     }
 
+    /**
+     * Downloads a file from IPFS via public gateway using the given CID.
+     *
+     * @param cid Content Identifier (CID) of the file on IPFS
+     * @return byte[] file content
+     */
+    public byte[] downloadFile(String cid) {
+        try {
+            String url = gatewayUrl.endsWith("/") ? gatewayUrl + "ipfs/" + cid : gatewayUrl + "/ipfs/" + cid;
+
+            RequestCallback requestCallback = request -> request.getHeaders()
+                    .setAccept(List.of(MediaType.APPLICATION_OCTET_STREAM));
+
+            return restTemplate.execute(url, HttpMethod.GET, requestCallback, response -> {
+                try (InputStream inputStream = response.getBody()) {
+                    if (inputStream == null) throw new IOException("Empty IPFS response");
+                    return inputStream.readAllBytes();
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Error downloading file from IPFS [CID: {}]", cid, e);
+            throw new RuntimeException("Failed to download file from IPFS", e);
+        }
+    }
+
+    public  InputStream streamFile(String cid){
+        try{
+            String url = gatewayUrl.endsWith("/") ? gatewayUrl + "ipfs/" + cid : gatewayUrl + "/ipfs/" + cid;
+            RequestCallback requestCallback = request ->request.getHeaders()
+                    .setAccept(List.of(MediaType.APPLICATION_OCTET_STREAM));
+            ResponseExtractor<InputStream> responseExtractor = response -> {
+                InputStream body = response.getBody();
+                if(body == null)throw new IOException("Empty IPFS response");
+                return new BufferedInputStream(body);
+            };
+            return restTemplate.execute(url, HttpMethod.GET, requestCallback, responseExtractor);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed To Stream File Fom IPFS");
+        }
+    }
 
 
 
