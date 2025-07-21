@@ -33,7 +33,7 @@ public class AccessController {
      * @return Details of the granted access.
      */
     @PostMapping("/grant")
-    public ResponseEntity<AccessGrantResponse> grantAccess(@Valid @RequestBody AccessGrantRequest request) {
+    public ResponseEntity<AccessGrantResponse> grantAccess(@RequestBody AccessGrantRequest request) {
         AccessGrantResponse response = accessGrantService.grantAccess(request);
         return ResponseEntity.ok(response);
     }
@@ -43,7 +43,7 @@ public class AccessController {
      * Request Body Example:
      * {
      *   "fileId": "file123",
-     *   "accessList": [
+     *   "users": [
      *     { "userId": "user1", "encryptedKey": "abc..." },
      *     { "userId": "user2", "encryptedKey": "def..." }
      *   ]

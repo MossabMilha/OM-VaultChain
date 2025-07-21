@@ -1,117 +1,189 @@
-# 🔐 OM VaultChain - Technical Specification
+# 🔐 OM VaultChain - Decentralized File Storage Platform
 
-> **Decentralized File Storage Platform with Blockchain Access Control**
+<div align="center">
 
-A comprehensive SaaS platform for encrypted file storage utilizing client-side encryption, blockchain (Ethereum/Polygon) for access control, and IPFS for decentralized storage.
+![OM VaultChain Logo](https://img.shields.io/badge/OM%20VaultChain-Decentralized%20Storage-blue?style=for-the-badge&logo=ethereum)
+
+**Secure • Decentralized • Blockchain-Powered**
+
+[![Java](https://img.shields.io/badge/Java-17+-orange?style=flat-square&logo=java)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2+-green?style=flat-square&logo=spring)](https://spring.io/projects/spring-boot)
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.19+-blue?style=flat-square&logo=solidity)](https://soliditylang.org/)
+[![IPFS](https://img.shields.io/badge/IPFS-Decentralized%20Storage-purple?style=flat-square&logo=ipfs)](https://ipfs.io/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-blue?style=flat-square&logo=docker)](https://docker.com/)
+
+</div>
 
 ---
 
 ## 🌟 What is OM VaultChain?
 
-**OM VaultChain (OMVC)** is a decentralized application that allows users to securely upload, store, and share their digital files with full privacy and traceability. When a user selects a file to upload, the application first encrypts it directly on their device using strong client-side encryption (AES-256), ensuring that no one  not even the platform itself  can view the file's contents without permission. Once encrypted, the file is uploaded to the IPFS (InterPlanetary File System), a decentralized storage network where files are distributed across multiple nodes for durability and censorship resistance. This process generates a unique content identifier (CID), which acts as a permanent reference to the file in the IPFS network. To ensure transparency, traceability, and tamper-proof access, OMVC registers the CID along with a secure hash of the encrypted file on a public blockchain like Polygon. This creates a verifiable record that proves the file's existence and integrity without exposing its content. Access control is also managed through smart contracts, allowing users to grant or revoke permissions in a transparent and auditable way. With this approach, OMVC guarantees that data remains private, unchangeable, and always under the control of its rightful owner  without relying on centralized servers or traditional cloud storage providers.
+**OM VaultChain (OMVC)** is a next-generation decentralized file storage platform that combines **client-side encryption**, **blockchain access control**, and **IPFS storage** to create a truly secure and private file management system.
+
+### 🔒 How It Works
+
+1. **🔐 Client-Side Encryption**: Files are encrypted on your device using AES-256-GCM before leaving your computer
+2. **🌐 IPFS Storage**: Encrypted files are stored on the decentralized IPFS network for durability and censorship resistance
+3. **⛓️ Blockchain Registry**: File metadata and access permissions are recorded on Polygon blockchain for transparency
+4. **🔑 Smart Contract Access Control**: Granular permissions managed through immutable smart contracts
+5. **🔄 Zero-Knowledge Architecture**: Even we can't access your files without your permission
+
+### 🎯 Key Benefits
+
+- **🛡️ True Privacy**: Client-side encryption ensures only you control access to your data
+- **🌍 Decentralized**: No single point of failure with IPFS distributed storage
+- **⚖️ Transparent**: All access permissions recorded on blockchain for auditability
+- **🔄 Revocable**: Grant and revoke access permissions in real-time
+- **📱 Cross-Platform**: Works on web, mobile, and desktop applications
 
 ---
 
 ## 📋 Table of Contents
 
-- [🎯 Project Overview](#-project-overview)
+- [🚀 Quick Start](#-quick-start)
+- [🏗️ Architecture Overview](#️-architecture-overview)
 - [🛠️ Technology Stack](#️-technology-stack)
-- [🏗️ System Architecture](#️-system-architecture)
-- [🖥️ Frontend Layer](#️-frontend-layer)
-- [🌐 API Gateway](#-api-gateway)
-- [🔧 Backend Microservices](#-backend-microservices)
-- [📊 Database Schema](#-database-schema)
-- [🚀 Development Guidelines](#-development-guidelines)
+- [🔧 Microservices](#-microservices)
+- [⛓️ Smart Contracts](#️-smart-contracts)
+- [🗄️ Database Schema](#️-database-schema)
+- [🐳 Docker Deployment](#-docker-deployment)
+- [🔒 Security Features](#-security-features)
+- [📱 API Documentation](#-api-documentation)
+- [🧪 Testing](#-testing)
+- [🚀 Development Setup](#-development-setup)
+- [📈 Roadmap](#-roadmap)
 
 ---
 
-## 🎯 Project Overview
+## 🚀 Quick Start
 
-### Context
-OM VaultChain provides secure, decentralized file storage with immutable access control through blockchain technology and client-side encryption.
+### Prerequisites
+- **Java 17+** - For backend services
+- **Node.js 18+** - For smart contract development
+- **Docker & Docker Compose** - For containerized deployment
+- **MySQL 8.0+** - Database
+- **Redis 7.0+** - Caching layer
 
-### Objectives
-- ✅ Enable encrypted file uploads with complete access control
-- ✅ Provide revocable, traceable, transparent, and tamper-proof access system
-- ✅ Deliver secure, scalable infrastructure compliant with privacy requirements
+### 🏃‍♂️ Run with Docker
 
-### Target Audience
-- 🏢 **Enterprises** handling sensitive data
-- ⚖️ **Legal professionals** (lawyers, accountants)
-- 👤 **Individuals** protecting personal documents
-- 🛡️ **Cybersecurity companies**
+```bash
+# Clone the repository
+git clone https://github.com/your-org/om-vaultchain.git
+cd om-vaultchain
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start all services
+docker-compose up -d
+
+# Check service health
+curl http://localhost:8002/health  # Encryption Service
+curl http://localhost:8003/health  # Storage Service
+curl http://localhost:8004/health  # Blockchain Service
+```
+
+### 🎯 Target Use Cases
+
+- **🏢 Enterprise Document Management**: Secure sharing of confidential business documents
+- **⚖️ Legal & Compliance**: Tamper-proof document storage with audit trails
+- **🏥 Healthcare**: HIPAA-compliant patient record management
+- **💼 Financial Services**: Secure client document storage and sharing
+- **🎓 Education**: Secure academic record and certificate management
+- **👤 Personal Privacy**: Individual secure file storage and sharing
+
+---
+
+## 🏗️ Architecture Overview
+
+OM VaultChain follows a **microservices architecture** with clear separation of concerns, ensuring scalability, maintainability, and security.
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        WEB[Web App]
+        MOBILE[Mobile App]
+        API_CLIENT[API Client]
+    end
+
+    subgraph "Gateway Layer"
+        GATEWAY[API Gateway<br/>Spring Cloud Gateway]
+    end
+
+    subgraph "Microservices Layer"
+        ENCRYPT[Encryption Service<br/>AES-256 + RSA]
+        STORAGE[Storage Service<br/>IPFS Integration]
+        BLOCKCHAIN[Blockchain Service<br/>Smart Contracts]
+        ACCESS[Access Control Service<br/>Permissions & Audit]
+    end
+
+    subgraph "Data Layer"
+        MYSQL[(MySQL 8.0<br/>Metadata)]
+        REDIS[(Redis 7.0<br/>Cache)]
+        IPFS[IPFS Network<br/>File Storage]
+        POLYGON[Polygon Blockchain<br/>Access Control]
+    end
+
+    WEB --> GATEWAY
+    MOBILE --> GATEWAY
+    API_CLIENT --> GATEWAY
+
+    GATEWAY --> ENCRYPT
+    GATEWAY --> STORAGE
+    GATEWAY --> BLOCKCHAIN
+    GATEWAY --> ACCESS
+
+    ENCRYPT --> REDIS
+    STORAGE --> MYSQL
+    STORAGE --> REDIS
+    STORAGE --> IPFS
+    BLOCKCHAIN --> POLYGON
+    ACCESS --> MYSQL
+    ACCESS --> REDIS
+```
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| 🔐 **Encryption** | Java + BouncyCastle (AES-256-GCM, RSA/ECIES) | Client-side encryption |
-| 📦 **Storage** | IPFS with Pinata | Decentralized file storage |
-| ⛓️ **Smart Contracts** | Solidity on Polygon + Hardhat | Access control & metadata |
-| 🔗 **Blockchain SDK** | web3j (Java) | Smart contract interaction |
-| 🧩 **Backend Coordination** | Spring Boot | Microservices orchestration |
-| 📊 **Metadata Format** | Custom JSON structure | File metadata management |
-| 👛 **Wallet/Auth** | MetaMask, WalletConnect | User authentication |
-| 🖥️ **Frontend** | React (web) or Flutter (mobile) | User interface |
-| 🌐 **API Gateway** | Spring Cloud Gateway | Service coordination |
-| 💾 **Database** | MySQL 8.0 + Redis | Metadata & caching |
+<div align="center">
+
+| **Category** | **Technology** | **Version** | **Purpose** |
+|--------------|----------------|-------------|-------------|
+| 🔐 **Encryption** | Java + BouncyCastle | 17+ / 1.70+ | AES-256-GCM, RSA/ECIES encryption |
+| 🌐 **Backend** | Spring Boot | 3.2+ | Microservices framework |
+| 📦 **Storage** | IPFS + Pinata | Latest | Decentralized file storage |
+| ⛓️ **Blockchain** | Solidity + Hardhat | 0.8.19+ | Smart contracts on Polygon |
+| 🔗 **Web3 SDK** | web3j | 4.9+ | Blockchain integration |
+| 💾 **Database** | MySQL | 8.0+ | Metadata persistence |
+| ⚡ **Cache** | Redis | 7.0+ | High-performance caching |
+| 🐳 **Deployment** | Docker + Compose | Latest | Containerization |
+| 🧪 **Testing** | JUnit + Mockito | 5+ | Unit & integration testing |
+| 📊 **Monitoring** | Prometheus + Grafana | Latest | Metrics & observability |
+
+</div>
 
 ---
 
-## 🏗️ System Architecture
+## 🔧 Microservices
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Frontend Layer                          │
-├─────────────────────┬─────────────────────┬─────────────────┤
-│   Front Office App  │   Back Office App   │  Auth Interface │
-│   (User Platform)   │   (Admin Portal)    │  (Wallet Auth)  │
-└─────────────────────┴─────────────────────┴─────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                     API Gateway                             │
-│              Spring Cloud Gateway                           │
-└─────────────────────────────────────────────────────────────┘
-                            │
-┌─────────────────────────────────────────────────────────────┐
-│                   Backend Microservices                     │
-├─────────────┬─────────────┬─────────────┬───────────────────┤
-│auth-service │encryption-  │storage-     │blockchain-        │
-│             │service      │service      │service            │
-│             │             │             │                   │
-│             │             │             │                   │
-├─────────────┴─────────────┴─────────────┴───────────────────┤
-│access-control-service     │ metadata-service                │
-│                           │                                 │
-└─────────────────────────────────────────────────────────────┘
-                            │
-┌─────────────────────────────────────────────────────────────┐
-│                  External Services                          │
-├─────────────────────┬─────────────────────┬─────────────────┤
-│       IPFS          │    Blockchain       │    Database     │
-│   (Pinata/Web3)     │  (Polygon Network)  │    (MySQL)      │
-└─────────────────────┴─────────────────────┴─────────────────┘
-```
+OM VaultChain is built using a **microservices architecture** with four core services, each handling specific responsibilities:
 
-## 🖥️ Frontend Layer
+### 🔐 Encryption Service
+**Port: 8002** | **Technology: Spring Boot + BouncyCastle**
 
-## 🌐 API Gateway
+Handles all cryptographic operations with enterprise-grade security.
 
-## 🔧 Backend Microservices
+**Key Features:**
+- **AES-256-GCM** encryption for files
+- **RSA/ECIES** for key encryption
+- **SHA-256** file hashing
+- **Secure IV generation**
+- **Multi-recipient key envelopes**
 
-### 🔐 auth-service
-
----
-
-### 🔐 encryption-service
-**Technology:** Spring Boot + BouncyCastle + AES-256-GCM
-
-#### Internal Components:
-
-**🔒 AESService**
-```java
+<augment_code_snippet path="services/encryption-service/src/main/java/com/omvaultchain/service/AESService.java" mode="EXCERPT">
+````java
 @Service
 public class AESService {
     // AES-256-GCM encryption/decryption
@@ -119,894 +191,177 @@ public class AESService {
     // IV management (12 bytes)
     // Tag verification
 }
-```
+````
+</augment_code_snippet>
 
-**🔑 AsymmetricEncryptionService**
-```java
-@Service
-public class AsymmetricEncryptionService {
-    // RSA/ECIES key encryption
-    // Public key validation
-    // AES key wrapping/unwrapping
-}
-```
+**API Endpoints:**
+- `POST /encrypt` - Encrypt file with AES-256-GCM
+- `POST /decrypt` - Decrypt file for authorized users
+- `POST /generate-key` - Generate secure AES keys
+- `POST /hash-file` - Generate SHA-256 file hash</augment_code_snippet>
 
-**🔍 FileHashService**
-```java
-@Service
-public class FileHashService {
-    // SHA-256 hash generation
-    // Integrity verification
-    // Unique file identification
-}
-```
+### 📦 Storage Service
+**Port: 8003** | **Technology: Spring Boot + IPFS + Pinata**
 
-**🎲 IVGenerator**
-```java
-@Component
-public class IVGenerator {
-    // Secure random IV generation
-    // GCM nonce management
-}
-```
+Manages file storage operations on the decentralized IPFS network.
 
-**📦 KeyEnvelopeBuilder**
-```java
-@Service
-public class KeyEnvelopeBuilder {
-    // Multi-user key envelope creation
-    // Encrypted key packaging
-    // Recipient management
-}
-```
+**Key Features:**
+- **IPFS integration** with Pinata pinning service
+- **Multi-part uploads** for large files
+- **File metadata extraction** and management
+- **Download access validation**
+- **Storage analytics** and metrics
 
-**🎼 CryptoOrchestrator**
-```java
-@Service
-public class CryptoOrchestrator {
-    // End-to-end encryption workflow
-    // Key management coordination
-    // Multi-recipient handling
-}
-```
-
-#### Project Structure:
-```
-encryption-service/
-├── src/main/java/com/omvaultchain/encryption/
-│   ├── controller/CryptoController.java
-│   ├── service/
-│   │   ├── AESService.java
-│   │   ├── AsymmetricEncryptionService.java
-│   │   ├── FileHashService.java
-│   │   ├── IVGenerator.java
-│   │   ├── KeyEnvelopeBuilder.java
-│   │   └── CryptoOrchestrator.java
-│   ├── model/
-│   │   ├── EncryptionRequest.java
-│   │   ├── EncryptionResponse.java
-│   │   └── KeyEnvelope.java
-│   └── config/CryptoConfig.java
-├── Dockerfile
-└── pom.xml
-```
-
----
-
-### 📦 storage-service
-**Technology:** Spring Boot + IPFS Client + Pinata API + Web3.Storage
-
-A comprehensive microservice handling all file-related operations including encrypted uploads, secure downloads, metadata management, file tagging, audit logging, and performance metrics. Supports both B2B enterprise bulk operations and B2C individual user scenarios with IPFS decentralized storage integration.
-
-#### Internal Components:
-
-**🌐 IPFSClient**
-```java
-@Service
-public class IPFSClient {
-    // Pinata/Web3.Storage API integration
-    // Multi-gateway failover support
-    // Pin management and lifecycle
-    // Node availability monitoring
-    // Automatic re-pinning on failure
-    // Gateway performance optimization
-    // Connection pooling and retry logic
-}
-```
-
-**⬆️ FileUploadService**
-```java
+<augment_code_snippet path="services/storage-service/src/main/java/com/omvaultchain/service/FileUploadService.java" mode="EXCERPT">
+````java
 @Service
 public class FileUploadService {
     // Encrypted file upload orchestration
     // Multi-part upload handling for large files
     // Progress tracking and real-time callbacks
     // Duplicate detection and deduplication
-    // Upload validation and virus scanning
-    // Bandwidth optimization and throttling
-    // Error recovery and resume capability
 }
-```
+````
+</augment_code_snippet>
 
-**⬇️ FileDownloadService**
-```java
-@Service
-public class FileDownloadService {
-    // Secure file retrieval from IPFS
-    // Access permission validation
-    // Content streaming and partial downloads
-    // Download resume capability
-    // Bandwidth throttling and quota management
-    // Cache management for frequently accessed files
-    // Geographic proximity routing
+**API Endpoints:**
+- `POST /storage/upload` - Upload encrypted file to IPFS
+- `GET /storage/download/{cid}` - Download file by CID
+- `GET /storage/metadata/{fileId}` - Get file metadata
+- `POST /storage/upload/batch` - Bulk file upload</augment_code_snippet>
+
+### ⛓️ Blockchain Service
+**Port: 8004** | **Technology: Spring Boot + web3j + Solidity**
+
+Manages smart contract interactions and blockchain operations.
+
+**Key Features:**
+- **File registration** on Polygon blockchain
+- **Access control** via smart contracts
+- **Version management** and history
+- **Event listening** for blockchain events
+- **Gas optimization** strategies
+
+<augment_code_snippet path="contracts/contracts/FileRegistry.sol" mode="EXCERPT">
+````solidity
+contract FileRegistry {
+    struct File{
+        string cid;
+        string fileHash;
+        address owner;
+        uint256 timestamp;
+    }
+
+    function registerFile(string memory cid, string memory fileHash) public {
+        files[cid] = File(cid, fileHash, msg.sender, block.timestamp);
+        emit FileRegistered(cid, fileHash, msg.sender, block.timestamp);
+    }
 }
-```
+````
+</augment_code_snippet>
 
-**🔄 FileStreamingService**
-```java
-@Service
-public class FileStreamingService {
-    // HTTP range request handling
-    // Chunked transfer encoding
-    // Memory-efficient streaming for large files
-    // Connection pooling and concurrent streams
-    // Stream compression/decompression
-    // Adaptive bitrate streaming
-    // Real-time progress monitoring
-}
-```
+**API Endpoints:**
+- `POST /register-file` - Register file on blockchain
+- `POST /grant-access` - Grant user access to file
+- `POST /revoke-access` - Revoke user access
+- `GET /has-access` - Check user access permissions</augment_code_snippet>
 
-**📊 MetadataExtractor**
-```java
-@Service
-public class MetadataExtractor {
-    // File metadata extraction (size, type, dimensions)
-    // MIME type detection and validation
-    // File signature verification
-    // Encoding detection and charset handling
-    // Timestamp capture and timezone handling
-    // Checksum generation (SHA-256, MD5)
-    // Content analysis for security scanning
-}
-```
+### 🔒 Access Control Service
+**Port: 8005** | **Technology: Spring Boot + Redis + MySQL**
 
-**🏷️ FileTaggingService**
-```java
-@Service
-public class FileTaggingService {
-    // Tag creation and management
-    // Tag hierarchy and categorization
-    // Bulk tagging operations
-    // Tag-based search and filtering
-    // Tag analytics and usage statistics
-    // Auto-tagging based on content analysis
-    // Tag permission and access control
-}
-```
+Manages dynamic access permissions and audit trails.
 
-**🔍 FileSearchService**
-```java
-@Service
-public class FileSearchService {
-    // Full-text search across file metadata
-    // Advanced filtering (date, size, type, tags)
-    // Search index maintenance
-    // Query optimization and caching
-    // Search analytics and suggestions
-    // Elasticsearch integration
-    // Faceted search capabilities
-}
-```
+**Key Features:**
+- **Role-based access control** (RBAC)
+- **Policy engine** for complex permissions
+- **Real-time access validation**
+- **Comprehensive audit logging**
+- **Organization management**
 
-**📋 FilePreviewService**
-```java
-@Service
-public class FilePreviewService {
-    // Thumbnail generation for images/videos
-    // Document preview generation
-    // Preview caching and optimization
-    // Multiple format support (PDF, images, videos)
-    // Security-aware preview generation
-    // Watermarking for sensitive content
-    // Progressive loading for large previews
-}
-```
+**API Endpoints:**
+- `POST /access/grant` - Grant file access to user
+- `POST /access/validate` - Validate user access
+- `GET /access/audit/{fileId}` - Get access audit trail
+- `POST /access/revoke` - Revoke user access
 
-**📦 BatchOperationService**
-```java
-@Service
-public class BatchOperationService {
-    // Bulk upload/download operations
-    // Parallel processing management
-    // Progress aggregation and reporting
-    // Failure handling and partial retry
-    // Resource management and throttling
-    // Enterprise-grade bulk operations
-    // Queue management and prioritization
-}
-```
-
-**🔒 AccessControlValidator**
-```java
-@Service
-public class AccessControlValidator {
-    // Download permission verification
-    // User authorization checking
-    // Access token validation
-    // Rate limiting enforcement
-    // Suspicious activity detection
-    // Audit trail generation
-    // IP-based access control
-}
-```
-
-**✅ CIDVerifier**
-```java
-@Service
-public class CIDVerifier {
-    // CID format validation
-    // Hash verification against blockchain
-    // Content integrity checks
-    // Multihash validation
-    // Version compatibility checking
-    // Corrupted file detection and recovery
-    // Blockchain synchronization verification
-}
-```
-
-**🔄 UploadStatusManager**
-```java
-@Service
-public class UploadStatusManager {
-    // Real-time upload progress tracking
-    // Status persistence and recovery
-    // WebSocket notifications
-    // Multi-part upload coordination
-    // Failure detection and retry logic
-    // Upload queue management
-    // Progress aggregation for batch uploads
-}
-```
-
-**📈 StorageMetricsCollector**
-```java
-@Service
-public class StorageMetricsCollector {
-    // Upload/download statistics
-    // Storage usage analytics
-    // Performance metrics collection
-    // Error rate monitoring
-    // User activity tracking
-    // Cost analysis and optimization
-    // Capacity planning data
-}
-```
-
-**🗃️ FileAvailabilityChecker**
-```java
-@Service
-public class FileAvailabilityChecker {
-    // IPFS node availability monitoring
-    // File pinning status verification
-    // Gateway health checking
-    // Redundancy validation
-    // Automatic re-pinning on failure
-    // Performance metrics collection
-    // Alerting for unavailable files
-}
-```
-
-**🎯 ContentDeliveryOptimizer**
-```java
-@Service
-public class ContentDeliveryOptimizer {
-    // Gateway selection optimization
-    // Geographic proximity routing
-    // Load balancing across gateways
-    // Performance monitoring and analysis
-    // Failover management
-    // Cache hit optimization
-    // Network latency reduction
-}
-```
-
-**📋 FileAuditService**
-```java
-@Service
-public class FileAuditService {
-    // Comprehensive audit logging
-    // File access tracking
-    // User activity monitoring
-    // Compliance reporting
-    // Security event logging
-    // Forensic analysis support
-    // Automated compliance checks
-}
-```
-
-#### Internal API Endpoints:
-
-**🔄 Upload Operations**
-- ✅`POST /storage/upload` — Single file upload to IPFS
-- ✅`POST /storage/upload/batch` — Bulk file upload
-- ✅`POST /storage/upload/resume` — Resume interrupted upload
-- ✅`GET /storage/upload/status/{uploadId}` — Upload progress status
-- ✅`DELETE /storage/upload/{uploadId}` — Cancel upload operation
-
-**⬇️ Download Operations**
-- ✅`GET /storage/download/id` — Download file by ID
-- ✅`GET /storage/download/cid/cid` — Download file by CID
-- ✅`POST /storage/download/batch/id` — Bulk download by ID
-- ✅`POST /storage/download/batch/cid` — Bulk download by CID
-
-**🔍 Search & Discovery**
-- 🟡❌`GET /storage/search/metadata` — Search files by metadata
-- 🟡❌`GET /storage/files/owned` — List user files with pagination
-- 🟡❌`GET /storage/files/access` — List user files with pagination
-- 🟡❌`GET /storage/files/available` — List user files with pagination
-- 🕓❌`GET /storage/files/recent` — Recently accessed files
-
-
-**🏷️ Tagging & Organization**
-- 🕓❌`POST /storage/tags` — Create new tag
-- 🕓❌`GET /storage/tags` — List all user tags
-- 🕓❌`PUT /storage/files/{fileId}/tags` — Add tags to file
-- 🕓❌`DELETE /storage/files/{fileId}/tags` — Remove tags from file
-- 🕓❌`GET /storage/files/tags/{tagId}` — Files by tag
-
-**📊 Metadata Operations**
-- 🟡❌`GET /storage/files/metadata` — Get file metadata
-- 🟡❌`PUT /storage/files/metadata` — Update file metadata
-- 🕓❌`GET /storage/files/versions` — File version history
-- 🕓❌`POST /storage/files/analyze` — Analyze file content
-
-**📈 Analytics & Metrics**
-- 🕓❌`GET /storage/metrics/usage` — Storage usage statistics
-- 🕓❌`GET /storage/metrics/performance` — Performance metrics
-- 🕓❌`GET /storage/metrics/activity` — User activity analytics
-- 🕓❌`GET /storage/health` — Service health check
-
-**🔒 Access Control**
-- 🟡❌`POST /storage/access/validate` — Validate file access
-- 🕓❌`GET /storage/access/history/{fileId}` — Access history
-- 🕓❌`POST /storage/access/audit` — Generate audit report
-  
-**🗑️ File Deletion**
-- 🕓❌`DELETE /storage/files/{fileId}` — Soft-delete a file (sets `is_deleted=true` in the DB)
-  > Note: This does **not remove the file from IPFS** — it only hides it from the user's file list and marks it as deleted in the database.
-  
-#### Project Structure:
-```
-storage-service/
-├── src/main/java/com/omvaultchain/storage/
-│   ├── controller/
-│   │   ├── FileController.java
-│   │   ├── UploadController.java
-│   │   ├── DownloadController.java
-│   │   ├── StreamingController.java
-│   │   ├── SearchController.java
-│   │   ├── TaggingController.java
-│   │   ├── MetricsController.java
-│   │   └── AuditController.java
-│   ├── service/
-│   │   ├── IPFSClient.java
-│   │   ├── FileUploadService.java
-│   │   ├── FileDownloadService.java
-│   │   ├── FileStreamingService.java
-│   │   ├── MetadataExtractor.java
-│   │   ├── FileTaggingService.java
-│   │   ├── FileSearchService.java
-│   │   ├── FilePreviewService.java
-│   │   ├── BatchOperationService.java
-│   │   ├── AccessControlValidator.java
-│   │   ├── CIDVerifier.java
-│   │   ├── UploadStatusManager.java
-│   │   ├── StorageMetricsCollector.java
-│   │   ├── FileAvailabilityChecker.java
-│   │   ├── ContentDeliveryOptimizer.java
-│   │   └── FileAuditService.java
-│   ├── model/
-│   │   ├── FileMetadata.java
-│   │   ├── UploadRequest.java
-│   │   ├── UploadResponse.java
-│   │   ├── DownloadRequest.java
-│   │   ├── DownloadResponse.java
-│   │   ├── StreamingRequest.java
-│   │   ├── SearchRequest.java
-│   │   ├── TagRequest.java
-│   │   ├── StorageMetrics.java
-│   │   ├── AuditRecord.java
-│   │   └── IPFSGatewayConfig.java
-│   ├── repository/
-│   │   ├── FileMetadataRepository.java
-│   │   ├── UploadStatusRepository.java
-│   │   ├── FileTagRepository.java
-│   │   ├── FilePreviewRepository.java
-│   │   ├── FileAuditLogRepository.java
-│   │   ├── DownloadHistoryRepository.java
-│   │   └── StorageMetricsRepository.java
-│   └── config/
-│       ├── StorageConfig.java
-│       ├── IPFSConfig.java
-│       ├── CacheConfig.java
-│       └── MetricsConfig.java
-├── Dockerfile
-└── pom.xml
-```
-
-#### Database Tables Used:
-- **`files`** — Core file metadata and ownership
-- **`upload_status`** — Upload progress and status tracking
-- **`file_tags`** — File tagging and categorization
-- **`file_previews`** — Generated previews and thumbnails
-- **`file_audit_logs`** — Comprehensive audit trail
-
-#### Caching Strategy:
-- **Redis** for file metadata caching
-- **Redis** for upload status and progress tracking
-- **Redis** for frequently accessed file previews
-- **Redis** for search result caching
-- **Redis** for user activity metrics
-
-### 🔐 access-control-service
-**Technology:** Spring Boot + Redis + MySQL + JWT + Policy Engine
-
-A comprehensive microservice managing dynamic file access control, role-based permissions, policy enforcement, and audit trails. Handles both individual user access and enterprise-level organization access control with blockchain integration for critical operations.
-
-#### Internal Components:
-
-**🔍 AccessRequestHandler**
-```java
-@Service
-public class AccessRequestHandler {
-    // Validates incoming access requests
-    // User/organization authentication verification
-    // File existence and ownership validation
-    // Request sanitization and security checks
-    // Rate limiting enforcement per user/IP
-    // Suspicious activity detection and blocking
-}
-```
-
-**⚖️ PermissionEvaluator**
-```java
-@Service
-public class PermissionEvaluator {
-    // Role-based access control (RBAC) evaluation
-    // Access control list (ACL) policy enforcement
-    // Token validation and expiration checks
-    // IP whitelisting and geolocation restrictions
-    // Time-based access window validation
-    // Download count and quota enforcement
-}
-```
-
-**🧠 PolicyEngine**
-```java
-@Service
-public class PolicyEngine {
-    // Dynamic JSON-based policy evaluation
-    // Custom rule engine with condition matching
-    // Policy template management and versioning
-    // Complex conditional logic processing
-    // Policy conflict resolution and prioritization
-    // Real-time policy updates and hot-reloading
-}
-```
-
-**🎯 AccessGrantService**
-```java
-@Service
-public class AccessGrantService {
-    // File access granting orchestration
-    // Blockchain smart contract integration
-    // AES key encryption for new recipients
-    // Multi-user batch access granting
-    // Access expiration scheduling and management
-    // Emergency access revocation capabilities
-}
-```
-
-**🚫 AccessRevokeService**
-```java
-@Service
-public class AccessRevokeService {
-    // Individual and bulk access revocation
-    // Blockchain transaction coordination
-    // Real-time access invalidation
-    // Cache invalidation and cleanup
-    // Cascade revocation for dependent access
-    // Emergency lockdown procedures
-}
-```
-
-**📋 AccessAuditService**
-```java
-@Service
-public class AccessAuditService {
-    // Comprehensive access logging and tracking
-    // Real-time audit trail generation
-    // Compliance reporting and analytics
-    // Suspicious activity pattern detection
-    // Historical access analysis and insights
-    // Regulatory compliance validation
-}
-```
-
-**🏢 OrganizationAccessManager**
-```java
-@Service
-public class OrganizationAccessManager {
-    // Enterprise-level access management
-    // Role-to-files mapping and bulk operations
-    // Department and team-based access control
-    // Hierarchical permission inheritance
-    // Organization policy enforcement
-    // Bulk user onboarding and offboarding
-}
-```
-
-**🔒 AccessTokenManager**
-```java
-@Service
-public class AccessTokenManager {
-    // JWT access token generation and validation
-    // Short-lived token management for downloads
-    // Token refresh and renewal logic
-    // Token blacklisting and revocation
-    // Cryptographic signature verification
-    // Multi-factor authentication integration
-}
-```
-
-**📊 AccessAnalyticsService**
-```java
-@Service
-public class AccessAnalyticsService {
-    // Access pattern analysis and insights
-    // User behavior tracking and profiling
-    // File popularity and usage statistics
-    // Security anomaly detection
-    // Performance metrics collection
-    // Business intelligence reporting
-}
-```
-
-**⏰ AccessSchedulerService**
-```java
-@Service
-public class AccessSchedulerService {
-    // Time-based access scheduling and automation
-    // Access expiration management
-    // Scheduled policy updates and changes
-    // Automated access reviews and renewals
-    // Background cleanup and maintenance
-    // Notification scheduling for access events
-}
-```
-
-**🔄 AccessSyncService**
-```java
-@Service
-public class AccessSyncService {
-    // Cross-service access state synchronization
-    // Blockchain state consistency verification
-    // Cache coherence and invalidation
-    // Event-driven access updates
-    // Conflict resolution and reconciliation
-    // Distributed system consistency management
-}
-```
-
-**🎭 RolePermissionManager**
-```java
-@Service
-public class RolePermissionManager {
-    // Role definition and management
-    // Permission mapping and assignment
-    // Role hierarchy and inheritance
-    // Dynamic role updates and modifications
-    // Role-based file access templates
-    // Permission aggregation and optimization
-}
-```
-
-**🌐 IPAccessController**
-```java
-@Service
-public class IPAccessController {
-    // IP-based access control and validation
-    // Geolocation-based restrictions
-    // VPN and proxy detection
-    // IP reputation scoring and blocking
-    // Dynamic IP whitelist management
-    // Network-based access policies
-}
-```
-
-**📈 AccessMetricsCollector**
-```java
-@Service
-public class AccessMetricsCollector {
-    // Access control performance metrics
-    // Success/failure rate monitoring
-    // Response time and latency tracking
-    // Resource utilization analysis
-    // Error rate and exception monitoring
-    // Service health and availability tracking
-}
-```
-
-**🔔 AccessNotificationService**
-```java
-@Service
-public class AccessNotificationService {
-    // Real-time access event notifications
-    // Multi-channel notification delivery
-    // Customizable notification templates
-    // Escalation and priority management
-    // Notification history and tracking
-    // Integration with external systems
-}
-```
-
-#### Internal API Endpoints:
-
-**🔓 Access Grant Operations**
-- ✅`POST /access/grant` — Grant user access to file
-- ✅`POST /access/grant/multiple` — Bulk access granting for multiple users
-- ✅`POST /access/grant/temporary` — Grant temporary time-limited access
-- 🟡❌`POST /access/grant/role` — Grant access based on user role
-
-**🚫 Access Revoke Operations**
-- ✅`POST /access/revoke` — Revoke user access from file
-- ✅`POST /access/revoke/multiple` — Bulk access revocation
-- ✅`POST /access/remove-all` — Revoke all access to file
-
-**✅ Access Validation**
-- ✅`POST /access/validate` — Validate user access to file
-- ✅`POST /access/validate/bulk` — Bulk access validation
-- ✅`GET /access/check/{fileId}/{userId}` — Check specific user access
-
-**📋 Access Management**
-- 🟡❌`GET /access/list/{fileId}` — List all users with file access
-- 🟡❌`GET /access/files/{userId}` — List files accessible by user
-- 🟡❌`GET /access/permissions/{userId}` — Get user's all permissions
-- 🟡❌`PUT /access/update/{permissionId}` — Update access permissions
-- 🟡❌`GET /access/status/{fileId}` — Get file access status summary
-
-**🧠 Policy Management**
-- 🟡❌`POST /access/policy` — Create/update file access policy
-- 🟡❌`GET /access/policy/{fileId}` — Get file access policies
-- 🟡❌`DELETE /access/policy/{policyId}` — Delete access policy
-- 🟡❌`POST /access/policy/template` — Create policy template
-- 🟡❌`GET /access/policy/validate` — Validate policy configuration
-
-**🏢 Organization Management**
-- 🟡❌`POST /access/org/create` — Create organization access group
-- 🟡❌`POST /access/org/assign` — Assign users to organization
-- 🟡❌`GET /access/org/members/{orgId}` — List organization members
-- 🟡❌`POST /access/org/bulk-grant` — Bulk grant for organization
-- 🟡❌`GET /access/org/files/{orgId}` — List organization accessible files
-
-**🎭 Role Management**
-- 🟡❌`POST /access/roles` — Create access role
-- 🟡❌`GET /access/roles` — List all roles
-- 🟡❌`PUT /access/roles/{roleId}` — Update role permissions
-- 🟡❌`DELETE /access/roles/{roleId}` — Delete role
-- 🟡❌`POST /access/roles/assign` — Assign role to user
-
-**📊 Analytics & Audit**
-- ✅`GET /access/audit/{fileId}` — Get file access audit log
-- ✅`GET /access/audit/user/{userId}` — Get user access history
-- 🟡❌`POST /access/audit/report` — Generate compliance report
-- 🟡❌`GET /access/analytics/usage` — Access usage analytics
-- 🟡❌`GET /access/analytics/patterns` — Access pattern analysis
-
-**⏰ Scheduled Operations**
-- 🕓❌`POST /access/schedule/grant` — Schedule future access grant
-- 🕓❌`POST /access/schedule/revoke` — Schedule future access revocation
-- 🕓❌`GET /access/schedule/list` — List scheduled operations
-- 🕓❌`DELETE /access/schedule/{scheduleId}` — Cancel scheduled operation
-
-**🔄 Synchronization**
-- 🟡❌`POST /access/sync/blockchain` — Sync with blockchain state
-- 🟡❌`POST /access/sync/cache` — Refresh cache from database
-- 🟡❌`GET /access/sync/status` — Get synchronization status
-
-**📈 Monitoring & Health**
-- ✅`GET /access/health` — Service health check
-- 🟡❌`GET /access/metrics` — Access control metrics
-- 🟡❌`GET /access/performance` — Performance statistics
-
-#### Project Structure:
-```
-access-control-service/
-├── src/main/java/com/omvaultchain/accesscontrol/
-│   ├── controller/AccessControlController.java
-│   ├── service/
-│   │   ├── AccessRequestHandler.java
-│   │   ├── PermissionEvaluator.java
-│   │   ├── PolicyEngine.java
-│   │   ├── AccessGrantService.java
-│   │   ├── AccessRevokeService.java
-│   │   ├── AccessAuditService.java
-│   │   ├── OrganizationAccessManager.java
-│   │   ├── AccessTokenManager.java
-│   │   ├── AccessAnalyticsService.java
-│   │   ├── AccessSchedulerService.java
-│   │   ├── AccessSyncService.java
-│   │   ├── RolePermissionManager.java
-│   │   ├── IPAccessController.java
-│   │   ├── AccessMetricsCollector.java
-│   │   └── AccessNotificationService.java
-│   ├── model/
-│   │   ├── AccessRequest.java
-│   │   ├── AccessResponse.java
-│   │   ├── AccessPermission.java
-│   │   ├── AccessPolicy.java
-│   │   ├── AccessToken.java
-│   │   ├── AccessAuditRecord.java
-│   │   ├── OrganizationAccess.java
-│   │   ├── RolePermission.java
-│   │   ├── AccessSchedule.java
-│   │   ├── AccessMetrics.java
-│   │   ├── PolicyTemplate.java
-│   │   └── IPAccessRule.java
-│   └── config/AccessControlConfig.java
-├── Dockerfile
-└── pom.xml
-```
-
-#### Database Tables Used:
-- **`access_permissions`** — Core access control records
-- **`access_policies`** — File-specific access policies  
-- **`access_audit_logs`** — Comprehensive audit trail
-- **`organizations`** — Organization management
-- **`user_roles`** — Role-based access control
-- **`scheduled_operations`** — Time-based access management
-
-#### Caching Strategy:
-- **Redis** for access permission caching
-- **Redis** for policy evaluation results
-- **Redis** for role and organization data
-- **Redis** for access token validation
-- **Redis** for audit log aggregation
 ---
 
-### ⛓️ blockchain-service
-**Technology:** Spring Boot + web3j + Solidity
+## ⛓️ Smart Contracts
 
-#### Internal Components:
+OM VaultChain uses three main smart contracts deployed on **Polygon** blockchain for gas efficiency and scalability.
 
-**🔗 SmartContractClient**
-```java
-@Service
-public class SmartContractClient {
-    // web3j integration
-    // Contract deployment
-    // Method calling
-    // Event listening
+### 📋 FileRegistry.sol
+Manages file registration and metadata on-chain.
+
+<augment_code_snippet path="contracts/contracts/FileRegistry.sol" mode="EXCERPT">
+````solidity
+contract FileRegistry {
+    struct File{
+        string cid;
+        string fileHash;
+        address owner;
+        uint256 timestamp;
+    }
+
+    mapping(string => File) private files;
+
+    function registerFile(string memory cid, string memory fileHash) public {
+        require(bytes(cid).length > 0, "CID Required");
+        require(bytes(fileHash).length > 0, "File Hash Required");
+
+        files[cid] = File(cid, fileHash, msg.sender, block.timestamp);
+        emit FileRegistered(cid, fileHash, msg.sender, block.timestamp);
+    }
 }
-```
+````
+</augment_code_snippet>
 
-**📋 FileRegistryService**
-```java
-@Service
-public class FileRegistryService {
-    // File registration on-chain
-    // CID storage
-    // Hash anchoring
-    // Metadata linking
-}
-```
+### 🔐 AccessControl.sol
+Manages user permissions and access rights.
 
-**🔑 AccessRightsService**
-```java
-@Service
-public class AccessRightsService {
-    // Access grant/revoke
-    // Permission management
-    // Rights validation
-    // User access tracking
-}
-```
+**Key Functions:**
+- `grantAccess(string cid, address user, string encryptedKey)` - Grant file access
+- `revokeAccess(string cid, address user)` - Revoke file access
+- `hasAccess(string cid, address user)` - Check access permissions
+- `getAccessList(string cid)` - Get all users with access
 
-**🔄 VersioningService**
-```java
-@Service
-public class VersioningService {
-    // Version registration
-    // Version linking
-    // History maintenance
-    // Rollback support
-}
-```
+### 🔄 VersionManager.sol
+Handles file versioning and history management.
 
-**🗂️ BlockchainMetadataMapper**
-```java
-@Component
-public class BlockchainMetadataMapper {
-    // Solidity data parsing
-    // Type conversion
-    // Structure mapping
-}
-```
+**Key Functions:**
+- `addVersion(string cid, string newCid, uint256 versionNumber)` - Add new version
+- `getCurrentVersion(string cid)` - Get current version
+- `getVersionHistory(string cid)` - Get all versions
+- `rollbackVersion(string cid, uint256 versionNumber)` - Rollback to version
 
-**👂 EventListenerService**
-```java
-@Service
-public class EventListenerService {
-    // Smart contract event listening
-    // Event processing
-    // Notification dispatching
-}
-```
+### 🚀 Contract Deployment
 
----
-### Blockchain API Checklist
-#### 1. File Registration  
-- ✅ `/register-file` — Registers file hash + CID on-chain
-#### 2. Access Control  
-- ✅ `/grant-access` — Grant encrypted AES key to a wallet  
-- ✅ `/revoke-access` — Revoke access from a wallet  
-- ✅ `/has-access` — Check if a wallet has access to CID  
-- ✅ `/access-list` — List all wallets with access to a file (B2B auditing)  
-- ✅ `/grant-multiple-access` — Grant access to multiple wallets at once  
-- ✅ `/verify-access` — Return blockchain proof of access for validation
-#### 3. File Versioning  
-- ✅ `/add-version` — Add a new file version  
-- ✅ `/rollback-version` — Roll back to a specific version  
-- ✅ `/version-history` — List all versions of a file  
-- ✅ `/current-version` — Get the current version metadata  
-- ✅ `/version-at` — Get version metadata by version number  
-- ✅ `/file-status` — Get current file status (active/deleted)  
-- ✅ `/delete-file` — Mark a file as deleted  
-- ✅ `/compare-versions` — Compare two versions for diff (optional enhancement)  
-- ✅ `/revoke-all-access` — Emergency revoke for all users (security feature)  
-- ✅ `/lock-version` — Mark version as immutable (for legal use cases)
----
+```bash
+# Navigate to contracts directory
+cd contracts
 
-#### Project Structure:
-```
-blockchain-service/
-├── src/main/java/com/omvaultchain/blockchain/
-│   ├── controller/BlockchainController.java
-│   ├── service/
-│   │   ├── SmartContractClient.java
-│   │   ├── FileRegistryService.java
-│   │   ├── AccessRightsService.java
-│   │   ├── VersioningService.java
-│   │   ├── BlockchainMetadataMapper.java
-│   │   └── EventListenerService.java
-│   ├── model/
-│   │   ├── FileRecord.java
-│   │   ├── AccessRecord.java
-│   │   └── VersionRecord.java
-│   └── config/BlockchainConfig.java
-├── contracts/
-│   ├── FileRegistry.sol
-│   ├── AccessControl.sol
-│   └── VersionManager.sol
-├── Dockerfile
-└── pom.xml
+# Install dependencies
+npm install
+
+# Compile contracts
+npx hardhat compile
+
+# Deploy to Polygon testnet
+npx hardhat run scripts/deploy.js --network polygon-mumbai
+
+# Verify contracts
+npx hardhat verify --network polygon-mumbai <CONTRACT_ADDRESS>
 ```
 
 ---
 
-### 🔐 access-control-service
+## 🗄️ Database Schema
 
----
+OM VaultChain uses **MySQL 8.0** for persistent data storage and **Redis 7.0** for high-performance caching.
 
-### 📊 metadata-service
+### 📊 Core Tables
 
----
-
-## 📊 Database Schema
-
-### MySQL Tables
-
-**users**
+#### Users Table
 ```sql
 CREATE TABLE users (
     id CHAR(36) PRIMARY KEY,
@@ -1015,12 +370,11 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
-    INDEX idx_wallet_address (wallet_address),
-    INDEX idx_created_at (created_at)
+    INDEX idx_wallet_address (wallet_address)
 );
 ```
 
-**files**
+#### Files Table
 ```sql
 CREATE TABLE files (
     id CHAR(36) PRIMARY KEY,
@@ -1035,31 +389,11 @@ CREATE TABLE files (
     is_deleted BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_owner_id (owner_id),
-    INDEX idx_cid (cid),
-    INDEX idx_file_hash (file_hash),
-    INDEX idx_created_at (created_at)
+    INDEX idx_cid (cid)
 );
 ```
 
-**file_versions**
-```sql
-CREATE TABLE file_versions (
-    id CHAR(36) PRIMARY KEY,
-    file_id CHAR(36) NOT NULL,
-    version_number INTEGER NOT NULL,
-    cid VARCHAR(100) UNIQUE NOT NULL,
-    file_hash VARCHAR(64) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_current BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE,
-    INDEX idx_file_id (file_id),
-    INDEX idx_version_number (version_number),
-    INDEX idx_cid (cid),
-    INDEX idx_is_current (is_current)
-);
-```
-
-**access_permissions**
+#### Access Permissions Table
 ```sql
 CREATE TABLE access_permissions (
     id CHAR(36) PRIMARY KEY,
@@ -1071,15 +405,11 @@ CREATE TABLE access_permissions (
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_file_user (file_id, user_id),
-    INDEX idx_file_id (file_id),
-    INDEX idx_user_id (user_id),
-    INDEX idx_is_active (is_active),
-    INDEX idx_granted_at (granted_at)
+    UNIQUE KEY unique_file_user (file_id, user_id)
 );
 ```
 
-**audit_logs**
+#### Audit Logs Table
 ```sql
 CREATE TABLE audit_logs (
     id CHAR(36) PRIMARY KEY,
@@ -1093,166 +423,393 @@ CREATE TABLE audit_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_user_id (user_id),
-    INDEX idx_action (action),
-    INDEX idx_resource_type (resource_type),
-    INDEX idx_created_at (created_at)
+    INDEX idx_action (action)
 );
 ```
 
-### Redis Cache Structure
+### ⚡ Redis Cache Structure
 
-**Session Cache**
-```
+```bash
+# Session Management
 session:{wallet_address} -> {jwt_token, expires_at}
-```
-
-**Challenge Cache**
-```
 challenge:{wallet_address} -> {nonce, expires_at}
-```
 
-**File Cache**
-```
+# File Caching
 file:{file_id} -> {metadata, access_list, version_info}
-```
+file_permissions:{file_id} -> {user_list, permissions}
 
-**User Cache**
-```
+# User Caching
 user:{wallet_address} -> {user_profile, public_key}
+user_files:{user_id} -> {file_list, pagination_info}
+
+# Performance Caching
+upload_status:{upload_id} -> {progress, status, errors}
+download_cache:{cid} -> {file_data, expires_at}
 ```
 
 ---
 
-## 🚀 Development Guidelines
+## 🐳 Docker Deployment
 
-### Project Structure
+OM VaultChain is fully containerized using Docker for easy deployment and scaling.
 
+### 🚀 Quick Start with Docker Compose
+
+<augment_code_snippet path="docker-compose.yml" mode="EXCERPT">
+````yaml
+version: '3.8'
+
+services:
+  encryption-service:
+    build: ./services/encryption-service
+    ports:
+      - "8002:8080"
+    networks:
+      - omvc-net
+
+  storage-service:
+    build: ./services/storage-service
+    ports:
+      - "8003:8080"
+    environment:
+      - PINATA_API_KEY=${PINATA_API_KEY}
+      - PINATA_SECRET_API_KEY=${PINATA_SECRET_API_KEY}
+      - DB_HOST=${DB_HOST}
+    networks:
+      - omvc-net
+    depends_on:
+      - redis
+
+  blockchain-service:
+    build: ./services/blockchain-service
+    ports:
+      - "8004:8080"
+    environment:
+      - WEB3_RPC_URL=http://host.docker.internal:7545
+      - CONTRACT_FILE_REGISTRY=${CONTRACT_FILE_REGISTRY}
+    networks:
+      - omvc-net
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - omvc-net
+
+networks:
+  omvc-net:
+    driver: bridge
+````
+</augment_code_snippet>
+
+### 🔧 Environment Configuration
+
+Create a `.env` file with your configuration:
+
+```bash
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=omvaultchain
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+# IPFS Configuration
+PINATA_API_KEY=your_pinata_api_key
+PINATA_SECRET_API_KEY=your_pinata_secret_key
+
+# Blockchain Configuration
+PRIVATE_KEY=your_private_key
+WALLET_ADDRESS=your_wallet_address
+WEB3_RPC_URL=http://host.docker.internal:7545
+
+# Smart Contract Addresses (after deployment)
+CONTRACT_FILE_REGISTRY=0x...
+CONTRACT_ACCESS_CONTROL=0x...
+CONTRACT_VERSION_MANAGER=0x...
 ```
-om-vaultchain/
-├── services/
-│   ├── auth-service/
-│   ├── encryption-service/
-│   ├── storage-service/
-│   ├── blockchain-service/
-│   ├── access-control-service/
-│   └── metadata-service/
-├── gateway/
-│   └── api-gateway/
-├── frontend/
-│   ├── user-app/
-│   └── admin-app/
-├── contracts/
-│   ├── FileRegistry.sol
-│   ├── AccessControl.sol
-│   └── VersionManager.sol
-├── docker-compose.yml
-├── .env.example
-└── README.md
-```
 
-### Development Standards
+### 📦 Service Ports
 
-**Code Quality**
-- Unit test coverage >80%
-- Integration tests for all APIs
-- Security audit for all endpoints
-- Performance benchmarks
+| Service | Port | Description |
+|---------|------|-------------|
+| **Encryption Service** | 8002 | Cryptographic operations |
+| **Storage Service** | 8003 | IPFS file management |
+| **Blockchain Service** | 8004 | Smart contract interactions |
+| **Access Control Service** | 8005 | Permission management |
+| **Redis Cache** | 6379 | Caching layer |
+| **MySQL Database** | 3306 | Data persistence |
 
-**Security Requirements**
-- All file operations must use client-side encryption
-- Wallet signature verification required
-- Rate limiting on all endpoints
-- Comprehensive audit logging
+---
 
-**Performance Targets**
-- File upload: <5s for 10MB files
-- File access: <2s response time
-- System availability: 99.9%
-- Concurrent users: 10,000+
+## 🔒 Security Features
 
-### Technology Versions
+OM VaultChain implements multiple layers of security to ensure data protection and privacy.
 
-- **Java**: 17+
-- **Spring Boot**: 3.2+
-- **MySQL**: 8.0+
-- **Redis**: 7.0+
-- **Node.js**: 18+
-- **React**: 18+
-- **Solidity**: 0.8.19+
+### 🛡️ Encryption Standards
 
-### Deployment Architecture
+- **🔐 AES-256-GCM**: Industry-standard symmetric encryption for files
+- **🔑 RSA-4096/ECIES**: Asymmetric encryption for key exchange
+- **🔍 SHA-256**: Cryptographic hashing for file integrity
+- **🎲 Secure Random**: Cryptographically secure IV generation
+- **🔒 Zero-Knowledge**: Platform cannot access user files without permission
 
-```
-Production Environment:
-├── Load Balancer (nginx)
-├── API Gateway (2 instances)
-├── Microservices (3 instances each)
-├── Database Cluster (MySQL Master/Slave)
-├── Cache Cluster (Redis Sentinel)
-└── Monitoring (Prometheus + Grafana)
+### ⛓️ Blockchain Security
+
+- **🏗️ Smart Contract Auditing**: All contracts undergo security audits
+- **🔄 Immutable Records**: File metadata and permissions stored on-chain
+- **🔐 Multi-Signature**: Support for multi-sig wallet integration
+- **⚡ Gas Optimization**: Efficient contract design to minimize costs
+- **🛡️ Reentrancy Protection**: Guards against common attack vectors
+
+### 🌐 Network Security
+
+- **🔒 HTTPS/TLS**: All communications encrypted in transit
+- **🛡️ Rate Limiting**: Protection against DDoS and abuse
+- **🔍 Input Validation**: Comprehensive request sanitization
+- **🚫 CORS Protection**: Proper cross-origin resource sharing policies
+- **📊 Audit Logging**: Comprehensive activity tracking
+
+### 🔑 Access Control
+
+- **🎭 Role-Based Access Control (RBAC)**: Granular permission management
+- **⏰ Time-Based Access**: Temporary access with automatic expiration
+- **🌍 IP Whitelisting**: Geographic and network-based restrictions
+- **🔄 Revocable Permissions**: Real-time access revocation
+- **📋 Audit Trails**: Complete access history tracking
+
+---
+
+## 📱 API Documentation
+
+### 🔐 Encryption Service API
+
+**Base URL:** `http://localhost:8002`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/encrypt` | Encrypt file with AES-256-GCM |
+| `POST` | `/decrypt` | Decrypt file for authorized users |
+| `POST` | `/generate-key` | Generate secure AES keys |
+| `POST` | `/hash-file` | Generate SHA-256 file hash |
+
+### 📦 Storage Service API
+
+**Base URL:** `http://localhost:8003`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/storage/upload` | Upload encrypted file to IPFS |
+| `GET` | `/storage/download/{cid}` | Download file by CID |
+| `GET` | `/storage/metadata/{fileId}` | Get file metadata |
+| `POST` | `/storage/upload/batch` | Bulk file upload |
+
+### ⛓️ Blockchain Service API
+
+**Base URL:** `http://localhost:8004`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/register-file` | Register file on blockchain |
+| `POST` | `/grant-access` | Grant user access to file |
+| `POST` | `/revoke-access` | Revoke user access |
+| `GET` | `/has-access` | Check user access permissions |
+| `GET` | `/version-history/{cid}` | Get file version history |
+
+### 🔒 Access Control Service API
+
+**Base URL:** `http://localhost:8005`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/access/grant` | Grant file access to user |
+| `POST` | `/access/validate` | Validate user access |
+| `GET` | `/access/audit/{fileId}` | Get access audit trail |
+| `POST` | `/access/revoke` | Revoke user access |
+
+### 📋 Example API Usage
+
+#### Upload and Share a File
+
+```bash
+# 1. Encrypt file
+curl -X POST http://localhost:8002/encrypt \
+  -F "file=@document.pdf" \
+  -F "publicKeys=[\"0x...\"]"
+
+# 2. Upload to IPFS
+curl -X POST http://localhost:8003/storage/upload \
+  -F "encryptedFile=@encrypted_document.pdf" \
+  -H "Authorization: Bearer <jwt_token>"
+
+# 3. Register on blockchain
+curl -X POST http://localhost:8004/register-file \
+  -H "Content-Type: application/json" \
+  -d '{"cid":"QmXXX...","fileHash":"sha256_hash"}'
+
+# 4. Grant access to user
+curl -X POST http://localhost:8005/access/grant \
+  -H "Content-Type: application/json" \
+  -d '{"fileId":"uuid","userId":"uuid","permissions":["read"]}'
 ```
 
 ---
 
-## 🔐 Security Considerations
+## 🧪 Testing
 
-### Encryption Standards
-- **AES-256-GCM** for file encryption
-- **RSA-4096/ECIES** for key encryption
-- **SHA-256** for file hashing
-- **EIP-191** for wallet signatures
+OM VaultChain includes comprehensive testing strategies to ensure reliability and security.
 
-### Access Control
-- Zero-knowledge architecture
-- Blockchain-anchored permissions
-- Revocable access rights
-- Comprehensive audit trails
+### 🔬 Test Coverage
 
-### Data Protection
-- No plaintext file storage
-- Encrypted keys per user
-- Secure key rotation
-- GDPR compliance
+- **Unit Tests**: >80% code coverage for all services
+- **Integration Tests**: End-to-end API testing
+- **Security Tests**: Penetration testing and vulnerability scans
+- **Performance Tests**: Load testing with JMeter
+- **Smart Contract Tests**: Comprehensive Solidity testing with Hardhat
 
-### Smart Contract Security
-- Multi-signature wallet integration
-- Upgradeable proxy pattern
-- Emergency pause functionality
-- Gas optimization strategies
+### 🚀 Running Tests
 
----
+```bash
+# Run all service tests
+./scripts/run-tests.sh
 
-## 📱 Mobile Support
+# Run specific service tests
+cd services/encryption-service
+mvn test
 
-### Flutter Mobile App
-- Cross-platform iOS/Android support
-- Native wallet integration
-- Biometric authentication
-- Offline file management
-- Push notifications for access grants
+# Run smart contract tests
+cd contracts
+npx hardhat test
 
-### Progressive Web App (PWA)
-- Mobile-optimized interface
-- Offline functionality
-- Push notifications
-- App-like experience
+# Run integration tests
+docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+```
 
 ---
 
-## 🌍 Scalability & Performance
+## 🚀 Development Setup
 
-### Horizontal Scaling
-- Kubernetes deployment
-- Auto-scaling based on load
-- Database sharding strategies
-- CDN for static assets
+### 📋 Prerequisites
 
-### Optimization Strategies
-- Database query optimization
-- Redis caching layers
-- IPFS gateway load balancing
-- Blockchain call batching
+1. **Java Development Kit 17+**
+2. **Node.js 18+** and npm
+3. **Docker & Docker Compose**
+4. **MySQL 8.0+** (or use Docker)
+5. **Redis 7.0+** (or use Docker)
+6. **Git** for version control
+
+### 🛠️ Local Development
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-org/om-vaultchain.git
+cd om-vaultchain
+
+# 2. Set up environment variables
+cp .env.example .env
+# Edit .env with your local configuration
+
+# 3. Start infrastructure services
+docker-compose up -d redis mysql
+
+# 4. Deploy smart contracts (optional for local dev)
+cd contracts
+npm install
+npx hardhat compile
+npx hardhat run scripts/deploy.js --network localhost
+
+# 5. Start microservices
+./scripts/start-services.sh
+
+# 6. Verify services are running
+curl http://localhost:8002/health  # Encryption Service
+curl http://localhost:8003/health  # Storage Service
+curl http://localhost:8004/health  # Blockchain Service
+```
+
+### 🔧 Development Tools
+
+- **IDE**: IntelliJ IDEA or VS Code with Java extensions
+- **API Testing**: Postman or Insomnia
+- **Database**: MySQL Workbench or DBeaver
+- **Blockchain**: Ganache for local blockchain testing
+- **Monitoring**: Prometheus + Grafana for metrics
 
 ---
+
+## 📈 Roadmap
+
+### 🎯 Current Phase (Q1 2024)
+- ✅ Core microservices implementation
+- ✅ Smart contract deployment on Polygon
+- ✅ Basic file upload/download functionality
+- ✅ Access control and permissions system
+- 🔄 Frontend web application development
+
+### 🚀 Phase 2 (Q2 2024)
+- 📱 Mobile application (Flutter)
+- 🔍 Advanced search and filtering
+- 📊 Analytics dashboard
+- 🔔 Real-time notifications
+- 🌐 Multi-language support
+
+### 🌟 Phase 3 (Q3 2024)
+- 🏢 Enterprise features and SSO integration
+- 🔄 File versioning and collaboration
+- 📋 Compliance reporting tools
+- ⚡ Performance optimizations
+- 🛡️ Advanced security features
+
+### 🚀 Future Vision (Q4 2024+)
+- 🌍 Multi-chain support (Ethereum, BSC, Avalanche)
+- 🤖 AI-powered file organization
+- 🔗 Integration with popular cloud services
+- 📈 Advanced analytics and insights
+- 🌐 Decentralized governance (DAO)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
+
+### 📝 Development Process
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### 🐛 Bug Reports
+
+Please use the [GitHub Issues](https://github.com/your-org/om-vaultchain/issues) page to report bugs or request features.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📞 Support & Contact
+
+- **📧 Email**: support@omvaultchain.com
+- **💬 Discord**: [OM VaultChain Community](https://discord.gg/omvaultchain)
+- **🐦 Twitter**: [@OMVaultChain](https://twitter.com/omvaultchain)
+- **📖 Documentation**: [docs.omvaultchain.com](https://docs.omvaultchain.com)
+
+---
+
+<div align="center">
+
+**🔐 Secure • 🌐 Decentralized • ⛓️ Blockchain-Powered**
 
 **Built with ❤️ by the OM VaultChain Team**
+
+[![GitHub stars](https://img.shields.io/github/stars/your-org/om-vaultchain?style=social)](https://github.com/your-org/om-vaultchain)
+[![Twitter Follow](https://img.shields.io/twitter/follow/omvaultchain?style=social)](https://twitter.com/omvaultchain)
+
+</div>

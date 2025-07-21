@@ -8,7 +8,7 @@ import lombok.Data;
 import java.time.Instant;
 
 @Entity
-@Table(name = "access_permission")
+@Table(name = "access_permissions")
 @Data
 public class AccessPermission {
     @Id
