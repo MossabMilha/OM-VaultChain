@@ -764,9 +764,9 @@ public class AccessNotificationService {
 - ✅`POST /access/remove-all` — Revoke all access to file
 
 **✅ Access Validation**
-- 🟡❌`POST /access/validate` — Validate user access to file
-- 🟡❌`POST /access/validate/bulk` — Bulk access validation
-- 🟡❌`GET /access/check/{fileId}/{userId}` — Check specific user access
+- ✅`POST /access/validate` — Validate user access to file
+- ✅`POST /access/validate/bulk` — Bulk access validation
+- ✅`GET /access/check/{fileId}/{userId}` — Check specific user access
 
 **📋 Access Management**
 - 🟡❌`GET /access/list/{fileId}` — List all users with file access

@@ -25,7 +25,7 @@ public class AccessRevokeService {
         if(ownerId.equals(targetUserId)){
             throw new IllegalArgumentException("Cannot Revoke Access For Owner");
         }
-        AccessPermission permission = accessPermissionRepository.findByFileAndUserIdAndIsActiveTrue(fileId, targetUserId)
+        AccessPermission permission = accessPermissionRepository.findByFileIdAndUserIdAndIsActiveTrue(fileId, targetUserId)
                 .orElseThrow(() -> new IllegalArgumentException("No Active Permission Found For User"));
         permission.setIsActive(false);
         permission.setRevokedAt(Instant.now());
@@ -39,7 +39,7 @@ public class AccessRevokeService {
             if(ownerId.equals(userId)){
                 continue;
             }
-            Optional<AccessPermission> permissionOpt = accessPermissionRepository.findByFileAndUserIdAndIsActiveTrue(fileId, userId);
+            Optional<AccessPermission> permissionOpt = accessPermissionRepository.findByFileIdAndUserIdAndIsActiveTrue(fileId, userId);
             permissionOpt.ifPresent(permission -> {{
             permission.setIsActive(false);
             permission.setRevokedAt(Instant.now());}
