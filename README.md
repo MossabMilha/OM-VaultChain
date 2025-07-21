@@ -755,30 +755,29 @@ public class AccessNotificationService {
 **🔓 Access Grant Operations**
 - ✅`POST /access/grant` — Grant user access to file
 - ✅`POST /access/grant/multiple` — Bulk access granting for multiple users
-- ✅`POST /access/grant/organization` — Grant organization-wide access
-- ✅`POST /access/grant/role` — Grant access based on user role
+- 🟡❌`POST /access/grant/role` — Grant access based on user role
 - ✅`POST /access/grant/temporary` — Grant temporary time-limited access
 
 **🚫 Access Revoke Operations**
-- ✅`POST /access/revoke` — Revoke user access from file
-- ✅`POST /access/revoke/multiple` — Bulk access revocation
-- ✅`POST /access/revoke/organization` — Revoke organization access
-- ✅`POST /access/revoke/emergency` — Emergency access lockdown
-- ✅`DELETE /access/all/{fileId}` — Revoke all access to file
+- 🟡❌`POST /access/revoke` — Revoke user access from file
+- 🟡❌`POST /access/revoke/multiple` — Bulk access revocation
+- 🟡❌`POST /access/revoke/organization` — Revoke organization access
+- 🟡❌`POST /access/revoke/emergency` — Emergency access lockdown
+- 🟡❌`DELETE /access/all/{fileId}` — Revoke all access to file
 
 **✅ Access Validation**
-- ✅`POST /access/validate` — Validate user access to file
-- ✅`POST /access/validate/bulk` — Bulk access validation
-- ✅`GET /access/check/{fileId}/{userId}` — Check specific user access
-- ✅`POST /access/token` — Generate signed access token
-- ✅`POST /access/token/refresh` — Refresh access token
+- 🟡❌`POST /access/validate` — Validate user access to file
+- 🟡❌`POST /access/validate/bulk` — Bulk access validation
+- 🟡❌`GET /access/check/{fileId}/{userId}` — Check specific user access
+- 🟡❌`POST /access/token` — Generate signed access token
+- 🟡❌`POST /access/token/refresh` — Refresh access token
 
 **📋 Access Management**
-- ✅`GET /access/list/{fileId}` — List all users with file access
-- ✅`GET /access/files/{userId}` — List files accessible by user
-- ✅`GET /access/permissions/{userId}` — Get user's all permissions
-- ✅`PUT /access/update/{permissionId}` — Update access permissions
-- ✅`GET /access/status/{fileId}` — Get file access status summary
+- 🟡❌`GET /access/list/{fileId}` — List all users with file access
+- 🟡❌`GET /access/files/{userId}` — List files accessible by user
+- 🟡❌`GET /access/permissions/{userId}` — Get user's all permissions
+- 🟡❌`PUT /access/update/{permissionId}` — Update access permissions
+- 🟡❌`GET /access/status/{fileId}` — Get file access status summary
 
 **🧠 Policy Management**
 - 🟡❌`POST /access/policy` — Create/update file access policy
