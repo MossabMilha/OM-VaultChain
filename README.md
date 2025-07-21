@@ -548,8 +548,335 @@ storage-service/
 - **Redis** for search result caching
 - **Redis** for user activity metrics
 
-**🔄 UploadStatusManager**
+### 🔐 access-control-service
+**Technology:** Spring Boot + Redis + MySQL + JWT + Policy Engine
 
+A comprehensive microservice managing dynamic file access control, role-based permissions, policy enforcement, and audit trails. Handles both individual user access and enterprise-level organization access control with blockchain integration for critical operations.
+
+#### Internal Components:
+
+**🔍 AccessRequestHandler**
+```java
+@Service
+public class AccessRequestHandler {
+    // Validates incoming access requests
+    // User/organization authentication verification
+    // File existence and ownership validation
+    // Request sanitization and security checks
+    // Rate limiting enforcement per user/IP
+    // Suspicious activity detection and blocking
+}
+```
+
+**⚖️ PermissionEvaluator**
+```java
+@Service
+public class PermissionEvaluator {
+    // Role-based access control (RBAC) evaluation
+    // Access control list (ACL) policy enforcement
+    // Token validation and expiration checks
+    // IP whitelisting and geolocation restrictions
+    // Time-based access window validation
+    // Download count and quota enforcement
+}
+```
+
+**🧠 PolicyEngine**
+```java
+@Service
+public class PolicyEngine {
+    // Dynamic JSON-based policy evaluation
+    // Custom rule engine with condition matching
+    // Policy template management and versioning
+    // Complex conditional logic processing
+    // Policy conflict resolution and prioritization
+    // Real-time policy updates and hot-reloading
+}
+```
+
+**🎯 AccessGrantService**
+```java
+@Service
+public class AccessGrantService {
+    // File access granting orchestration
+    // Blockchain smart contract integration
+    // AES key encryption for new recipients
+    // Multi-user batch access granting
+    // Access expiration scheduling and management
+    // Emergency access revocation capabilities
+}
+```
+
+**🚫 AccessRevokeService**
+```java
+@Service
+public class AccessRevokeService {
+    // Individual and bulk access revocation
+    // Blockchain transaction coordination
+    // Real-time access invalidation
+    // Cache invalidation and cleanup
+    // Cascade revocation for dependent access
+    // Emergency lockdown procedures
+}
+```
+
+**📋 AccessAuditService**
+```java
+@Service
+public class AccessAuditService {
+    // Comprehensive access logging and tracking
+    // Real-time audit trail generation
+    // Compliance reporting and analytics
+    // Suspicious activity pattern detection
+    // Historical access analysis and insights
+    // Regulatory compliance validation
+}
+```
+
+**🏢 OrganizationAccessManager**
+```java
+@Service
+public class OrganizationAccessManager {
+    // Enterprise-level access management
+    // Role-to-files mapping and bulk operations
+    // Department and team-based access control
+    // Hierarchical permission inheritance
+    // Organization policy enforcement
+    // Bulk user onboarding and offboarding
+}
+```
+
+**🔒 AccessTokenManager**
+```java
+@Service
+public class AccessTokenManager {
+    // JWT access token generation and validation
+    // Short-lived token management for downloads
+    // Token refresh and renewal logic
+    // Token blacklisting and revocation
+    // Cryptographic signature verification
+    // Multi-factor authentication integration
+}
+```
+
+**📊 AccessAnalyticsService**
+```java
+@Service
+public class AccessAnalyticsService {
+    // Access pattern analysis and insights
+    // User behavior tracking and profiling
+    // File popularity and usage statistics
+    // Security anomaly detection
+    // Performance metrics collection
+    // Business intelligence reporting
+}
+```
+
+**⏰ AccessSchedulerService**
+```java
+@Service
+public class AccessSchedulerService {
+    // Time-based access scheduling and automation
+    // Access expiration management
+    // Scheduled policy updates and changes
+    // Automated access reviews and renewals
+    // Background cleanup and maintenance
+    // Notification scheduling for access events
+}
+```
+
+**🔄 AccessSyncService**
+```java
+@Service
+public class AccessSyncService {
+    // Cross-service access state synchronization
+    // Blockchain state consistency verification
+    // Cache coherence and invalidation
+    // Event-driven access updates
+    // Conflict resolution and reconciliation
+    // Distributed system consistency management
+}
+```
+
+**🎭 RolePermissionManager**
+```java
+@Service
+public class RolePermissionManager {
+    // Role definition and management
+    // Permission mapping and assignment
+    // Role hierarchy and inheritance
+    // Dynamic role updates and modifications
+    // Role-based file access templates
+    // Permission aggregation and optimization
+}
+```
+
+**🌐 IPAccessController**
+```java
+@Service
+public class IPAccessController {
+    // IP-based access control and validation
+    // Geolocation-based restrictions
+    // VPN and proxy detection
+    // IP reputation scoring and blocking
+    // Dynamic IP whitelist management
+    // Network-based access policies
+}
+```
+
+**📈 AccessMetricsCollector**
+```java
+@Service
+public class AccessMetricsCollector {
+    // Access control performance metrics
+    // Success/failure rate monitoring
+    // Response time and latency tracking
+    // Resource utilization analysis
+    // Error rate and exception monitoring
+    // Service health and availability tracking
+}
+```
+
+**🔔 AccessNotificationService**
+```java
+@Service
+public class AccessNotificationService {
+    // Real-time access event notifications
+    // Multi-channel notification delivery
+    // Customizable notification templates
+    // Escalation and priority management
+    // Notification history and tracking
+    // Integration with external systems
+}
+```
+
+#### Internal API Endpoints:
+
+**🔓 Access Grant Operations**
+- ✅`POST /access/grant` — Grant user access to file
+- ✅`POST /access/grant/multiple` — Bulk access granting for multiple users
+- ✅`POST /access/grant/organization` — Grant organization-wide access
+- ✅`POST /access/grant/role` — Grant access based on user role
+- ✅`POST /access/grant/temporary` — Grant temporary time-limited access
+
+**🚫 Access Revoke Operations**
+- ✅`POST /access/revoke` — Revoke user access from file
+- ✅`POST /access/revoke/multiple` — Bulk access revocation
+- ✅`POST /access/revoke/organization` — Revoke organization access
+- ✅`POST /access/revoke/emergency` — Emergency access lockdown
+- ✅`DELETE /access/all/{fileId}` — Revoke all access to file
+
+**✅ Access Validation**
+- ✅`POST /access/validate` — Validate user access to file
+- ✅`POST /access/validate/bulk` — Bulk access validation
+- ✅`GET /access/check/{fileId}/{userId}` — Check specific user access
+- ✅`POST /access/token` — Generate signed access token
+- ✅`POST /access/token/refresh` — Refresh access token
+
+**📋 Access Management**
+- ✅`GET /access/list/{fileId}` — List all users with file access
+- ✅`GET /access/files/{userId}` — List files accessible by user
+- ✅`GET /access/permissions/{userId}` — Get user's all permissions
+- ✅`PUT /access/update/{permissionId}` — Update access permissions
+- ✅`GET /access/status/{fileId}` — Get file access status summary
+
+**🧠 Policy Management**
+- 🟡❌`POST /access/policy` — Create/update file access policy
+- 🟡❌`GET /access/policy/{fileId}` — Get file access policies
+- 🟡❌`DELETE /access/policy/{policyId}` — Delete access policy
+- 🟡❌`POST /access/policy/template` — Create policy template
+- 🟡❌`GET /access/policy/validate` — Validate policy configuration
+
+**🏢 Organization Management**
+- 🟡❌`POST /access/org/create` — Create organization access group
+- 🟡❌`POST /access/org/assign` — Assign users to organization
+- 🟡❌`GET /access/org/members/{orgId}` — List organization members
+- 🟡❌`POST /access/org/bulk-grant` — Bulk grant for organization
+- 🟡❌`GET /access/org/files/{orgId}` — List organization accessible files
+
+**🎭 Role Management**
+- 🟡❌`POST /access/roles` — Create access role
+- 🟡❌`GET /access/roles` — List all roles
+- 🟡❌`PUT /access/roles/{roleId}` — Update role permissions
+- 🟡❌`DELETE /access/roles/{roleId}` — Delete role
+- 🟡❌`POST /access/roles/assign` — Assign role to user
+
+**📊 Analytics & Audit**
+- ✅`GET /access/audit/{fileId}` — Get file access audit log
+- ✅`GET /access/audit/user/{userId}` — Get user access history
+- 🟡❌`POST /access/audit/report` — Generate compliance report
+- 🟡❌`GET /access/analytics/usage` — Access usage analytics
+- 🟡❌`GET /access/analytics/patterns` — Access pattern analysis
+
+**⏰ Scheduled Operations**
+- 🕓❌`POST /access/schedule/grant` — Schedule future access grant
+- 🕓❌`POST /access/schedule/revoke` — Schedule future access revocation
+- 🕓❌`GET /access/schedule/list` — List scheduled operations
+- 🕓❌`DELETE /access/schedule/{scheduleId}` — Cancel scheduled operation
+
+**🔄 Synchronization**
+- 🟡❌`POST /access/sync/blockchain` — Sync with blockchain state
+- 🟡❌`POST /access/sync/cache` — Refresh cache from database
+- 🟡❌`GET /access/sync/status` — Get synchronization status
+
+**📈 Monitoring & Health**
+- ✅`GET /access/health` — Service health check
+- 🟡❌`GET /access/metrics` — Access control metrics
+- 🟡❌`GET /access/performance` — Performance statistics
+
+#### Project Structure:
+```
+access-control-service/
+├── src/main/java/com/omvaultchain/accesscontrol/
+│   ├── controller/AccessControlController.java
+│   ├── service/
+│   │   ├── AccessRequestHandler.java
+│   │   ├── PermissionEvaluator.java
+│   │   ├── PolicyEngine.java
+│   │   ├── AccessGrantService.java
+│   │   ├── AccessRevokeService.java
+│   │   ├── AccessAuditService.java
+│   │   ├── OrganizationAccessManager.java
+│   │   ├── AccessTokenManager.java
+│   │   ├── AccessAnalyticsService.java
+│   │   ├── AccessSchedulerService.java
+│   │   ├── AccessSyncService.java
+│   │   ├── RolePermissionManager.java
+│   │   ├── IPAccessController.java
+│   │   ├── AccessMetricsCollector.java
+│   │   └── AccessNotificationService.java
+│   ├── model/
+│   │   ├── AccessRequest.java
+│   │   ├── AccessResponse.java
+│   │   ├── AccessPermission.java
+│   │   ├── AccessPolicy.java
+│   │   ├── AccessToken.java
+│   │   ├── AccessAuditRecord.java
+│   │   ├── OrganizationAccess.java
+│   │   ├── RolePermission.java
+│   │   ├── AccessSchedule.java
+│   │   ├── AccessMetrics.java
+│   │   ├── PolicyTemplate.java
+│   │   └── IPAccessRule.java
+│   └── config/AccessControlConfig.java
+├── Dockerfile
+└── pom.xml
+```
+
+#### Database Tables Used:
+- **`access_permissions`** — Core access control records
+- **`access_policies`** — File-specific access policies  
+- **`access_audit_logs`** — Comprehensive audit trail
+- **`organizations`** — Organization management
+- **`user_roles`** — Role-based access control
+- **`scheduled_operations`** — Time-based access management
+
+#### Caching Strategy:
+- **Redis** for access permission caching
+- **Redis** for policy evaluation results
+- **Redis** for role and organization data
+- **Redis** for access token validation
+- **Redis** for audit log aggregation
 ---
 
 ### ⛓️ blockchain-service
