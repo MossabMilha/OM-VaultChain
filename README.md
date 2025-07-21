@@ -583,50 +583,14 @@ OM VaultChain implements multiple layers of security to ensure data protection a
 
 ## 📱 API Documentation
 
-### 🔐 Encryption Service API
+### � Quick Reference
 
-**Base URL:** `http://localhost:8002`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/encrypt` | Encrypt file with AES-256-GCM |
-| `POST` | `/decrypt` | Decrypt file for authorized users |
-| `POST` | `/generate-key` | Generate secure AES keys |
-| `POST` | `/hash-file` | Generate SHA-256 file hash |
-
-### 📦 Storage Service API
-
-**Base URL:** `http://localhost:8003`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/storage/upload` | Upload encrypted file to IPFS |
-| `GET` | `/storage/download/{cid}` | Download file by CID |
-| `GET` | `/storage/metadata/{fileId}` | Get file metadata |
-| `POST` | `/storage/upload/batch` | Bulk file upload |
-
-### ⛓️ Blockchain Service API
-
-**Base URL:** `http://localhost:8004`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/register-file` | Register file on blockchain |
-| `POST` | `/grant-access` | Grant user access to file |
-| `POST` | `/revoke-access` | Revoke user access |
-| `GET` | `/has-access` | Check user access permissions |
-| `GET` | `/version-history/{cid}` | Get file version history |
-
-### 🔒 Access Control Service API
-
-**Base URL:** `http://localhost:8005`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/access/grant` | Grant file access to user |
-| `POST` | `/access/validate` | Validate user access |
-| `GET` | `/access/audit/{fileId}` | Get access audit trail |
-| `POST` | `/access/revoke` | Revoke user access |
+| Service | Port | Base URL | Status |
+|---------|------|----------|--------|
+| **Encryption Service** | 8002 | `http://localhost:8002` | ✅ Active |
+| **Storage Service** | 8003 | `http://localhost:8003` | ✅ Active |
+| **Blockchain Service** | 8004 | `http://localhost:8004` | ✅ Active |
+| **Access Control Service** | 8005 | `http://localhost:8005` | 🟡 In Development |
 
 ### 📋 Example API Usage
 
@@ -653,6 +617,932 @@ curl -X POST http://localhost:8005/access/grant \
   -H "Content-Type: application/json" \
   -d '{"fileId":"uuid","userId":"uuid","permissions":["read"]}'
 ```
+
+---
+
+## 🔧 Detailed API Documentation & Implementation Status
+
+> **Legend:** ✅ Implemented | 🟡 In Progress | 🕓 Planned | ❌ Not Started
+
+---
+
+### 🔐 encryption-service
+**Technology:** Spring Boot + BouncyCastle + AES-256-GCM
+**Port:** 8002 | **Status:** ✅ Active
+
+#### Internal Components:
+
+**🔒 AESService**
+```java
+@Service
+public class AESService {
+    // AES-256-GCM encryption/decryption
+    // Key generation (256-bit)
+    // IV management (12 bytes)
+    // Tag verification
+}
+```
+
+**🔑 AsymmetricEncryptionService**
+```java
+@Service
+public class AsymmetricEncryptionService {
+    // RSA/ECIES key encryption
+    // Public key validation
+    // AES key wrapping/unwrapping
+}
+```
+
+**🔍 FileHashService**
+```java
+@Service
+public class FileHashService {
+    // SHA-256 hash generation
+    // Integrity verification
+    // Unique file identification
+}
+```
+
+**🎲 IVGenerator**
+```java
+@Component
+public class IVGenerator {
+    // Secure random IV generation
+    // GCM nonce management
+}
+```
+
+**📦 KeyEnvelopeBuilder**
+```java
+@Service
+public class KeyEnvelopeBuilder {
+    // Multi-user key envelope creation
+    // Encrypted key packaging
+    // Recipient management
+}
+```
+
+**🎼 CryptoOrchestrator**
+```java
+@Service
+public class CryptoOrchestrator {
+    // End-to-end encryption workflow
+    // Key management coordination
+    // Multi-recipient handling
+}
+```
+
+#### API Endpoints:
+
+**🔐 Core Encryption Operations**
+- ✅ `POST /encrypt` — Encrypt file with AES-256-GCM
+- ✅ `POST /decrypt` — Decrypt file for authorized users
+- ✅ `POST /generate-key` — Generate secure AES keys
+- ✅ `POST /hash-file` — Generate SHA-256 file hash
+- ✅ `POST /encrypt-key` — Encrypt AES key with RSA/ECIES
+- ✅ `POST /decrypt-key` — Decrypt AES key for authorized user
+
+**🔑 Key Management**
+- ✅ `POST /key-envelope/create` — Create multi-recipient key envelope
+- ✅ `POST /key-envelope/add-recipient` — Add recipient to existing envelope
+- ✅ `POST /key-envelope/remove-recipient` — Remove recipient from envelope
+- 🟡 `GET /key-envelope/{envelopeId}` — Get key envelope details
+
+**🔍 Validation & Verification**
+- ✅ `POST /verify-hash` — Verify file integrity with hash
+- ✅ `POST /validate-key` — Validate AES key format
+- 🟡 `POST /verify-signature` — Verify digital signatures
+- 🕓 `POST /validate-certificate` — Validate X.509 certificates
+
+**📊 Metrics & Health**
+- ✅ `GET /health` — Service health check
+- 🟡 `GET /metrics` — Encryption performance metrics
+- 🕓 `GET /key-usage-stats` — Key usage analytics
+
+#### Project Structure:
+```
+encryption-service/
+├── src/main/java/com/omvaultchain/
+│   ├── controller/CryptoController.java
+│   ├── service/
+│   │   ├── AESService.java
+│   │   ├── AsymmetricEncryptionService.java
+│   │   ├── FileHashService.java
+│   │   ├── IVGenerator.java
+│   │   ├── KeyEnvelopeBuilder.java
+│   │   └── CryptoOrchestrator.java
+│   ├── model/
+│   │   ├── EncryptionRequest.java
+│   │   ├── EncryptionResponse.java
+│   │   ├── DecryptionRequest.java
+│   │   └── KeyEnvelope.java
+│   └── config/CryptoConfig.java
+├── Dockerfile
+└── pom.xml
+```
+
+### 📦 storage-service
+**Technology:** Spring Boot + IPFS Client + Pinata API + Web3.Storage
+**Port:** 8003 | **Status:** ✅ Active
+
+A comprehensive microservice handling all file-related operations including encrypted uploads, secure downloads, metadata management, file tagging, audit logging, and performance metrics. Supports both B2B enterprise bulk operations and B2C individual user scenarios with IPFS decentralized storage integration.
+
+#### Internal Components:
+
+**🌐 IPFSClient**
+```java
+@Service
+public class IPFSClient {
+    // Pinata/Web3.Storage API integration
+    // Multi-gateway failover support
+    // Pin management and lifecycle
+    // Node availability monitoring
+    // Automatic re-pinning on failure
+    // Gateway performance optimization
+    // Connection pooling and retry logic
+}
+```
+
+**⬆️ FileUploadService**
+```java
+@Service
+public class FileUploadService {
+    // Encrypted file upload orchestration
+    // Multi-part upload handling for large files
+    // Progress tracking and real-time callbacks
+    // Duplicate detection and deduplication
+    // Upload validation and virus scanning
+    // Bandwidth optimization and throttling
+    // Error recovery and resume capability
+}
+```
+
+**⬇️ FileDownloadService**
+```java
+@Service
+public class FileDownloadService {
+    // Secure file retrieval from IPFS
+    // Access permission validation
+    // Content streaming and partial downloads
+    // Download resume capability
+    // Bandwidth throttling and quota management
+    // Cache management for frequently accessed files
+    // Geographic proximity routing
+}
+```
+
+**🔄 FileStreamingService**
+```java
+@Service
+public class FileStreamingService {
+    // HTTP range request handling
+    // Chunked transfer encoding
+    // Memory-efficient streaming for large files
+    // Connection pooling and concurrent streams
+    // Stream compression/decompression
+    // Adaptive bitrate streaming
+    // Real-time progress monitoring
+}
+```
+
+**📊 MetadataExtractor**
+```java
+@Service
+public class MetadataExtractor {
+    // File metadata extraction (size, type, dimensions)
+    // MIME type detection and validation
+    // File signature verification
+    // Encoding detection and charset handling
+    // Timestamp capture and timezone handling
+    // Checksum generation (SHA-256, MD5)
+    // Content analysis for security scanning
+}
+```
+
+**🏷️ FileTaggingService**
+```java
+@Service
+public class FileTaggingService {
+    // Tag creation and management
+    // Tag hierarchy and categorization
+    // Bulk tagging operations
+    // Tag-based search and filtering
+    // Tag analytics and usage statistics
+    // Auto-tagging based on content analysis
+    // Tag permission and access control
+}
+```
+
+**🔍 FileSearchService**
+```java
+@Service
+public class FileSearchService {
+    // Full-text search across file metadata
+    // Advanced filtering (date, size, type, tags)
+    // Search index maintenance
+    // Query optimization and caching
+    // Search analytics and suggestions
+    // Elasticsearch integration
+    // Faceted search capabilities
+}
+```
+
+**📋 FilePreviewService**
+```java
+@Service
+public class FilePreviewService {
+    // Thumbnail generation for images/videos
+    // Document preview generation
+    // Preview caching and optimization
+    // Multiple format support (PDF, images, videos)
+    // Security-aware preview generation
+    // Watermarking for sensitive content
+    // Progressive loading for large previews
+}
+```
+
+**📦 BatchOperationService**
+```java
+@Service
+public class BatchOperationService {
+    // Bulk upload/download operations
+    // Parallel processing management
+    // Progress aggregation and reporting
+    // Failure handling and partial retry
+    // Resource management and throttling
+    // Enterprise-grade bulk operations
+    // Queue management and prioritization
+}
+```
+
+**🔒 AccessControlValidator**
+```java
+@Service
+public class AccessControlValidator {
+    // Download permission verification
+    // User authorization checking
+    // Access token validation
+    // Rate limiting enforcement
+    // Suspicious activity detection
+    // Audit trail generation
+    // IP-based access control
+}
+```
+
+**✅ CIDVerifier**
+```java
+@Service
+public class CIDVerifier {
+    // CID format validation
+    // Hash verification against blockchain
+    // Content integrity checks
+    // Multihash validation
+    // Version compatibility checking
+    // Corrupted file detection and recovery
+    // Blockchain synchronization verification
+}
+```
+
+**🔄 UploadStatusManager**
+```java
+@Service
+public class UploadStatusManager {
+    // Real-time upload progress tracking
+    // Status persistence and recovery
+    // WebSocket notifications
+    // Multi-part upload coordination
+    // Failure detection and retry logic
+    // Upload queue management
+    // Progress aggregation for batch uploads
+}
+```
+
+**📈 StorageMetricsCollector**
+```java
+@Service
+public class StorageMetricsCollector {
+    // Upload/download statistics
+    // Storage usage analytics
+    // Performance metrics collection
+    // Error rate monitoring
+    // User activity tracking
+    // Cost analysis and optimization
+    // Capacity planning data
+}
+```
+
+**🗃️ FileAvailabilityChecker**
+```java
+@Service
+public class FileAvailabilityChecker {
+    // IPFS node availability monitoring
+    // File pinning status verification
+    // Gateway health checking
+    // Redundancy validation
+    // Automatic re-pinning on failure
+    // Performance metrics collection
+    // Alerting for unavailable files
+}
+```
+
+**🎯 ContentDeliveryOptimizer**
+```java
+@Service
+public class ContentDeliveryOptimizer {
+    // Gateway selection optimization
+    // Geographic proximity routing
+    // Load balancing across gateways
+    // Performance monitoring and analysis
+    // Failover management
+    // Cache hit optimization
+    // Network latency reduction
+}
+```
+
+**📋 FileAuditService**
+```java
+@Service
+public class FileAuditService {
+    // Comprehensive audit logging
+    // File access tracking
+    // User activity monitoring
+    // Compliance reporting
+    // Security event logging
+    // Forensic analysis support
+    // Automated compliance checks
+}
+```
+
+#### Internal API Endpoints:
+
+**🔄 Upload Operations**
+- ✅ `POST /storage/upload` — Single file upload to IPFS
+- ✅ `POST /storage/upload/batch` — Bulk file upload
+- ✅ `POST /storage/upload/resume` — Resume interrupted upload
+- ✅ `GET /storage/upload/status/{uploadId}` — Upload progress status
+- ✅ `DELETE /storage/upload/{uploadId}` — Cancel upload operation
+
+**⬇️ Download Operations**
+- ✅ `GET /storage/download/id` — Download file by ID
+- ✅ `GET /storage/download/cid/{cid}` — Download file by CID
+- ✅ `POST /storage/download/batch/id` — Bulk download by ID
+- ✅ `POST /storage/download/batch/cid` — Bulk download by CID
+
+**🔍 Search & Discovery**
+- 🟡 `GET /storage/search/metadata` — Search files by metadata
+- 🟡 `GET /storage/files/owned` — List user files with pagination
+- 🟡 `GET /storage/files/access` — List user files with pagination
+- 🟡 `GET /storage/files/available` — List user files with pagination
+- 🕓 `GET /storage/files/recent` — Recently accessed files
+
+**🏷️ Tagging & Organization**
+- 🕓 `POST /storage/tags` — Create new tag
+- 🕓 `GET /storage/tags` — List all user tags
+- 🕓 `PUT /storage/files/{fileId}/tags` — Add tags to file
+- 🕓 `DELETE /storage/files/{fileId}/tags` — Remove tags from file
+- 🕓 `GET /storage/files/tags/{tagId}` — Files by tag
+
+**📊 Metadata Operations**
+- 🟡 `GET /storage/files/metadata` — Get file metadata
+- 🟡 `PUT /storage/files/metadata` — Update file metadata
+- 🕓 `GET /storage/files/versions` — File version history
+- 🕓 `POST /storage/files/analyze` — Analyze file content
+
+**📈 Analytics & Metrics**
+- 🕓 `GET /storage/metrics/usage` — Storage usage statistics
+- 🕓 `GET /storage/metrics/performance` — Performance metrics
+- 🕓 `GET /storage/metrics/activity` — User activity analytics
+- ✅ `GET /storage/health` — Service health check
+
+**🔒 Access Control**
+- 🟡 `POST /storage/access/validate` — Validate file access
+- 🕓 `GET /storage/access/history/{fileId}` — Access history
+- 🕓 `POST /storage/access/audit` — Generate audit report
+
+**🗑️ File Deletion**
+- 🕓 `DELETE /storage/files/{fileId}` — Soft-delete a file (sets `is_deleted=true` in the DB)
+  > Note: This does **not remove the file from IPFS** — it only hides it from the user's file list and marks it as deleted in the database.
+
+#### Project Structure:
+```
+storage-service/
+├── src/main/java/com/omvaultchain/storage/
+│   ├── controller/
+│   │   ├── FileController.java
+│   │   ├── UploadController.java
+│   │   ├── DownloadController.java
+│   │   ├── StreamingController.java
+│   │   ├── SearchController.java
+│   │   ├── TaggingController.java
+│   │   ├── MetricsController.java
+│   │   └── AuditController.java
+│   ├── service/
+│   │   ├── IPFSClient.java
+│   │   ├── FileUploadService.java
+│   │   ├── FileDownloadService.java
+│   │   ├── FileStreamingService.java
+│   │   ├── MetadataExtractor.java
+│   │   ├── FileTaggingService.java
+│   │   ├── FileSearchService.java
+│   │   ├── FilePreviewService.java
+│   │   ├── BatchOperationService.java
+│   │   ├── AccessControlValidator.java
+│   │   ├── CIDVerifier.java
+│   │   ├── UploadStatusManager.java
+│   │   ├── StorageMetricsCollector.java
+│   │   ├── FileAvailabilityChecker.java
+│   │   ├── ContentDeliveryOptimizer.java
+│   │   └── FileAuditService.java
+│   ├── model/
+│   │   ├── FileMetadata.java
+│   │   ├── UploadRequest.java
+│   │   ├── UploadResponse.java
+│   │   ├── DownloadRequest.java
+│   │   ├── DownloadResponse.java
+│   │   ├── StreamingRequest.java
+│   │   ├── SearchRequest.java
+│   │   ├── TagRequest.java
+│   │   ├── StorageMetrics.java
+│   │   ├── AuditRecord.java
+│   │   └── IPFSGatewayConfig.java
+│   ├── repository/
+│   │   ├── FileMetadataRepository.java
+│   │   ├── UploadStatusRepository.java
+│   │   ├── FileTagRepository.java
+│   │   ├── FilePreviewRepository.java
+│   │   ├── FileAuditLogRepository.java
+│   │   ├── DownloadHistoryRepository.java
+│   │   └── StorageMetricsRepository.java
+│   └── config/
+│       ├── StorageConfig.java
+│       ├── IPFSConfig.java
+│       ├── CacheConfig.java
+│       └── MetricsConfig.java
+├── Dockerfile
+└── pom.xml
+```
+
+#### Database Tables Used:
+- **`files`** — Core file metadata and ownership
+- **`upload_status`** — Upload progress and status tracking
+- **`file_tags`** — File tagging and categorization
+- **`file_previews`** — Generated previews and thumbnails
+- **`file_audit_logs`** — Comprehensive audit trail
+
+#### Caching Strategy:
+- **Redis** for file metadata caching
+- **Redis** for upload status and progress tracking
+- **Redis** for frequently accessed file previews
+- **Redis** for search result caching
+- **Redis** for user activity metrics
+
+### ⛓️ blockchain-service
+**Technology:** Spring Boot + web3j + Solidity
+**Port:** 8004 | **Status:** ✅ Active
+
+#### Internal Components:
+
+**🔗 SmartContractClient**
+```java
+@Service
+public class SmartContractClient {
+    // web3j integration
+    // Contract deployment
+    // Method calling
+    // Event listening
+}
+```
+
+**📋 FileRegistryService**
+```java
+@Service
+public class FileRegistryService {
+    // File registration on-chain
+    // CID storage
+    // Hash anchoring
+    // Metadata linking
+}
+```
+
+**🔑 AccessRightsService**
+```java
+@Service
+public class AccessRightsService {
+    // Access grant/revoke
+    // Permission management
+    // Rights validation
+    // User access tracking
+}
+```
+
+**🔄 VersioningService**
+```java
+@Service
+public class VersioningService {
+    // Version registration
+    // Version linking
+    // History maintenance
+    // Rollback support
+}
+```
+
+**🗂️ BlockchainMetadataMapper**
+```java
+@Component
+public class BlockchainMetadataMapper {
+    // Solidity data parsing
+    // Type conversion
+    // Structure mapping
+}
+```
+
+**👂 EventListenerService**
+```java
+@Service
+public class EventListenerService {
+    // Smart contract event listening
+    // Event processing
+    // Notification dispatching
+}
+```
+
+#### Blockchain API Endpoints:
+
+**📋 File Registration**
+- ✅ `POST /register-file` — Registers file hash + CID on-chain
+
+**🔐 Access Control**
+- ✅ `POST /grant-access` — Grant encrypted AES key to a wallet
+- ✅ `POST /revoke-access` — Revoke access from a wallet
+- ✅ `GET /has-access` — Check if a wallet has access to CID
+- ✅ `GET /access-list` — List all wallets with access to a file (B2B auditing)
+- ✅ `POST /grant-multiple-access` — Grant access to multiple wallets at once
+- ✅ `GET /verify-access` — Return blockchain proof of access for validation
+
+**🔄 File Versioning**
+- ✅ `POST /add-version` — Add a new file version
+- ✅ `POST /rollback-version` — Roll back to a specific version
+- ✅ `GET /version-history` — List all versions of a file
+- ✅ `GET /current-version` — Get the current version metadata
+- ✅ `GET /version-at` — Get version metadata by version number
+- ✅ `GET /file-status` — Get current file status (active/deleted)
+- ✅ `POST /delete-file` — Mark a file as deleted
+- ✅ `GET /compare-versions` — Compare two versions for diff (optional enhancement)
+- ✅ `POST /revoke-all-access` — Emergency revoke for all users (security feature)
+- ✅ `POST /lock-version` — Mark version as immutable (for legal use cases)
+
+#### Project Structure:
+```
+blockchain-service/
+├── src/main/java/com/omvaultchain/blockchain/
+│   ├── controller/BlockchainController.java
+│   ├── service/
+│   │   ├── SmartContractClient.java
+│   │   ├── FileRegistryService.java
+│   │   ├── AccessRightsService.java
+│   │   ├── VersioningService.java
+│   │   ├── BlockchainMetadataMapper.java
+│   │   └── EventListenerService.java
+│   ├── model/
+│   │   ├── FileRecord.java
+│   │   ├── AccessRecord.java
+│   │   └── VersionRecord.java
+│   └── config/BlockchainConfig.java
+├── contracts/
+│   ├── FileRegistry.sol
+│   ├── AccessControl.sol
+│   └── VersionManager.sol
+├── Dockerfile
+└── pom.xml
+```
+
+---
+
+### 🔐 access-control-service
+**Technology:** Spring Boot + Redis + MySQL + JWT + Policy Engine
+**Port:** 8005 | **Status:** 🟡 In Development
+
+A comprehensive microservice managing dynamic file access control, role-based permissions, policy enforcement, and audit trails. Handles both individual user access and enterprise-level organization access control with blockchain integration for critical operations.
+
+#### Internal Components:
+
+**🔍 AccessRequestHandler**
+```java
+@Service
+public class AccessRequestHandler {
+    // Validates incoming access requests
+    // User/organization authentication verification
+    // File existence and ownership validation
+    // Request sanitization and security checks
+    // Rate limiting enforcement per user/IP
+    // Suspicious activity detection and blocking
+}
+```
+
+**⚖️ PermissionEvaluator**
+```java
+@Service
+public class PermissionEvaluator {
+    // Role-based access control (RBAC) evaluation
+    // Access control list (ACL) policy enforcement
+    // Token validation and expiration checks
+    // IP whitelisting and geolocation restrictions
+    // Time-based access window validation
+    // Download count and quota enforcement
+}
+```
+
+**🧠 PolicyEngine**
+```java
+@Service
+public class PolicyEngine {
+    // Dynamic JSON-based policy evaluation
+    // Custom rule engine with condition matching
+    // Policy template management and versioning
+    // Complex conditional logic processing
+    // Policy conflict resolution and prioritization
+    // Real-time policy updates and hot-reloading
+}
+```
+
+**🎯 AccessGrantService**
+```java
+@Service
+public class AccessGrantService {
+    // File access granting orchestration
+    // Blockchain smart contract integration
+    // AES key encryption for new recipients
+    // Multi-user batch access granting
+    // Access expiration scheduling and management
+    // Emergency access revocation capabilities
+}
+```
+
+**🚫 AccessRevokeService**
+```java
+@Service
+public class AccessRevokeService {
+    // Individual and bulk access revocation
+    // Blockchain transaction coordination
+    // Real-time access invalidation
+    // Cache invalidation and cleanup
+    // Cascade revocation for dependent access
+    // Emergency lockdown procedures
+}
+```
+
+**📋 AccessAuditService**
+```java
+@Service
+public class AccessAuditService {
+    // Comprehensive access logging and tracking
+    // Real-time audit trail generation
+    // Compliance reporting and analytics
+    // Suspicious activity pattern detection
+    // Historical access analysis and insights
+    // Regulatory compliance validation
+}
+```
+
+**🏢 OrganizationAccessManager**
+```java
+@Service
+public class OrganizationAccessManager {
+    // Enterprise-level access management
+    // Role-to-files mapping and bulk operations
+    // Department and team-based access control
+    // Hierarchical permission inheritance
+    // Organization policy enforcement
+    // Bulk user onboarding and offboarding
+}
+```
+
+**🔒 AccessTokenManager**
+```java
+@Service
+public class AccessTokenManager {
+    // JWT access token generation and validation
+    // Short-lived token management for downloads
+    // Token refresh and renewal logic
+    // Token blacklisting and revocation
+    // Cryptographic signature verification
+    // Multi-factor authentication integration
+}
+```
+
+**📊 AccessAnalyticsService**
+```java
+@Service
+public class AccessAnalyticsService {
+    // Access pattern analysis and insights
+    // User behavior tracking and profiling
+    // File popularity and usage statistics
+    // Security anomaly detection
+    // Performance metrics collection
+    // Business intelligence reporting
+}
+```
+
+**⏰ AccessSchedulerService**
+```java
+@Service
+public class AccessSchedulerService {
+    // Time-based access scheduling and automation
+    // Access expiration management
+    // Scheduled policy updates and changes
+    // Automated access reviews and renewals
+    // Background cleanup and maintenance
+    // Notification scheduling for access events
+}
+```
+
+**🔄 AccessSyncService**
+```java
+@Service
+public class AccessSyncService {
+    // Cross-service access state synchronization
+    // Blockchain state consistency verification
+    // Cache coherence and invalidation
+    // Event-driven access updates
+    // Conflict resolution and reconciliation
+    // Distributed system consistency management
+}
+```
+
+**🎭 RolePermissionManager**
+```java
+@Service
+public class RolePermissionManager {
+    // Role definition and management
+    // Permission mapping and assignment
+    // Role hierarchy and inheritance
+    // Dynamic role updates and modifications
+    // Role-based file access templates
+    // Permission aggregation and optimization
+}
+```
+
+**🌐 IPAccessController**
+```java
+@Service
+public class IPAccessController {
+    // IP-based access control and validation
+    // Geolocation-based restrictions
+    // VPN and proxy detection
+    // IP reputation scoring and blocking
+    // Dynamic IP whitelist management
+    // Network-based access policies
+}
+```
+
+**📈 AccessMetricsCollector**
+```java
+@Service
+public class AccessMetricsCollector {
+    // Access control performance metrics
+    // Success/failure rate monitoring
+    // Response time and latency tracking
+    // Resource utilization analysis
+    // Error rate and exception monitoring
+    // Service health and availability tracking
+}
+```
+
+**🔔 AccessNotificationService**
+```java
+@Service
+public class AccessNotificationService {
+    // Real-time access event notifications
+    // Multi-channel notification delivery
+    // Customizable notification templates
+    // Escalation and priority management
+    // Notification history and tracking
+    // Integration with external systems
+}
+```
+
+#### Internal API Endpoints:
+
+**🔓 Access Grant Operations**
+- ✅ `POST /access/grant` — Grant user access to file
+- ✅ `POST /access/grant/multiple` — Bulk access granting for multiple users
+- ✅ `POST /access/grant/temporary` — Grant temporary time-limited access
+- 🟡 `POST /access/grant/role` — Grant access based on user role
+
+**🚫 Access Revoke Operations**
+- ✅ `POST /access/revoke` — Revoke user access from file
+- ✅ `POST /access/revoke/multiple` — Bulk access revocation
+- ✅ `POST /access/remove-all` — Revoke all access to file
+
+**✅ Access Validation**
+- ✅ `POST /access/validate` — Validate user access to file
+- ✅ `POST /access/validate/bulk` — Bulk access validation
+- ✅ `GET /access/check/{fileId}/{userId}` — Check specific user access
+
+**📋 Access Management**
+- 🟡 `GET /access/list/{fileId}` — List all users with file access
+- 🟡 `GET /access/files/{userId}` — List files accessible by user
+- 🟡 `GET /access/permissions/{userId}` — Get user's all permissions
+- 🟡 `PUT /access/update/{permissionId}` — Update access permissions
+- 🟡 `GET /access/status/{fileId}` — Get file access status summary
+
+**🧠 Policy Management**
+- 🟡 `POST /access/policy` — Create/update file access policy
+- 🟡 `GET /access/policy/{fileId}` — Get file access policies
+- 🟡 `DELETE /access/policy/{policyId}` — Delete access policy
+- 🟡 `POST /access/policy/template` — Create policy template
+- 🟡 `GET /access/policy/validate` — Validate policy configuration
+
+**🏢 Organization Management**
+- 🟡 `POST /access/org/create` — Create organization access group
+- 🟡 `POST /access/org/assign` — Assign users to organization
+- 🟡 `GET /access/org/members/{orgId}` — List organization members
+- 🟡 `POST /access/org/bulk-grant` — Bulk grant for organization
+- 🟡 `GET /access/org/files/{orgId}` — List organization accessible files
+
+**🎭 Role Management**
+- 🟡 `POST /access/roles` — Create access role
+- 🟡 `GET /access/roles` — List all roles
+- 🟡 `PUT /access/roles/{roleId}` — Update role permissions
+- 🟡 `DELETE /access/roles/{roleId}` — Delete role
+- 🟡 `POST /access/roles/assign` — Assign role to user
+
+**📊 Analytics & Audit**
+- ✅ `GET /access/audit/{fileId}` — Get file access audit log
+- ✅ `GET /access/audit/user/{userId}` — Get user access history
+- 🟡 `POST /access/audit/report` — Generate compliance report
+- 🟡 `GET /access/analytics/usage` — Access usage analytics
+- 🟡 `GET /access/analytics/patterns` — Access pattern analysis
+
+**⏰ Scheduled Operations**
+- 🕓 `POST /access/schedule/grant` — Schedule future access grant
+- 🕓 `POST /access/schedule/revoke` — Schedule future access revocation
+- 🕓 `GET /access/schedule/list` — List scheduled operations
+- 🕓 `DELETE /access/schedule/{scheduleId}` — Cancel scheduled operation
+
+**🔄 Synchronization**
+- 🟡 `POST /access/sync/blockchain` — Sync with blockchain state
+- 🟡 `POST /access/sync/cache` — Refresh cache from database
+- 🟡 `GET /access/sync/status` — Get synchronization status
+
+**📈 Monitoring & Health**
+- ✅ `GET /access/health` — Service health check
+- 🟡 `GET /access/metrics` — Access control metrics
+- 🟡 `GET /access/performance` — Performance statistics
+
+#### Project Structure:
+```
+access-control-service/
+├── src/main/java/com/omvaultchain/accesscontrol/
+│   ├── controller/AccessControlController.java
+│   ├── service/
+│   │   ├── AccessRequestHandler.java
+│   │   ├── PermissionEvaluator.java
+│   │   ├── PolicyEngine.java
+│   │   ├── AccessGrantService.java
+│   │   ├── AccessRevokeService.java
+│   │   ├── AccessAuditService.java
+│   │   ├── OrganizationAccessManager.java
+│   │   ├── AccessTokenManager.java
+│   │   ├── AccessAnalyticsService.java
+│   │   ├── AccessSchedulerService.java
+│   │   ├── AccessSyncService.java
+│   │   ├── RolePermissionManager.java
+│   │   ├── IPAccessController.java
+│   │   ├── AccessMetricsCollector.java
+│   │   └── AccessNotificationService.java
+│   ├── model/
+│   │   ├── AccessRequest.java
+│   │   ├── AccessResponse.java
+│   │   ├── AccessPermission.java
+│   │   ├── AccessPolicy.java
+│   │   ├── AccessToken.java
+│   │   ├── AccessAuditRecord.java
+│   │   ├── OrganizationAccess.java
+│   │   ├── RolePermission.java
+│   │   ├── AccessSchedule.java
+│   │   ├── AccessMetrics.java
+│   │   ├── PolicyTemplate.java
+│   │   └── IPAccessRule.java
+│   └── config/AccessControlConfig.java
+├── Dockerfile
+└── pom.xml
+```
+
+#### Database Tables Used:
+- **`access_permissions`** — Core access control records
+- **`access_policies`** — File-specific access policies
+- **`access_audit_logs`** — Comprehensive audit trail
+- **`organizations`** — Organization management
+- **`user_roles`** — Role-based access control
+- **`scheduled_operations`** — Time-based access management
+
+#### Caching Strategy:
+- **Redis** for access permission caching
+- **Redis** for policy evaluation results
+- **Redis** for role and organization data
+- **Redis** for access token validation
+- **Redis** for audit log aggregation
 
 ---
 
