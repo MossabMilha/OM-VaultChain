@@ -145,7 +145,250 @@ graph TB
 
 ---
 
-## 🛠️ Technology Stack
+## � Identity & Access Model
+
+OM VaultChain implements a **dual-identity architecture** that combines traditional application user management with blockchain-based decentralized identity. This hybrid approach ensures both user experience and cryptographic security while maintaining compatibility with existing systems.
+
+### 🆔 Dual-Identity Architecture
+
+OM VaultChain operates with two distinct but interconnected identity systems:
+
+```mermaid
+graph TB
+    subgraph "Application Layer"
+        USER_ID[userId<br/>Internal Database ID]
+        PROFILE[User Profile]
+        ANALYTICS[Analytics & Metrics]
+        ORG[Organization Management]
+        UI[UI Preferences]
+    end
+
+    subgraph "Blockchain Layer"
+        WALLET[walletAddress<br/>Blockchain Identity]
+        SMART_CONTRACT[Smart Contracts]
+        ENCRYPTION[File Encryption Keys]
+        SIGNATURES[Digital Signatures]
+        ACCESS_CONTROL[Access Control]
+    end
+
+    subgraph "Mapping Layer"
+        BACKEND[Backend Services]
+        DATABASE[(Database Mapping)]
+    end
+
+    USER_ID --> BACKEND
+    WALLET --> BACKEND
+    BACKEND --> DATABASE
+
+    USER_ID --> PROFILE
+    USER_ID --> ANALYTICS
+    USER_ID --> ORG
+    USER_ID --> UI
+
+    WALLET --> SMART_CONTRACT
+    WALLET --> ENCRYPTION
+    WALLET --> SIGNATURES
+    WALLET --> ACCESS_CONTROL
+```
+
+### 🏢 Internal User ID (`userId`)
+
+The **`userId`** is a traditional UUID-based identifier used for application-level features and internal system management.
+
+#### **Primary Use Cases:**
+- **👤 User Profiles**: Personal information, preferences, and settings
+- **📊 Analytics & Metrics**: Usage tracking, performance monitoring, and reporting
+- **🏢 Organization Management**: Team memberships, role assignments, and enterprise features
+- **🎨 UI/UX Personalization**: Interface preferences, themes, and customizations
+- **📋 Application State**: Session management, caching, and internal workflows
+- **🔍 Search & Discovery**: Personal file organization and metadata management
+
+#### **Database Schema:**
+```sql
+CREATE TABLE users (
+    id CHAR(36) PRIMARY KEY,           -- userId (UUID)
+    wallet_address VARCHAR(42) UNIQUE, -- Associated wallet
+    email VARCHAR(255),                -- Optional email
+    display_name VARCHAR(100),         -- User display name
+    profile_image_url TEXT,            -- Profile picture
+    preferences JSON,                  -- UI/UX preferences
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+```
+
+### ⛓️ Wallet Address (`walletAddress`)
+
+The **`walletAddress`** is the authoritative blockchain identity that controls cryptographic operations and decentralized access control.
+
+#### **Primary Use Cases:**
+- **🔐 Blockchain Access Control**: Smart contract-based permission management
+- **🔑 Encrypted Key Management**: AES file keys encrypted with user's public key
+- **📝 Smart Contract Interactions**: All on-chain operations and transactions
+- **✍️ Signature-Based Authentication**: Cryptographic proof of identity
+- **🛡️ Decentralized Verification**: Trustless identity verification
+- **🔄 Cross-Platform Compatibility**: Universal identity across DApps
+
+#### **Key Requirements:**
+> **⚠️ Important**: Users must register their wallet address and public key before accessing any encrypted files.
+
+```sql
+CREATE TABLE user_wallets (
+    wallet_address VARCHAR(42) PRIMARY KEY,
+    public_key TEXT NOT NULL,              -- For encryption
+    user_id CHAR(36),                      -- Link to internal user
+    registered_at TIMESTAMP,
+    is_verified BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+### 🔄 Identity Mapping & Compatibility
+
+The backend maintains seamless mapping between both identity systems to ensure compatibility:
+
+#### **Mapping Strategy:**
+```java
+@Service
+public class IdentityMappingService {
+
+    // Convert wallet address to internal user ID
+    public UUID getUserIdByWallet(String walletAddress) {
+        return userRepository.findByWalletAddress(walletAddress)
+            .map(User::getId)
+            .orElseThrow(() -> new UserNotFoundException("Wallet not registered"));
+    }
+
+    // Convert internal user ID to wallet address
+    public String getWalletByUserId(UUID userId) {
+        return userRepository.findById(userId)
+            .map(User::getWalletAddress)
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    // Validate wallet registration
+    public boolean isWalletRegistered(String walletAddress) {
+        return userWalletRepository.existsByWalletAddress(walletAddress);
+    }
+}
+```
+
+### 🔑 Encryption & Key Management
+
+The encryption system has been updated to use wallet-based identity for enhanced security:
+
+#### **Previous Model (Deprecated):**
+```java
+// ❌ Old approach - using internal userId
+encryptedKey = encryptAESKey(aesKey, getUserPublicKey(userId));
+```
+
+#### **Current Model (Wallet-Based):**
+```java
+// ✅ New approach - using wallet address
+encryptedKey = encryptAESKey(aesKey, getWalletPublicKey(walletAddress));
+```
+
+#### **Key Association Process:**
+1. **File Upload**: AES key generated for file encryption
+2. **Key Encryption**: AES key encrypted using owner's wallet public key
+3. **Blockchain Storage**: Encrypted key stored in smart contract
+4. **Access Grant**: Additional encrypted copies created for each recipient's wallet
+5. **Access Revoke**: Encrypted keys removed from smart contract
+
+### 🏗️ Smart Contract Integration
+
+All smart contracts operate exclusively with wallet addresses for decentralized verification:
+
+#### **FileRegistry.sol**
+```solidity
+contract FileRegistry {
+    struct File {
+        string cid;
+        string fileHash;
+        address owner;        // wallet address only
+        uint256 timestamp;
+    }
+
+    mapping(string => File) private files;
+
+    function registerFile(string memory cid, string memory fileHash) public {
+        files[cid] = File(cid, fileHash, msg.sender, block.timestamp);
+    }
+}
+```
+
+#### **AccessControl.sol**
+```solidity
+contract AccessControl {
+    mapping(string => mapping(address => string)) private encryptedKeys;
+
+    function grantAccess(
+        string memory cid,
+        address userWallet,     // wallet address only
+        string memory encryptedKey
+    ) public {
+        require(isFileOwner(cid, msg.sender), "Not file owner");
+        encryptedKeys[cid][userWallet] = encryptedKey;
+    }
+}
+```
+
+### 🔒 Authentication Flow
+
+The authentication process combines both identity systems for optimal security and usability:
+
+#### **Registration Process:**
+1. **Wallet Connection**: User connects MetaMask/WalletConnect
+2. **Signature Challenge**: Backend generates nonce for signature
+3. **Identity Verification**: User signs challenge with private key
+4. **Account Creation**: Internal `userId` created and linked to `walletAddress`
+5. **Public Key Registration**: User's public key stored for encryption
+
+#### **Login Process:**
+1. **Wallet Authentication**: User signs login challenge
+2. **Identity Resolution**: Backend maps `walletAddress` to `userId`
+3. **Session Creation**: JWT token issued containing both identities
+4. **Service Access**: Internal services use `userId`, blockchain services use `walletAddress`
+
+### 🎯 Rationale & Benefits
+
+#### **Why Dual-Identity?**
+
+| **Aspect** | **Internal userId** | **Wallet Address** |
+|------------|--------------------|--------------------|
+| **Purpose** | Application features | Cryptographic operations |
+| **Scope** | Database & UI | Blockchain & encryption |
+| **Mutability** | Can be changed | Immutable |
+| **Privacy** | Internal only | Public on blockchain |
+| **Verification** | Database lookup | Cryptographic proof |
+
+#### **Key Advantages:**
+- **🔐 Enhanced Security**: Cryptographic identity for sensitive operations
+- **🌐 Decentralization**: Reduced dependency on centralized identity systems
+- **🔄 Future-Proof**: Preparation for full client-side encryption
+- **⚡ Performance**: Optimized for both user experience and blockchain operations
+- **🛡️ Verifiable Access**: Cryptographically provable file permissions
+- **🔗 Interoperability**: Compatible with other Web3 applications
+
+#### **Migration Path:**
+> **📈 Future Vision**: This dual-identity model enables gradual migration toward fully decentralized, client-side encryption while maintaining current application functionality.
+
+### 🚨 Important Considerations
+
+> **⚠️ Wallet Registration Required**
+> Users must register their wallet address and public key before accessing any encrypted files. Unregistered wallets cannot decrypt file content.
+
+> **🔑 Key Recovery**
+> If a user loses access to their wallet, they cannot recover encrypted files. Consider implementing social recovery or multi-signature solutions for enterprise users.
+
+> **🔄 Address Changes**
+> Changing wallet addresses requires re-encryption of all accessible files. This is a significant operation that should be carefully planned.
+
+---
+
+## �🛠️ Technology Stack
 
 <div align="center">
 
