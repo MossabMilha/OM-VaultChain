@@ -755,22 +755,18 @@ public class AccessNotificationService {
 **🔓 Access Grant Operations**
 - ✅`POST /access/grant` — Grant user access to file
 - ✅`POST /access/grant/multiple` — Bulk access granting for multiple users
-- 🟡❌`POST /access/grant/role` — Grant access based on user role
 - ✅`POST /access/grant/temporary` — Grant temporary time-limited access
+- 🟡❌`POST /access/grant/role` — Grant access based on user role
 
 **🚫 Access Revoke Operations**
-- 🟡❌`POST /access/revoke` — Revoke user access from file
-- 🟡❌`POST /access/revoke/multiple` — Bulk access revocation
-- 🟡❌`POST /access/revoke/organization` — Revoke organization access
-- 🟡❌`POST /access/revoke/emergency` — Emergency access lockdown
-- 🟡❌`DELETE /access/all/{fileId}` — Revoke all access to file
+- ✅`POST /access/revoke` — Revoke user access from file
+- ✅`POST /access/revoke/multiple` — Bulk access revocation
+- ✅`POST /access/remove-all` — Revoke all access to file
 
 **✅ Access Validation**
 - 🟡❌`POST /access/validate` — Validate user access to file
 - 🟡❌`POST /access/validate/bulk` — Bulk access validation
 - 🟡❌`GET /access/check/{fileId}/{userId}` — Check specific user access
-- 🟡❌`POST /access/token` — Generate signed access token
-- 🟡❌`POST /access/token/refresh` — Refresh access token
 
 **📋 Access Management**
 - 🟡❌`GET /access/list/{fileId}` — List all users with file access
