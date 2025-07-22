@@ -6,6 +6,7 @@
 
 **Secure • Decentralized • Blockchain-Powered**
 
+[![React](https://img.shields.io/badge/React-18+-blue?style=flat-square&logo=react)](https://reactjs.org/)
 [![Java](https://img.shields.io/badge/Java-17+-orange?style=flat-square&logo=java)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2+-green?style=flat-square&logo=spring)](https://spring.io/projects/spring-boot)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.19+-blue?style=flat-square&logo=solidity)](https://soliditylang.org/)
@@ -22,7 +23,7 @@
 
 ### 🔒 How It Works
 
-1. **🔐 Client-Side Encryption**: Files are encrypted on your device using AES-256-GCM before leaving your computer
+1. **🔐 Client-Side Encryption**: Files are encrypted in your browser using AES-256-GCM before uploading to IPFS
 2. **🌐 IPFS Storage**: Encrypted files are stored on the decentralized IPFS network for durability and censorship resistance
 3. **⛓️ Blockchain Registry**: File metadata and access permissions are recorded on Polygon blockchain for transparency
 4. **🔑 Smart Contract Access Control**: Granular permissions managed through immutable smart contracts
@@ -79,7 +80,6 @@ cp .env.example .env
 docker-compose up -d
 
 # Check service health
-curl http://localhost:8002/health  # Encryption Service
 curl http://localhost:8003/health  # Storage Service
 curl http://localhost:8004/health  # Blockchain Service
 ```
@@ -102,7 +102,7 @@ OM VaultChain follows a **microservices architecture** with clear separation of 
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        WEB[Web App]
+        WEB[Web App<br/>Client-Side Encryption]
         MOBILE[Mobile App]
         API_CLIENT[API Client]
     end
@@ -112,7 +112,6 @@ graph TB
     end
 
     subgraph "Microservices Layer"
-        ENCRYPT[Encryption Service<br/>AES-256 + RSA]
         STORAGE[Storage Service<br/>IPFS Integration]
         BLOCKCHAIN[Blockchain Service<br/>Smart Contracts]
         ACCESS[Access Control Service<br/>Permissions & Audit]
@@ -129,12 +128,10 @@ graph TB
     MOBILE --> GATEWAY
     API_CLIENT --> GATEWAY
 
-    GATEWAY --> ENCRYPT
     GATEWAY --> STORAGE
     GATEWAY --> BLOCKCHAIN
     GATEWAY --> ACCESS
 
-    ENCRYPT --> REDIS
     STORAGE --> MYSQL
     STORAGE --> REDIS
     STORAGE --> IPFS
@@ -394,7 +391,8 @@ The authentication process combines both identity systems for optimal security a
 
 | **Category** | **Technology** | **Version** | **Purpose** |
 |--------------|----------------|-------------|-------------|
-| 🔐 **Encryption** | Java + BouncyCastle | 17+ / 1.70+ | AES-256-GCM, RSA/ECIES encryption |
+| 🔐 **Encryption** | Web Crypto API / CryptoJS | ES2021+ | AES-GCM, SHA-256, RSA key wrapping |
+| 🌐 **Frontend** | React + TypeScript | 18+ | Client-side encryption interface |
 | 🌐 **Backend** | Spring Boot | 3.2+ | Microservices framework |
 | 📦 **Storage** | IPFS + Pinata | Latest | Decentralized file storage |
 | ⛓️ **Blockchain** | Solidity + Hardhat | 0.8.19+ | Smart contracts on Polygon |
@@ -411,37 +409,49 @@ The authentication process combines both identity systems for optimal security a
 
 ## 🔧 Microservices
 
-OM VaultChain is built using a **microservices architecture** with four core services, each handling specific responsibilities:
+OM VaultChain is built using a **microservices architecture** with three core services, each handling specific responsibilities:
 
-### 🔐 Encryption Service
-**Port: 8002** | **Technology: Spring Boot + BouncyCastle**
+### 🧠 Client-Side Encryption (React)
+**Folder:** `client-side/src/crypto` | **Technology:** React + CryptoJS + Web Crypto API
 
-Handles all cryptographic operations with enterprise-grade security.
+Handles AES-256-GCM encryption, key wrapping, and SHA-256 hashing directly in the user's browser for zero-knowledge security.
 
 **Key Features:**
-- **AES-256-GCM** encryption for files
-- **RSA/ECIES** for key encryption
-- **SHA-256** file hashing
-- **Secure IV generation**
-- **Multi-recipient key envelopes**
+- **AES-256-GCM** file encryption with secure IVs
+- **SHA-256** file integrity hashing
+- **RSA key wrapping** for multiple recipients
+- **Secure envelope creation**
+- **All logic in-browser**, no sensitive data leaves the device unencrypted
 
-<augment_code_snippet path="services/encryption-service/src/main/java/com/omvaultchain/service/AESService.java" mode="EXCERPT">
-````java
-@Service
-public class AESService {
-    // AES-256-GCM encryption/decryption
-    // Key generation (256-bit)
-    // IV management (12 bytes)
-    // Tag verification
-}
-````
-</augment_code_snippet>
+**Typical Files:**
+- `encrypt.js` - File encryption operations
+- `decrypt.js` - File decryption operations
+- `keyUtils.js` - Key generation and management
+- `hash.js` - SHA-256 hashing utilities
+- `envelopeManager.js` - Multi-recipient key envelopes
 
-**API Endpoints:**
-- `POST /encrypt` - Encrypt file with AES-256-GCM
-- `POST /decrypt` - Decrypt file for authorized users
-- `POST /generate-key` - Generate secure AES keys
-- `POST /hash-file` - Generate SHA-256 file hash</augment_code_snippet>
+**Project Structure:**
+```
+client-side/
+├── src/
+│   ├── crypto/
+│   │   ├── encrypt.js
+│   │   ├── decrypt.js
+│   │   ├── keyUtils.js
+│   │   ├── hash.js
+│   │   └── envelopeManager.js
+│   ├── components/
+│   │   ├── FileUpload.jsx
+│   │   ├── FileDownload.jsx
+│   │   └── EncryptionStatus.jsx
+│   └── utils/
+│       ├── cryptoHelpers.js
+│       └── fileHelpers.js
+├── package.json
+└── README.md
+```
+
+> **🔒 Security Note:** Encryption now happens in the browser before uploading the file to the backend.
 
 ### 📦 Storage Service
 **Port: 8003** | **Technology: Spring Boot + IPFS + Pinata**
@@ -703,13 +713,6 @@ OM VaultChain is fully containerized using Docker for easy deployment and scalin
 version: '3.8'
 
 services:
-  encryption-service:
-    build: ./services/encryption-service
-    ports:
-      - "8002:8080"
-    networks:
-      - omvc-net
-
   storage-service:
     build: ./services/storage-service
     ports:
@@ -777,7 +780,7 @@ CONTRACT_VERSION_MANAGER=0x...
 
 | Service | Port | Description |
 |---------|------|-------------|
-| **Encryption Service** | 8002 | Cryptographic operations |
+| **Client-Side Encryption** | N/A | Browser-based cryptographic operations |
 | **Storage Service** | 8003 | IPFS file management |
 | **Blockchain Service** | 8004 | Smart contract interactions |
 | **Access Control Service** | 8005 | Permission management |
@@ -830,7 +833,7 @@ OM VaultChain implements multiple layers of security to ensure data protection a
 
 | Service | Port | Base URL | Status |
 |---------|------|----------|--------|
-| **Encryption Service** | 8002 | `http://localhost:8002` | ✅ Active |
+| **Client-Side Encryption** | N/A | Browser-based | ✅ Active |
 | **Storage Service** | 8003 | `http://localhost:8003` | ✅ Active |
 | **Blockchain Service** | 8004 | `http://localhost:8004` | ✅ Active |
 | **Access Control Service** | 8005 | `http://localhost:8005` | 🟡 In Development |
@@ -840,12 +843,10 @@ OM VaultChain implements multiple layers of security to ensure data protection a
 #### Upload and Share a File
 
 ```bash
-# 1. Encrypt file
-curl -X POST http://localhost:8002/encrypt \
-  -F "file=@document.pdf" \
-  -F "publicKeys=[\"0x...\"]"
+# 1. File is encrypted in the browser before upload (no API call needed)
+# Encryption happens client-side using Web Crypto API
 
-# 2. Upload to IPFS
+# 2. Upload encrypted file to IPFS
 curl -X POST http://localhost:8003/storage/upload \
   -F "encryptedFile=@encrypted_document.pdf" \
   -H "Authorization: Bearer <jwt_token>"
@@ -869,120 +870,7 @@ curl -X POST http://localhost:8005/access/grant \
 
 ---
 
-### 🔐 encryption-service
-**Technology:** Spring Boot + BouncyCastle + AES-256-GCM
-**Port:** 8002 | **Status:** ✅ Active
 
-#### Internal Components:
-
-**🔒 AESService**
-```java
-@Service
-public class AESService {
-    // AES-256-GCM encryption/decryption
-    // Key generation (256-bit)
-    // IV management (12 bytes)
-    // Tag verification
-}
-```
-
-**🔑 AsymmetricEncryptionService**
-```java
-@Service
-public class AsymmetricEncryptionService {
-    // RSA/ECIES key encryption
-    // Public key validation
-    // AES key wrapping/unwrapping
-}
-```
-
-**🔍 FileHashService**
-```java
-@Service
-public class FileHashService {
-    // SHA-256 hash generation
-    // Integrity verification
-    // Unique file identification
-}
-```
-
-**🎲 IVGenerator**
-```java
-@Component
-public class IVGenerator {
-    // Secure random IV generation
-    // GCM nonce management
-}
-```
-
-**📦 KeyEnvelopeBuilder**
-```java
-@Service
-public class KeyEnvelopeBuilder {
-    // Multi-user key envelope creation
-    // Encrypted key packaging
-    // Recipient management
-}
-```
-
-**🎼 CryptoOrchestrator**
-```java
-@Service
-public class CryptoOrchestrator {
-    // End-to-end encryption workflow
-    // Key management coordination
-    // Multi-recipient handling
-}
-```
-
-#### API Endpoints:
-
-**🔐 Core Encryption Operations**
-- ✅ `POST /encrypt` — Encrypt file with AES-256-GCM
-- ✅ `POST /decrypt` — Decrypt file for authorized users
-- ✅ `POST /generate-key` — Generate secure AES keys
-- ✅ `POST /hash-file` — Generate SHA-256 file hash
-- ✅ `POST /encrypt-key` — Encrypt AES key with RSA/ECIES
-- ✅ `POST /decrypt-key` — Decrypt AES key for authorized user
-
-**🔑 Key Management**
-- ✅ `POST /key-envelope/create` — Create multi-recipient key envelope
-- ✅ `POST /key-envelope/add-recipient` — Add recipient to existing envelope
-- ✅ `POST /key-envelope/remove-recipient` — Remove recipient from envelope
-- 🟡 `GET /key-envelope/{envelopeId}` — Get key envelope details
-
-**🔍 Validation & Verification**
-- ✅ `POST /verify-hash` — Verify file integrity with hash
-- ✅ `POST /validate-key` — Validate AES key format
-- 🟡 `POST /verify-signature` — Verify digital signatures
-- 🕓 `POST /validate-certificate` — Validate X.509 certificates
-
-**📊 Metrics & Health**
-- ✅ `GET /health` — Service health check
-- 🟡 `GET /metrics` — Encryption performance metrics
-- 🕓 `GET /key-usage-stats` — Key usage analytics
-
-#### Project Structure:
-```
-encryption-service/
-├── src/main/java/com/omvaultchain/
-│   ├── controller/CryptoController.java
-│   ├── service/
-│   │   ├── AESService.java
-│   │   ├── AsymmetricEncryptionService.java
-│   │   ├── FileHashService.java
-│   │   ├── IVGenerator.java
-│   │   ├── KeyEnvelopeBuilder.java
-│   │   └── CryptoOrchestrator.java
-│   ├── model/
-│   │   ├── EncryptionRequest.java
-│   │   ├── EncryptionResponse.java
-│   │   ├── DecryptionRequest.java
-│   │   └── KeyEnvelope.java
-│   └── config/CryptoConfig.java
-├── Dockerfile
-└── pom.xml
-```
 
 ### 📦 storage-service
 **Technology:** Spring Boot + IPFS Client + Pinata API + Web3.Storage
@@ -1808,7 +1696,7 @@ OM VaultChain includes comprehensive testing strategies to ensure reliability an
 ./scripts/run-tests.sh
 
 # Run specific service tests
-cd services/encryption-service
+cd services/storage-service
 mvn test
 
 # Run smart contract tests
@@ -1856,7 +1744,6 @@ npx hardhat run scripts/deploy.js --network localhost
 ./scripts/start-services.sh
 
 # 6. Verify services are running
-curl http://localhost:8002/health  # Encryption Service
 curl http://localhost:8003/health  # Storage Service
 curl http://localhost:8004/health  # Blockchain Service
 ```
