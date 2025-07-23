@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -27,62 +24,76 @@ public class FileUploadService {
     private final IPFSClient IPFSClient;
     private final UploadStatusRepository uploadStatusRepository;
 
-    public UploadResponse uploadSingleFile(UploadRequest request, MultipartFile file){
+    public UploadResponse uploadSingleFile(UploadRequest request, byte[] fileData ){
         try{
-            if(file.isEmpty()){
+            if(fileData == null || fileData.length == 0){
                 throw new IllegalArgumentException("Uploaded File Is Empty");
             }
             if (request.getFileName()== null || request.getOwnerId() == null){
                 throw new IllegalArgumentException("Missing Required Metadata");
             }
-            FileMetadata metadata = metadataExtractor.extract(file);
+            if (request.getIv() == null || request.getEncryptedKey() == null || request.getFileHash() == null){
+                throw new IllegalArgumentException("Missing Required Encryption Metadata");
+            }
+
+            FileMetadata metadata = new FileMetadata();
+            // Create metadata from request data instead of extracting from file
             metadata.setId(UUID.randomUUID().toString());
             metadata.setFileName(request.getFileName());
-            metadata.setMimeType(request.getMimeType()!=null?request.getMimeType():file.getContentType());
+            metadata.setMimeType(request.getMimeType());
             metadata.setOwnerId(request.getOwnerId());
+            metadata.setSizeBytes((long) fileData.length);
             metadata.setCreatedAt(Instant.now());
             metadata.setUpdatedAt(Instant.now());
             metadata.setDeleted(false);
+            // Set encryption metadata
+            metadata.setIv(request.getIv());
+            metadata.setEncryptedKey(request.getEncryptedKey());
+            metadata.setFileHash(request.getFileHash());
+            metadata.setEncryptionAlgorithm("AES-256-GCM");
 
-            String cid = IPFSClient.uploadFile(file.getInputStream(), request.getEncryptedFileName(request.getFileName()));
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+            String cid = IPFSClient.uploadFile(inputStream, request.getEncryptedFileName(request.getFileName()));
+
             metadata.setCid(cid);
             FileMetadata saved = fileMetadataRepository.save(metadata);
+
             return new UploadResponse(saved.getId().toString(), cid, saved.getFileName(), "UPLOAD_SUCCESS");
         }catch (Exception e){
             throw new RuntimeException("Upload Failed : " + e.getMessage(), e);
         }
     }
-    public List<BatchUploadResponse> uploadBatchFiles(List<MultipartFile> files, String ownerId) {
-        List<BatchUploadResponse> results = new ArrayList<>();
-
-        for (MultipartFile file : files) {
-            try {
-                UploadRequest request = new UploadRequest();
-                request.setOwnerId(ownerId);
-                request.setFileName(file.getOriginalFilename());
-                request.setMimeType(file.getContentType());
-
-                UploadResponse singleResponse = uploadSingleFile(request, file);
-
-                results.add(new BatchUploadResponse(
-                        singleResponse.getFileName(),
-                        singleResponse.getCid(),
-                        singleResponse.getStatus(),
-                        "Uploaded successfully"
-                ));
-
-            } catch (Exception e) {
-                results.add(new BatchUploadResponse(
-                        file.getOriginalFilename(),
-                        null,
-                        "UPLOAD_FAILED",
-                        e.getMessage()
-                ));
-            }
-        }
-
-        return results;
-    }
+//    public List<BatchUploadResponse> uploadBatchFiles(List<MultipartFile> files, String ownerId) {
+//        List<BatchUploadResponse> results = new ArrayList<>();
+//
+//        for (MultipartFile file : files) {
+//            try {
+//                UploadRequest request = new UploadRequest();
+//                request.setOwnerId(ownerId);
+//                request.setFileName(file.getOriginalFilename());
+//                request.setMimeType(file.getContentType());
+//
+//                UploadResponse singleResponse = uploadSingleFile(request, file);
+//
+//                results.add(new BatchUploadResponse(
+//                        singleResponse.getFileName(),
+//                        singleResponse.getCid(),
+//                        singleResponse.getStatus(),
+//                        "Uploaded successfully"
+//                ));
+//
+//            } catch (Exception e) {
+//                results.add(new BatchUploadResponse(
+//                        file.getOriginalFilename(),
+//                        null,
+//                        "UPLOAD_FAILED",
+//                        e.getMessage()
+//                ));
+//            }
+//        }
+//
+//        return results;
+//    }
 
 
     public ResumeUploadResponse  resumeUpload(String uploadId, MultipartFile newPart){

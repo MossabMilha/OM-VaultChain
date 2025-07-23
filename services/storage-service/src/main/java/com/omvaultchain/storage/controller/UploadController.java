@@ -5,9 +5,11 @@ import com.omvaultchain.storage.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -38,15 +40,17 @@ public class UploadController {
      *   "uploadId": "upload-abc123"
      * }
      */
-    @PostMapping("/single")
-    public ResponseEntity<UploadResponse> uploadSingleFile(@RequestParam("ownerId") String ownerId,
-                                                           @RequestPart("file") MultipartFile file){
-        UploadRequest request = new UploadRequest();
-        request.setFileName(file.getOriginalFilename());
-        request.setOwnerId(ownerId);
-        request.setMimeType(file.getContentType());
+    @RequestMapping(value = "/single", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleOptions() {
+        return ResponseEntity.ok().build();
+    }
 
-        UploadResponse response = fileUploadService.uploadSingleFile(request,file);
+    @PostMapping("/single")
+    public ResponseEntity<UploadResponse> uploadSingleFile(@RequestBody UploadRequest request){
+        byte[] fileData = Base64.getDecoder().decode(request.getFileData());
+
+
+        UploadResponse response = fileUploadService.uploadSingleFile(request,fileData);
         return ResponseEntity.ok(response);
     }
     /**
@@ -80,12 +84,12 @@ public class UploadController {
      *   }
      * ]
      */
-    @PostMapping("/batch")
-    public ResponseEntity<List<BatchUploadResponse>> uploadBatch(@RequestParam("files") List<MultipartFile> files,
-                                                                 @RequestParam("ownerId") String ownerId){
-        List<BatchUploadResponse> responses = fileUploadService.uploadBatchFiles(files, ownerId);
-        return ResponseEntity.ok(responses);
-    }
+    //    @PostMapping("/batch")
+    //    public ResponseEntity<List<BatchUploadResponse>> uploadBatch(@RequestParam("files") List<MultipartFile> files,
+    //                                                                 @RequestParam("ownerId") String ownerId){
+    //        List<BatchUploadResponse> responses = fileUploadService.uploadBatchFiles(files, ownerId);
+    //        return ResponseEntity.ok(responses);
+    //    }
 
     /**
      * Retrieves the current status of an ongoing or completed upload using its upload ID.
@@ -115,11 +119,11 @@ public class UploadController {
      *   "startedAt": "2025-07-19T14:30:00Z"
      * }
      */
-    @PostMapping("/status")
-    public ResponseEntity<UploadStatusResponse> getUploadStatus(@RequestBody UploadStatusRequest request){
-        UploadStatusResponse response = fileUploadService.getUploadStatus(request.getUploadId());
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/status")
+//    public ResponseEntity<UploadStatusResponse> getUploadStatus(@RequestBody UploadStatusRequest request){
+//        UploadStatusResponse response = fileUploadService.getUploadStatus(request.getUploadId());
+//        return ResponseEntity.ok(response);
+//    }
 
 
 

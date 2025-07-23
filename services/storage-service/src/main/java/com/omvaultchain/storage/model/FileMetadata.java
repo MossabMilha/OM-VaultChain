@@ -42,7 +42,17 @@ public class FileMetadata {
     private Instant updatedAt;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted;
+    private boolean deleted;
+
+    @Column(name = "iv",nullable = false)
+    private String iv;
+
+    @Lob
+    @Column(name = "owner_encrypted_key", nullable = false)
+    private String encryptedKey;
+
+    @Column(name = "encryption_algorithm")
+    private String encryptionAlgorithm = "AES-256-GCM";
 
 
 }

@@ -31,7 +31,7 @@ public class FileSearchService {
             List<Predicate> predicates = new ArrayList<>();
 
             predicates.add(cb.equal(root.get("ownerId"), userId));
-            predicates.add(cb.equal(root.get("isDeleted"), false));
+            predicates.add(cb.equal(root.get("deleted"), false));
 
             if (request.getNameContains() != null) {
                 predicates.add(cb.like(cb.lower(root.get("fileName")), "%" + request.getNameContains().toLowerCase() + "%"));
