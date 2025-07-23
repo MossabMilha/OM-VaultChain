@@ -23,11 +23,14 @@
 
 ### 🔒 How It Works
 
-1. **🔐 Client-Side Encryption**: Files are encrypted in your browser using AES-256-GCM before uploading to IPFS
-2. **🌐 IPFS Storage**: Encrypted files are stored on the decentralized IPFS network for durability and censorship resistance
-3. **⛓️ Blockchain Registry**: File metadata and access permissions are recorded on Polygon blockchain for transparency
-4. **🔑 Smart Contract Access Control**: Granular permissions managed through immutable smart contracts
-5. **🔄 Zero-Knowledge Architecture**: Even we can't access your files without your permission
+**OM VaultChain** implements a **Laravel-orchestrated microservices architecture** that ensures maximum security through client-side encryption and decentralized storage:
+
+1. **🔐 Frontend Encryption**: Files are encrypted in your browser using AES-256-GCM before any data leaves your device
+2. **🎯 Laravel Core Orchestration**: The Laravel backend API acts as the central coordinator, routing encrypted files and metadata to specialized services
+3. **📦 Decentralized Storage**: Laravel delegates encrypted file storage to the Storage Service, which uploads to IPFS for durability and censorship resistance
+4. **⛓️ Blockchain Registration**: Laravel coordinates with the Blockchain Service to register file metadata and access permissions on Polygon blockchain
+5. **🛡️ Access Control Management**: Laravel orchestrates permission granting/revoking through the Access Control Service and smart contracts
+6. **🔄 Zero-Knowledge Architecture**: The Laravel core never sees unencrypted files - only coordinates encrypted data between services
 
 ### 🎯 Key Benefits
 
@@ -59,11 +62,13 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Java 17+** - For backend services
-- **Node.js 18+** - For smart contract development
+- **PHP 8.1+** - For Laravel Core API
+- **Composer** - PHP dependency management
+- **Java 17+** - For microservices (Storage, Blockchain, Access Control)
+- **Node.js 18+** - For smart contract development and frontend
 - **Docker & Docker Compose** - For containerized deployment
-- **MySQL 8.0+** - Database
-- **Redis 7.0+** - Caching layer
+- **MySQL 8.0+** - Database for Laravel and microservices
+- **Redis 7.0+** - Caching layer and session storage
 
 ### 🏃‍♂️ Run with Docker
 
@@ -80,8 +85,10 @@ cp .env.example .env
 docker-compose up -d
 
 # Check service health
-curl http://localhost:8003/health  # Storage Service
-curl http://localhost:8004/health  # Blockchain Service
+curl http://localhost:8000/api/health  # Laravel Core API
+curl http://localhost:8003/health       # Storage Service
+curl http://localhost:8004/health       # Blockchain Service
+curl http://localhost:8005/health       # Access Control Service
 ```
 
 ### 🎯 Target Use Cases
@@ -97,40 +104,46 @@ curl http://localhost:8004/health  # Blockchain Service
 
 ## 🏗️ Architecture Overview
 
-OM VaultChain follows a **microservices architecture** with clear separation of concerns, ensuring scalability, maintainability, and security.
+OM VaultChain follows a **microservices architecture** with a **Laravel backend core** acting as the central orchestrator, ensuring scalability, maintainability, and security through clear separation of concerns.
+
+### 🎯 Core Architecture Principles
+
+**OM VaultChain** implements a **Laravel-centric orchestration model** where the Laravel backend serves as the **primary API gateway and business logic coordinator**, delegating specialized operations to independent microservices while maintaining centralized control and consistency.
+
+#### 🔄 Data Flow & Security Model
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
-        WEB[Web App<br/>Client-Side Encryption]
-        MOBILE[Mobile App]
-        API_CLIENT[API Client]
+    subgraph "Client Layer - Frontend Encryption"
+        WEB[Web App<br/>🔐 Client-Side AES-256-GCM Encryption]
+        MOBILE[Mobile App<br/>🔐 Client-Side Encryption]
+        API_CLIENT[API Client<br/>🔐 Encrypted Data Only]
     end
 
-    subgraph "Gateway Layer"
-        GATEWAY[API Gateway<br/>Spring Cloud Gateway]
+    subgraph "Laravel Core Orchestrator"
+        LARAVEL[Laravel Backend API<br/>🎯 Central Orchestrator<br/>📋 Business Logic<br/>🔒 Authentication & Authorization<br/>📊 Request Routing & Validation]
     end
 
-    subgraph "Microservices Layer"
-        STORAGE[Storage Service<br/>IPFS Integration]
-        BLOCKCHAIN[Blockchain Service<br/>Smart Contracts]
-        ACCESS[Access Control Service<br/>Permissions & Audit]
+    subgraph "Independent Microservices"
+        STORAGE[Storage Service<br/>📦 IPFS Integration<br/>🗄️ File Management]
+        BLOCKCHAIN[Blockchain Service<br/>⛓️ Smart Contracts<br/>🔐 Access Control]
+        ACCESS[Access Control Service<br/>🛡️ Permissions & Audit<br/>📋 Policy Engine]
     end
 
     subgraph "Data Layer"
-        MYSQL[(MySQL 8.0<br/>Metadata)]
-        REDIS[(Redis 7.0<br/>Cache)]
-        IPFS[IPFS Network<br/>File Storage]
-        POLYGON[Polygon Blockchain<br/>Access Control]
+        MYSQL[(MySQL 8.0<br/>📊 Metadata & Users)]
+        REDIS[(Redis 7.0<br/>⚡ Cache & Sessions)]
+        IPFS[IPFS Network<br/>🌐 Encrypted File Storage]
+        POLYGON[Polygon Blockchain<br/>⛓️ Immutable Access Records]
     end
 
-    WEB --> GATEWAY
-    MOBILE --> GATEWAY
-    API_CLIENT --> GATEWAY
+    WEB -->|Encrypted Files + Metadata| LARAVEL
+    MOBILE -->|Encrypted Files + Metadata| LARAVEL
+    API_CLIENT -->|Encrypted Files + Metadata| LARAVEL
 
-    GATEWAY --> STORAGE
-    GATEWAY --> BLOCKCHAIN
-    GATEWAY --> ACCESS
+    LARAVEL -->|Orchestrates| STORAGE
+    LARAVEL -->|Orchestrates| BLOCKCHAIN
+    LARAVEL -->|Orchestrates| ACCESS
 
     STORAGE --> MYSQL
     STORAGE --> REDIS
@@ -139,6 +152,283 @@ graph TB
     ACCESS --> MYSQL
     ACCESS --> REDIS
 ```
+
+### 🎯 Laravel Core Orchestrator Responsibilities
+
+The **Laravel backend** serves as the **central nervous system** of OM VaultChain, handling:
+
+#### 🔐 **Security & Authentication**
+- **User authentication** and session management
+- **JWT token** generation and validation
+- **Wallet signature** verification for blockchain identity
+- **Rate limiting** and DDoS protection
+- **Input validation** and sanitization
+
+#### 📋 **Business Logic Coordination**
+- **File upload orchestration**: Coordinates encrypted file storage and blockchain registration
+- **Access control workflows**: Manages permission granting/revoking across services
+- **Multi-service transactions**: Ensures consistency across storage and blockchain operations
+- **Error handling and rollback**: Manages failures across distributed services
+
+#### 🎯 **Request Routing & Validation**
+- **API endpoint management**: Single entry point for all client requests
+- **Request validation**: Ensures data integrity before service delegation
+- **Response aggregation**: Combines results from multiple microservices
+- **Service health monitoring**: Tracks microservice availability and performance
+
+#### 📊 **Data Consistency & State Management**
+- **Cross-service synchronization**: Maintains consistency between storage and blockchain
+- **Cache management**: Coordinates Redis caching across services
+- **Database transactions**: Manages MySQL operations and integrity
+- **Event coordination**: Publishes and subscribes to inter-service events
+
+---
+
+## 🔐 Security-First Data Flow
+
+OM VaultChain implements a **zero-knowledge architecture** where encryption happens entirely on the client-side before any data leaves the user's device, ensuring maximum privacy and security.
+
+### 📤 **File Upload Flow**
+
+```mermaid
+sequenceDiagram
+    participant Client as 🖥️ Frontend Client
+    participant Laravel as 🎯 Laravel Core API
+    participant Storage as 📦 Storage Service
+    participant Blockchain as ⛓️ Blockchain Service
+    participant IPFS as 🌐 IPFS Network
+    participant Polygon as 🔗 Polygon Blockchain
+
+    Note over Client: 🔐 Client-Side Encryption
+    Client->>Client: Generate AES-256-GCM key
+    Client->>Client: Encrypt file with AES key
+    Client->>Client: Generate SHA-256 file hash
+    Client->>Client: Encrypt AES key with user's public key
+
+    Note over Client,Laravel: 📤 Secure Upload Request
+    Client->>Laravel: POST /api/files/upload<br/>📦 Encrypted file + metadata
+
+    Note over Laravel: 🎯 Orchestration & Validation
+    Laravel->>Laravel: Validate request & authenticate user
+    Laravel->>Laravel: Generate unique file ID
+    Laravel->>Laravel: Prepare service coordination
+
+    Note over Laravel,Storage: 📦 Storage Delegation
+    Laravel->>Storage: POST /storage/upload<br/>📦 Encrypted file + metadata
+    Storage->>IPFS: Upload encrypted file
+    IPFS-->>Storage: Return CID (Content ID)
+    Storage-->>Laravel: ✅ Upload success + CID
+
+    Note over Laravel,Blockchain: ⛓️ Blockchain Registration
+    Laravel->>Blockchain: POST /register-file<br/>📋 CID + file hash + owner
+    Blockchain->>Polygon: Register file metadata
+    Polygon-->>Blockchain: ✅ Transaction confirmed
+    Blockchain-->>Laravel: ✅ Blockchain registration success
+
+    Note over Laravel: 📊 Final Coordination
+    Laravel->>Laravel: Update database with complete metadata
+    Laravel->>Laravel: Cache file information
+    Laravel-->>Client: ✅ Upload complete + file ID
+
+    Note over Client,Polygon: 🔒 Security Result
+    Note right of Client: ✅ File encrypted on client<br/>✅ Stored on decentralized IPFS<br/>✅ Metadata on immutable blockchain<br/>✅ Zero-knowledge architecture
+```
+
+### 🔑 **Access Control Flow**
+
+```mermaid
+sequenceDiagram
+    participant Owner as 👤 File Owner
+    participant Laravel as 🎯 Laravel Core API
+    participant Access as 🛡️ Access Service
+    participant Blockchain as ⛓️ Blockchain Service
+    participant Recipient as 👥 File Recipient
+
+    Note over Owner,Laravel: 🔑 Grant Access Request
+    Owner->>Laravel: POST /api/files/share<br/>📋 fileId + recipientWallet + permissions
+
+    Note over Laravel: 🎯 Access Orchestration
+    Laravel->>Laravel: Validate owner permissions
+    Laravel->>Laravel: Retrieve file encryption key
+    Laravel->>Laravel: Encrypt AES key with recipient's public key
+
+    Note over Laravel,Access: 🛡️ Permission Management
+    Laravel->>Access: POST /access/grant<br/>📋 Access policy + encrypted key
+    Access->>Access: Validate and store permissions
+    Access-->>Laravel: ✅ Permission granted
+
+    Note over Laravel,Blockchain: ⛓️ Blockchain Access Record
+    Laravel->>Blockchain: POST /grant-access<br/>🔑 Encrypted key for recipient wallet
+    Blockchain->>Blockchain: Store encrypted key on-chain
+    Blockchain-->>Laravel: ✅ Access recorded on blockchain
+
+    Note over Laravel: 📊 Completion
+    Laravel->>Laravel: Update access logs
+    Laravel-->>Owner: ✅ Access granted successfully
+
+    Note over Recipient: 🔓 Secure Access
+    Note right of Recipient: ✅ Can decrypt file with private key<br/>✅ Access recorded on blockchain<br/>✅ Auditable and revocable<br/>✅ Zero-knowledge sharing
+```
+
+### 🛡️ **Security Benefits**
+
+#### 🔐 **Client-Side Encryption Advantages**
+- **🚫 Zero Server-Side Decryption**: Laravel core never sees unencrypted files
+- **🔒 End-to-End Security**: Files remain encrypted from client to IPFS storage
+- **🛡️ Breach Protection**: Even if servers are compromised, files remain secure
+- **🔑 User-Controlled Keys**: Only users with private keys can decrypt files
+- **📱 Device-Level Security**: Encryption keys never leave user devices unprotected
+
+#### ⛓️ **Blockchain Audit Trail**
+- **📋 Immutable Records**: All file access and permissions recorded on-chain
+- **🔍 Transparent Auditing**: Complete history of file access and modifications
+- **🚫 Tamper-Proof**: Blockchain ensures access records cannot be altered
+- **⚖️ Legal Compliance**: Cryptographic proof for regulatory requirements
+- **🔄 Revocable Access**: Real-time permission revocation with blockchain verification
+
+#### 🏗️ **Architectural Security**
+- **🎯 Centralized Control**: Laravel orchestrator maintains security policies
+- **🔄 Service Isolation**: Microservices operate independently with limited scope
+- **📊 Consistent Validation**: All requests validated through single entry point
+- **🛡️ Defense in Depth**: Multiple security layers across client, API, and services
+- **⚡ Performance Security**: Redis caching with encrypted session management
+
+---
+
+## 🎯 Laravel Core API - Central Orchestrator
+
+The **Laravel Core API** serves as the **primary entry point** and **business logic coordinator** for all OM VaultChain operations. It acts as an intelligent orchestrator that delegates specialized tasks to independent microservices while maintaining centralized control, security, and consistency.
+
+### 🏗️ **Core Responsibilities**
+
+#### 🔐 **Authentication & Security Gateway**
+- **User Authentication**: JWT-based authentication with wallet signature verification
+- **Request Validation**: Comprehensive input validation and sanitization
+- **Rate Limiting**: DDoS protection and abuse prevention
+- **Security Headers**: CORS, CSP, and other security policy enforcement
+- **Session Management**: Secure session handling with Redis-backed storage
+
+#### 🎯 **Service Orchestration**
+- **Request Routing**: Intelligent routing of requests to appropriate microservices
+- **Service Coordination**: Manages multi-service operations and transactions
+- **Error Handling**: Centralized error handling with graceful degradation
+- **Response Aggregation**: Combines and formats responses from multiple services
+- **Circuit Breaker**: Prevents cascade failures across microservices
+
+#### 📊 **Business Logic Management**
+- **File Upload Workflow**: Orchestrates the complete encrypted file upload process
+- **Access Control Workflow**: Manages permission granting/revoking across services
+- **User Management**: Handles user registration, profiles, and organization management
+- **Audit Coordination**: Ensures comprehensive logging across all operations
+- **Policy Enforcement**: Applies business rules and compliance requirements
+
+### 🔄 **Laravel API Endpoints**
+
+#### 🔐 **Authentication & User Management**
+```bash
+POST /api/auth/register          # User registration with wallet
+POST /api/auth/login             # Wallet-based authentication
+POST /api/auth/logout            # Session termination
+GET  /api/auth/profile           # User profile information
+PUT  /api/auth/profile           # Update user profile
+POST /api/auth/verify-wallet     # Wallet signature verification
+```
+
+#### 📤 **File Operations**
+```bash
+POST /api/files/upload           # Orchestrated file upload
+GET  /api/files                  # List user files with pagination
+GET  /api/files/{id}             # Get file metadata
+PUT  /api/files/{id}             # Update file metadata
+DELETE /api/files/{id}           # Soft delete file
+GET  /api/files/{id}/download    # Secure file download
+POST /api/files/{id}/share       # Share file with users
+```
+
+#### 🛡️ **Access Control**
+```bash
+POST /api/access/grant           # Grant file access
+POST /api/access/revoke          # Revoke file access
+GET  /api/access/permissions     # List user permissions
+GET  /api/access/audit/{fileId}  # Access audit trail
+POST /api/access/validate        # Validate access permissions
+```
+
+#### 🏢 **Organization Management**
+```bash
+POST /api/organizations          # Create organization
+GET  /api/organizations          # List user organizations
+POST /api/organizations/{id}/invite  # Invite users
+GET  /api/organizations/{id}/files   # Organization files
+PUT  /api/organizations/{id}/roles   # Manage user roles
+```
+
+### 🔄 **Service Integration Pattern**
+
+The Laravel Core follows a **delegation pattern** where it maintains business logic while delegating specialized operations:
+
+```php
+<?php
+// Example: File Upload Orchestration
+class FileUploadController extends Controller
+{
+    public function upload(Request $request)
+    {
+        // 1. Laravel handles authentication & validation
+        $this->validateRequest($request);
+        $user = auth()->user();
+
+        // 2. Generate file metadata
+        $fileId = Str::uuid();
+        $metadata = $this->extractMetadata($request);
+
+        // 3. Delegate to Storage Service
+        $storageResponse = $this->storageService->upload([
+            'file' => $request->file('encrypted_file'),
+            'metadata' => $metadata,
+            'user_id' => $user->id
+        ]);
+
+        // 4. Delegate to Blockchain Service
+        $blockchainResponse = $this->blockchainService->registerFile([
+            'cid' => $storageResponse['cid'],
+            'file_hash' => $metadata['hash'],
+            'owner_wallet' => $user->wallet_address
+        ]);
+
+        // 5. Laravel coordinates final state
+        $file = File::create([
+            'id' => $fileId,
+            'owner_id' => $user->id,
+            'cid' => $storageResponse['cid'],
+            'blockchain_tx' => $blockchainResponse['transaction_hash'],
+            'metadata' => $metadata
+        ]);
+
+        // 6. Return coordinated response
+        return response()->json([
+            'file_id' => $fileId,
+            'cid' => $storageResponse['cid'],
+            'blockchain_tx' => $blockchainResponse['transaction_hash'],
+            'status' => 'uploaded'
+        ]);
+    }
+}
+```
+
+### 🛡️ **Security & Compliance**
+
+#### 🔒 **Zero-Knowledge Coordination**
+- **No Plaintext Access**: Laravel never receives or processes unencrypted files
+- **Metadata Only**: Only handles encrypted files and associated metadata
+- **Key Management**: Coordinates encrypted key distribution without key access
+- **Audit Trail**: Maintains comprehensive logs without exposing sensitive data
+
+#### ⚖️ **Compliance Features**
+- **GDPR Compliance**: User data management and right to deletion
+- **HIPAA Ready**: Healthcare data handling capabilities
+- **SOX Compliance**: Financial audit trail requirements
+- **Custom Policies**: Configurable compliance rules and validation
 
 ---
 
@@ -409,7 +699,37 @@ The authentication process combines both identity systems for optimal security a
 
 ## 🔧 Microservices
 
-OM VaultChain is built using a **microservices architecture** with three core services, each handling specific responsibilities:
+OM VaultChain implements a **Laravel-orchestrated microservices architecture** where the **Laravel Core API** acts as the central coordinator, delegating specialized operations to independent services. Each microservice focuses on a specific domain while the Laravel backend maintains overall system coherence and business logic.
+
+### 🎯 **Service Interaction Model**
+
+```mermaid
+graph TB
+    subgraph "Laravel Core Orchestrator"
+        LARAVEL[🎯 Laravel Core API<br/>Central Business Logic<br/>Request Coordination<br/>Security Gateway]
+    end
+
+    subgraph "Specialized Microservices"
+        STORAGE[📦 Storage Service<br/>IPFS Integration<br/>File Management]
+        BLOCKCHAIN[⛓️ Blockchain Service<br/>Smart Contracts<br/>Polygon Integration]
+        ACCESS[🛡️ Access Control Service<br/>Permissions Engine<br/>Audit Trails]
+    end
+
+    LARAVEL -->|Delegates Storage Operations| STORAGE
+    LARAVEL -->|Delegates Blockchain Operations| BLOCKCHAIN
+    LARAVEL -->|Delegates Access Control| ACCESS
+
+    STORAGE -.->|Status Updates| LARAVEL
+    BLOCKCHAIN -.->|Event Notifications| LARAVEL
+    ACCESS -.->|Audit Events| LARAVEL
+```
+
+**Key Principles:**
+- **🎯 Laravel as Orchestrator**: All client requests go through Laravel, which coordinates microservice calls
+- **🔄 Service Independence**: Each microservice operates independently with its own database and logic
+- **📊 Centralized State**: Laravel maintains overall system state and business rules
+- **🛡️ Security Boundary**: Laravel enforces authentication and authorization before service delegation
+- **📈 Scalability**: Individual services can be scaled based on demand
 
 ### 🧠 Client-Side Encryption (React)
 **Folder:** `client-side/src/crypto` | **Technology:** React + CryptoJS + Web Crypto API
@@ -454,16 +774,22 @@ client-side/
 > **🔒 Security Note:** Encryption now happens in the browser before uploading the file to the backend.
 
 ### 📦 Storage Service
-**Port: 8003** | **Technology: Spring Boot + IPFS + Pinata**
+**Port: 8003** | **Technology: Spring Boot + IPFS + Pinata** | **Orchestrated by Laravel Core**
 
-Manages file storage operations on the decentralized IPFS network.
+**Specialized microservice** that handles all file storage operations on the decentralized IPFS network. **Receives delegated requests from the Laravel Core API** and focuses exclusively on storage-related functionality.
+
+**🎯 Laravel Integration:**
+- **Receives encrypted files** from Laravel Core after authentication and validation
+- **Reports storage status** back to Laravel for coordination with other services
+- **No direct client access** - all requests routed through Laravel orchestrator
+- **Stateless operations** - Laravel maintains overall file state and metadata
 
 **Key Features:**
-- **IPFS integration** with Pinata pinning service
-- **Multi-part uploads** for large files
-- **File metadata extraction** and management
-- **Download access validation**
-- **Storage analytics** and metrics
+- **IPFS integration** with Pinata pinning service for decentralized storage
+- **Multi-part uploads** for large encrypted files with progress tracking
+- **File metadata extraction** and management for encrypted content
+- **Download access validation** coordinated with Laravel access control
+- **Storage analytics** and metrics reporting to Laravel dashboard
 
 <augment_code_snippet path="services/storage-service/src/main/java/com/omvaultchain/service/FileUploadService.java" mode="EXCERPT">
 ````java
@@ -484,16 +810,23 @@ public class FileUploadService {
 - `POST /storage/upload/batch` - Bulk file upload</augment_code_snippet>
 
 ### ⛓️ Blockchain Service
-**Port: 8004** | **Technology: Spring Boot + web3j + Solidity**
+**Port: 8004** | **Technology: Spring Boot + web3j + Solidity** | **Orchestrated by Laravel Core**
 
-Manages smart contract interactions and blockchain operations.
+**Specialized microservice** that handles all blockchain interactions and smart contract operations. **Receives coordination requests from the Laravel Core API** to register files and manage access control on the Polygon blockchain.
+
+**🎯 Laravel Integration:**
+- **Receives file registration requests** from Laravel after successful IPFS storage
+- **Coordinates access control** operations initiated by Laravel user management
+- **Provides blockchain verification** data back to Laravel for audit trails
+- **Event notifications** sent to Laravel for real-time system updates
+- **No direct client access** - all blockchain operations orchestrated through Laravel
 
 **Key Features:**
-- **File registration** on Polygon blockchain
-- **Access control** via smart contracts
-- **Version management** and history
-- **Event listening** for blockchain events
-- **Gas optimization** strategies
+- **File registration** on Polygon blockchain with immutable metadata
+- **Access control** via smart contracts coordinated with Laravel permissions
+- **Version management** and history tracking for file evolution
+- **Event listening** for blockchain events with Laravel notification
+- **Gas optimization** strategies to minimize transaction costs
 
 <augment_code_snippet path="contracts/contracts/FileRegistry.sol" mode="EXCERPT">
 ````solidity
@@ -520,22 +853,55 @@ contract FileRegistry {
 - `GET /has-access` - Check user access permissions</augment_code_snippet>
 
 ### 🔒 Access Control Service
-**Port: 8005** | **Technology: Spring Boot + Redis + MySQL**
+**Port: 8005** | **Technology: Spring Boot + Redis + MySQL** | **Orchestrated by Laravel Core**
 
-Manages dynamic access permissions and audit trails.
+**Specialized microservice** that manages dynamic access permissions, policy enforcement, and comprehensive audit trails. **Works in coordination with the Laravel Core API** to provide granular access control across the platform.
+
+**🎯 Laravel Integration:**
+- **Receives permission requests** from Laravel when users share files or manage access
+- **Validates access attempts** coordinated by Laravel before file downloads
+- **Provides audit data** to Laravel for compliance reporting and user dashboards
+- **Policy enforcement** aligned with Laravel business rules and user roles
+- **Real-time notifications** to Laravel for access events and security alerts
 
 **Key Features:**
-- **Role-based access control** (RBAC)
-- **Policy engine** for complex permissions
-- **Real-time access validation**
-- **Comprehensive audit logging**
-- **Organization management**
+- **Role-based access control** (RBAC) integrated with Laravel user management
+- **Policy engine** for complex permissions coordinated with Laravel business logic
+- **Real-time access validation** for Laravel-orchestrated file operations
+- **Comprehensive audit logging** with Laravel-coordinated compliance reporting
+- **Organization management** synchronized with Laravel user and team structures
 
 **API Endpoints:**
 - `POST /access/grant` - Grant file access to user
 - `POST /access/validate` - Validate user access
 - `GET /access/audit/{fileId}` - Get access audit trail
 - `POST /access/revoke` - Revoke user access
+
+### 🎯 **Benefits of Laravel-Orchestrated Architecture**
+
+#### 🔐 **Enhanced Security**
+- **Single Security Boundary**: All authentication and authorization handled by Laravel
+- **Consistent Validation**: Unified input validation and sanitization across all operations
+- **Centralized Audit**: Complete audit trail maintained by Laravel orchestrator
+- **Zero-Knowledge Coordination**: Laravel coordinates encrypted data without decryption access
+
+#### 📈 **Scalability & Performance**
+- **Independent Scaling**: Each microservice can be scaled based on specific demand
+- **Load Distribution**: Laravel intelligently distributes load across service instances
+- **Caching Strategy**: Coordinated caching across services through Laravel
+- **Resource Optimization**: Services focus on their core competencies
+
+#### 🛠️ **Development & Maintenance**
+- **Clear Separation of Concerns**: Each service has a well-defined responsibility
+- **Technology Flexibility**: Services can use optimal technology stacks
+- **Independent Deployment**: Services can be updated without affecting others
+- **Simplified Testing**: Isolated service testing with Laravel integration tests
+
+#### 🔄 **Business Logic Consistency**
+- **Centralized Rules**: Business logic maintained in Laravel for consistency
+- **Transaction Coordination**: Multi-service operations coordinated by Laravel
+- **Error Handling**: Unified error handling and recovery strategies
+- **State Management**: Laravel maintains overall system state and consistency
 
 ---
 
@@ -781,6 +1147,7 @@ CONTRACT_VERSION_MANAGER=0x...
 | Service | Port | Description |
 |---------|------|-------------|
 | **Client-Side Encryption** | N/A | Browser-based cryptographic operations |
+| **Laravel Core API** | 8000 | Central orchestrator and business logic |
 | **Storage Service** | 8003 | IPFS file management |
 | **Blockchain Service** | 8004 | Smart contract interactions |
 | **Access Control Service** | 8005 | Permission management |
@@ -829,37 +1196,57 @@ OM VaultChain implements multiple layers of security to ensure data protection a
 
 ## 📱 API Documentation
 
+### 🎯 **Laravel-Centric API Architecture**
+
+**All client applications interact exclusively with the Laravel Core API**, which orchestrates calls to the underlying microservices. This ensures consistent authentication, validation, and business logic enforcement across all operations.
+
 ### � Quick Reference
 
-| Service | Port | Base URL | Status |
-|---------|------|----------|--------|
-| **Client-Side Encryption** | N/A | Browser-based | ✅ Active |
-| **Storage Service** | 8003 | `http://localhost:8003` | ✅ Active |
-| **Blockchain Service** | 8004 | `http://localhost:8004` | ✅ Active |
-| **Access Control Service** | 8005 | `http://localhost:8005` | 🟡 In Development |
+| Service | Port | Base URL | Client Access | Status |
+|---------|------|----------|---------------|--------|
+| **Laravel Core API** | 8000 | `http://localhost:8000/api` | ✅ **Primary Entry Point** | ✅ Active |
+| **Storage Service** | 8003 | `http://localhost:8003` | ❌ Internal Only | ✅ Active |
+| **Blockchain Service** | 8004 | `http://localhost:8004` | ❌ Internal Only | ✅ Active |
+| **Access Control Service** | 8005 | `http://localhost:8005` | ❌ Internal Only | 🟡 In Development |
+
+> **⚠️ Important**: Microservices are **internal-only** and should not be accessed directly by client applications. All requests must go through the **Laravel Core API** for proper authentication, validation, and coordination.
 
 ### 📋 Example API Usage
 
-#### Upload and Share a File
+#### Upload and Share a File (Laravel-Orchestrated)
 
 ```bash
 # 1. File is encrypted in the browser before upload (no API call needed)
 # Encryption happens client-side using Web Crypto API
 
-# 2. Upload encrypted file to IPFS
-curl -X POST http://localhost:8003/storage/upload \
-  -F "encryptedFile=@encrypted_document.pdf" \
+# 2. Authenticate with Laravel Core API
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"wallet_address":"0x...","signature":"0x..."}'
+
+# 3. Upload encrypted file through Laravel (orchestrates storage + blockchain)
+curl -X POST http://localhost:8000/api/files/upload \
+  -F "encrypted_file=@encrypted_document.pdf" \
+  -F "metadata={\"name\":\"document.pdf\",\"size\":1024}" \
   -H "Authorization: Bearer <jwt_token>"
 
-# 3. Register on blockchain
-curl -X POST http://localhost:8004/register-file \
-  -H "Content-Type: application/json" \
-  -d '{"cid":"QmXXX...","fileHash":"sha256_hash"}'
+# Laravel automatically:
+# - Validates request and user authentication
+# - Delegates to Storage Service for IPFS upload
+# - Delegates to Blockchain Service for registration
+# - Coordinates final state and returns unified response
 
-# 4. Grant access to user
-curl -X POST http://localhost:8005/access/grant \
+# 4. Share file with another user through Laravel
+curl -X POST http://localhost:8000/api/files/{fileId}/share \
   -H "Content-Type: application/json" \
-  -d '{"fileId":"uuid","userId":"uuid","permissions":["read"]}'
+  -H "Authorization: Bearer <jwt_token>" \
+  -d '{"recipient_wallet":"0x...","permissions":["read","download"]}'
+
+# Laravel automatically:
+# - Validates sharing permissions
+# - Delegates to Access Control Service
+# - Delegates to Blockchain Service for access recording
+# - Sends notifications and updates audit trail
 ```
 
 ---
