@@ -22,6 +22,7 @@ public class BlockchainController {
     @Autowired
     private VersioningService versioningService;
 
+
     /**
      * Registers a file on the blockchain.
      *
@@ -36,6 +37,7 @@ public class BlockchainController {
      *   "fileHash": "abcdef1234567890"
      * }
      */
+
     @PostMapping("/register-file")
     public ResponseEntity<?> registerFile(@RequestBody FileRegisterRequest request ){
         String txHash = fileRegistryService.registerFileOnBlockChain(request.getCid(), request.getFileHash());
@@ -45,6 +47,7 @@ public class BlockchainController {
     /*
      * Access Rights Management APIs
      */
+
 
     /**
      * Retrieves the list of users who have access to a given CID.

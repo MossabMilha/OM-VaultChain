@@ -15,16 +15,28 @@ document.getElementById('upload').addEventListener('click', async() => {
     try{
         const ownerId = "123e4567-e89b-12d3-a456-426614174000"
         const {envelope} = await encryptedFileEnvelope(selectedFile,PublicKeyPem,ownerId);
-        const response = await fetch('http://localhost:8080/storage/upload/single', {
+        const response = await fetch('http://127.0.0.1:8000/api/files/upload', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(envelope)
+            body: JSON.stringify({
+                encryptedFile: envelope.fileData,
+                metadata: {
+                    name: envelope.fileName,
+                    size: envelope.sizeBytes,
+                    mimeType: envelope.mimeType,
+                    hash: envelope.fileHash,
+                    encryptionKey: envelope.encryptedKey,
+                    ownerId: envelope.ownerId,
+                    iv: envelope.iv
+                }
+            })
         });
         if(!response.ok){
             const error = await response.json();
             console.log('Error : ', error);
         }
-        const result = await response.json();
+        const responseText = await response.text();
+        const result = JSON.parse(responseText);
         console.log('Success:', result);
 
     }catch (error) {

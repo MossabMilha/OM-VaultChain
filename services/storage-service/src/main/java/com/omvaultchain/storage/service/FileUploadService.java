@@ -1,6 +1,7 @@
 package com.omvaultchain.storage.service;
 
 import com.omvaultchain.storage.model.*;
+import com.omvaultchain.storage.repository.AccessPermissionRepository;
 import com.omvaultchain.storage.repository.FileMetadataRepository;
 import com.omvaultchain.storage.repository.UploadStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileUploadService {
     private final MetadataExtractor metadataExtractor;
-    private final FileMetadataRepository fileMetadataRepository;
+
     private final IPFSClient IPFSClient;
     private final UploadStatusRepository uploadStatusRepository;
+    private final FileMetadataRepository fileMetadataRepository;
+    private final AccessPermissionRepository accessPermissionRepository;
 
     public UploadResponse uploadSingleFile(UploadRequest request, byte[] fileData ){
         try{
@@ -37,7 +40,10 @@ public class FileUploadService {
             }
 
             FileMetadata metadata = new FileMetadata();
-            // Create metadata from request data instead of extracting from file
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+            String cid = IPFSClient.uploadFile(inputStream, request.getEncryptedFileName(request.getFileName()));
+
+            // Save Metadata
             metadata.setId(UUID.randomUUID().toString());
             metadata.setFileName(request.getFileName());
             metadata.setMimeType(request.getMimeType());
@@ -46,17 +52,23 @@ public class FileUploadService {
             metadata.setCreatedAt(Instant.now());
             metadata.setUpdatedAt(Instant.now());
             metadata.setDeleted(false);
-            // Set encryption metadata
             metadata.setIv(request.getIv());
             metadata.setEncryptedKey(request.getEncryptedKey());
             metadata.setFileHash(request.getFileHash());
             metadata.setEncryptionAlgorithm("AES-256-GCM");
-
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
-            String cid = IPFSClient.uploadFile(inputStream, request.getEncryptedFileName(request.getFileName()));
-
             metadata.setCid(cid);
             FileMetadata saved = fileMetadataRepository.save(metadata);
+
+            // Grant access to The owner (create access permission)
+            AccessPermission permission = new AccessPermission();
+            permission.setId(UUID.randomUUID().toString());
+            permission.setFileId(saved.getId());
+            permission.setUserId(request.getOwnerId());
+            permission.setEncryptedKey(request.getEncryptedKey());
+            permission.setCreatedAt(Instant.now());
+            permission.setIsActive(true);
+            accessPermissionRepository.save(permission);
+
 
             return new UploadResponse(saved.getId().toString(), cid, saved.getFileName(), "UPLOAD_SUCCESS");
         }catch (Exception e){

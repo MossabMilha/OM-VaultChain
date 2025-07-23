@@ -8,7 +8,7 @@ import {wrapAESKeyWithPublicKey} from "./envelopeManager.js";
  */
 export async function encryptedFileEnvelope(originalFile, recipientPublicKeyPem,ownerId) {
     const encrypted = await encryptFile(originalFile);
-    const encryptedKey = await  wrapAESKeyWithPublicKey(encrypted.rawKeyBase64, recipientPublicKeyPem);
+    const encryptedKey = await  wrapAESKeyWithPublicKey(encrypted.rawAESKeyBase64, recipientPublicKeyPem);
 
     const envelope = {
         fileName: originalFile.name,

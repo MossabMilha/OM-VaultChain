@@ -34,5 +34,16 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'storage_service' => [
+        'base_url' => env('STORAGE_SERVICE_URL', 'http://localhost:8080/storage'),
+    ],
+
+    'blockchain_service' => [
+        'base_url' => env('BLOCKCHAIN_SERVICE_URL', 'http://localhost:8004/blockchain'),
+    ],
+
+    'access_control_service' => [
+        'base_url' => env('ACCESS_CONTROL_SERVICE_URL', 'http://localhost:8080'),
+    ],
 
 ];
