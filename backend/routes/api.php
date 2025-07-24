@@ -17,4 +17,5 @@ use App\Http\Controllers\Api\FileController;
 |
 */
 Route::post('/files/upload', [FileOrchestrationController::class, 'uploadSingleFile']);
+Route::post('/files/batch', [FileOrchestrationController::class, 'uploadBatchFile']);
 

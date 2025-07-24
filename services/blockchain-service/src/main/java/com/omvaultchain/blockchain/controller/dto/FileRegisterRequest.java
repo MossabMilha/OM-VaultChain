@@ -1,12 +1,12 @@
 package com.omvaultchain.blockchain.controller.dto;
 
+import lombok.Data;
+
+@Data
 public class FileRegisterRequest {
+    private String ownerId;
     private String cid;
     private String fileHash;
+    private long version;
 
-    public String getCid() {return cid;}
-    public String getFileHash() {return fileHash;}
-
-    public void setCid(String cid) {this.cid = cid;}
-    public void setFileHash(String fileHash) {this.fileHash = fileHash;}
 }

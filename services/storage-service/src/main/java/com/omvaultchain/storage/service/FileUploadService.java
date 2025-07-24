@@ -12,10 +12,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +35,8 @@ public class FileUploadService {
             if (request.getIv() == null || request.getEncryptedKey() == null || request.getFileHash() == null){
                 throw new IllegalArgumentException("Missing Required Encryption Metadata");
             }
+            
+
 
             FileMetadata metadata = new FileMetadata();
             ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
@@ -56,6 +55,7 @@ public class FileUploadService {
             metadata.setEncryptedKey(request.getEncryptedKey());
             metadata.setFileHash(request.getFileHash());
             metadata.setEncryptionAlgorithm("AES-256-GCM");
+
             metadata.setCid(cid);
             FileMetadata saved = fileMetadataRepository.save(metadata);
 
@@ -75,37 +75,43 @@ public class FileUploadService {
             throw new RuntimeException("Upload Failed : " + e.getMessage(), e);
         }
     }
-//    public List<BatchUploadResponse> uploadBatchFiles(List<MultipartFile> files, String ownerId) {
-//        List<BatchUploadResponse> results = new ArrayList<>();
-//
-//        for (MultipartFile file : files) {
-//            try {
-//                UploadRequest request = new UploadRequest();
-//                request.setOwnerId(ownerId);
-//                request.setFileName(file.getOriginalFilename());
-//                request.setMimeType(file.getContentType());
-//
-//                UploadResponse singleResponse = uploadSingleFile(request, file);
-//
-//                results.add(new BatchUploadResponse(
-//                        singleResponse.getFileName(),
-//                        singleResponse.getCid(),
-//                        singleResponse.getStatus(),
-//                        "Uploaded successfully"
-//                ));
-//
-//            } catch (Exception e) {
-//                results.add(new BatchUploadResponse(
-//                        file.getOriginalFilename(),
-//                        null,
-//                        "UPLOAD_FAILED",
-//                        e.getMessage()
-//                ));
-//            }
-//        }
-//
-//        return results;
-//    }
+    public List<BatchUploadResponse> uploadBatchFiles(List<BatchUploadRequest.FileData> files, String ownerId) {
+        List<BatchUploadResponse> results = new ArrayList<>();
+
+        for (BatchUploadRequest.FileData file : files) {
+            try {
+                UploadRequest request = new UploadRequest();
+                byte[] fileData = Base64.getDecoder().decode(file.getFileData());
+
+                request.setOwnerId(ownerId);
+                request.setFileName(file.getFileName());
+                request.setMimeType(file.getMimeType());
+                request.setFileData(file.getFileData());
+                request.setIv(file.getIv());
+                request.setEncryptedKey(file.getEncryptedKey());
+                request.setFileHash(file.getFileHash());
+
+
+                UploadResponse singleResponse = uploadSingleFile(request, fileData);
+
+                results.add(new BatchUploadResponse(
+                        singleResponse.getFileName(),
+                        singleResponse.getCid(),
+                        singleResponse.getStatus(),
+                        "Uploaded successfully"
+                ));
+            } catch (Exception e) {
+                results.add(new BatchUploadResponse(
+                        file.getFileName(),
+                        null,
+                        "UPLOAD_FAILED",
+                        e.getMessage()
+                ));
+            }
+        }
+
+        return results;
+    }
 
 
     public ResumeUploadResponse  resumeUpload(String uploadId, MultipartFile newPart){

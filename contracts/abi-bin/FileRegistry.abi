@@ -4,6 +4,12 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "uploader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "cid",
         "type": "string"
@@ -25,6 +31,12 @@
         "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "version",
+        "type": "uint256"
       }
     ],
     "name": "FileRegistered",
@@ -40,6 +52,11 @@
     ],
     "name": "getFile",
     "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
       {
         "internalType": "string",
         "name": "",
@@ -59,6 +76,11 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -66,6 +88,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "uploader",
+        "type": "address"
+      },
       {
         "internalType": "string",
         "name": "cid",
@@ -75,6 +102,11 @@
         "internalType": "string",
         "name": "fileHash",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "version",
+        "type": "uint256"
       }
     ],
     "name": "registerFile",

@@ -5,10 +5,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UploadRequest {
+    private String ownerId;
     private String fileData;
     private String fileName;
     private String mimeType;
-    private String ownerId;
     private String iv;
     private String encryptedKey;
     private String fileHash;

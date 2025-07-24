@@ -23,3 +23,22 @@ export async function encryptFile(file) {
         mimeType: file.type
     };
 }
+export async function encryptBatchFiles(files) {
+    if (!Array.isArray(files) || files.length === 0) {
+        throw new Error("Input must be a non-empty array of files");
+    }
+
+    const encryptedFiles = await Promise.all(files.map(file => encryptFile(file)));
+
+    return encryptedFiles.map(encrypted => ({
+        fileData: encrypted.encryptedFileBase64,  // rename to fileData for backend
+        iv: encrypted.ivBase64,                    // rename ivBase64 → iv
+        encryptedKey: encrypted.rawAESKeyBase64,  // rename rawAESKeyBase64 → encryptedKey
+        fileHash: encrypted.fileHashBase64,       // rename fileHashBase64 → fileHash
+        fileName: encrypted.name,                  // rename name → fileName
+        sizeBytes: encrypted.size,                 // rename size → sizeBytes
+        mimeType: encrypted.mimeType
+    }));
+
+
+}

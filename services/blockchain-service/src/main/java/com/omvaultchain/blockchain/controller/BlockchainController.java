@@ -27,20 +27,28 @@ public class BlockchainController {
      * Registers a file on the blockchain.
      *
      * @param request FileRegisterRequest with fields:
+     *                - ownerId: the uploader's Ethereum wallet address (String)
      *                - cid: the IPFS content identifier (String)
      *                - fileHash: the hash of the file content (String)
+     *                - version: the file version number (long)
      * @return ResponseEntity with a map containing the blockchain transaction hash.
      *
      * Example request body:
      * {
+     *   "ownerId": "0x123abc...def",
      *   "cid": "QmXyz123abc...",
-     *   "fileHash": "abcdef1234567890"
+     *   "fileHash": "abcdef1234567890",
+     *   "version": 1
      * }
      */
-
     @PostMapping("/register-file")
     public ResponseEntity<?> registerFile(@RequestBody FileRegisterRequest request ){
-        String txHash = fileRegistryService.registerFileOnBlockChain(request.getCid(), request.getFileHash());
+        String txHash = fileRegistryService.registerFileOnBlockChain(
+                request.getOwnerId(),
+                request.getCid(),
+                request.getFileHash(),
+                request.getVersion()
+        );
         return ResponseEntity.ok(Map.of("transactionHash", txHash));
     }
 

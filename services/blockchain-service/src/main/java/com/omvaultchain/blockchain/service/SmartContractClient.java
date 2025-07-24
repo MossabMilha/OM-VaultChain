@@ -45,8 +45,8 @@ public class SmartContractClient {
     }
 
     // FileRegistry methods
-    public String registerFile(String cid, String fileHash)throws Exception{
-        TransactionReceipt receipt = fileRegistry.registerFile(cid, fileHash).send();
+    public String registerFile(String ownerId,String cid, String fileHash,long version)throws Exception{
+        TransactionReceipt receipt = fileRegistry.registerFile(ownerId,cid,fileHash,BigInteger.valueOf(version)).send();
         return receipt.getTransactionHash();
     }
     public List<FileRegistry.FileRegisteredEventResponse> getFileRegisteredEvents(TransactionReceipt receipt)throws Exception{

@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 
-public class UploadResponse {
+public class    UploadResponse {
     private String fileId;
     private String cid;
     private String fileName;
