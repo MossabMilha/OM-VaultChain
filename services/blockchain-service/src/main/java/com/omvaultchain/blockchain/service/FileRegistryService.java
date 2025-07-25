@@ -1,8 +1,11 @@
 package com.omvaultchain.blockchain.service;
 
 import com.omvaultchain.blockchain.contracts.VersionManager;
+import com.omvaultchain.blockchain.controller.dto.FileRegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class FileRegistryService {
@@ -11,11 +14,8 @@ public class FileRegistryService {
     @Autowired
     private VersionManager versionManager;
 
-    public String registerFileOnBlockChain(String ownerId,String cid, String fileHash,long version) {
-        try {
-            return smartContractClient.registerFile(ownerId,cid,fileHash,version);
-        }catch (Exception e){
-            throw new RuntimeException("BlockChain Registration Failed : " +e.getMessage());
-        }
+    public Map<String, Object> registerFileOnBlockChain(FileRegisterRequest request) throws Exception {
+        Map<String, Object> receipt = smartContractClient.registerFile(request.getUploaderWallet(), request.getCid(), request.getFileHash(), request.getVersion());
+        return receipt;
     }
 }

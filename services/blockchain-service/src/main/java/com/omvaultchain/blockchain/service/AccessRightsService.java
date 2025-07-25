@@ -3,11 +3,9 @@ package com.omvaultchain.blockchain.service;
 import com.omvaultchain.blockchain.contracts.AccessControl;
 import com.omvaultchain.blockchain.controller.dto.AccessCheckResponse;
 import com.omvaultchain.blockchain.controller.dto.AccessRecord;
-import com.omvaultchain.blockchain.controller.dto.GrantMultipleAccessRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.tuples.Tuple;
 import org.web3j.tuples.generated.Tuple3;
 
 import java.math.BigInteger;

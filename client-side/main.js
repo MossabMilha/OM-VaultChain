@@ -31,6 +31,16 @@ async function uploadEncryptedFile(originalFile, recipientPublicKeyPem, ownerId)
         throw error;
     }
 }
+document.getElementById('upload').addEventListener('click', async() => {
+    const selectedFile = document.getElementById('file').files[0];
+
+    if (!selectedFile) {
+        alert('Please select at least one file to upload.');
+        return;
+    }
+    await uploadEncryptedFile(selectedFile, PublicKeyPem, "123e4567-e89b-12d3-a456-426614174000");
+
+})
 
 async function uploadEncryptedBatch(originalFiles, recipientPublicKeyPem, ownerId) {
     try{
@@ -64,16 +74,7 @@ async function uploadEncryptedBatch(originalFiles, recipientPublicKeyPem, ownerI
 //     await uploadEncryptedBatch(selectedFiles, PublicKeyPem, "123e4567-e89b-12d3-a456-426614174000");
 // })
 
-document.getElementById('upload').addEventListener('click', async() => {
-    const selectedFile = document.getElementById('file').files[0];
 
-    if (!selectedFile) {
-        alert('Please select at least one file to upload.');
-        return;
-    }
-    await uploadEncryptedFile(selectedFile, PublicKeyPem, "123e4567-e89b-12d3-a456-426614174000");
-
-})
 
 
 

@@ -2,11 +2,13 @@ package com.omvaultchain.blockchain.controller.dto;
 
 import lombok.Data;
 
+import java.math.BigInteger;
+
 @Data
 public class FileRegisterRequest {
-    private String ownerId;
+    private String uploaderWallet;
     private String cid;
     private String fileHash;
-    private long version;
+    private BigInteger version;
 
 }

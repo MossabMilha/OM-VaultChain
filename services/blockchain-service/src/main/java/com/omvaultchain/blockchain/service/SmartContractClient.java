@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -16,7 +15,9 @@ import org.web3j.tuples.generated.Tuple3;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -45,10 +46,20 @@ public class SmartContractClient {
     }
 
     // FileRegistry methods
-    public String registerFile(String ownerId,String cid, String fileHash,long version)throws Exception{
-        TransactionReceipt receipt = fileRegistry.registerFile(ownerId,cid,fileHash,BigInteger.valueOf(version)).send();
-        return receipt.getTransactionHash();
+    public Map<String,Object> registerFile(String ownerId,String cid, String fileHash,BigInteger version)throws Exception{
+        try{
+            TransactionReceipt receipt = fileRegistry.registerFile(ownerId, cid, fileHash, version).send();
+            Map<String, Object> response = new HashMap<>();
+            response.put("transactionHash", receipt.getTransactionHash());
+            response.put("blockNumber", receipt.getBlockNumber().longValue());
+            response.put("transactionStatus", receipt.isStatusOK() ? "success" : "failed");
+            response.put("chainId", web3j.ethChainId().send().getChainId().longValue());
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Smart contract registerFile failed", e);
+        }
     }
+
     public List<FileRegistry.FileRegisteredEventResponse> getFileRegisteredEvents(TransactionReceipt receipt)throws Exception{
         return fileRegistry.getFileRegisteredEvents(receipt);
     }

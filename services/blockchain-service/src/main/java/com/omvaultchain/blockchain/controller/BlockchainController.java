@@ -5,6 +5,7 @@ import com.omvaultchain.blockchain.service.AccessRightsService;
 import com.omvaultchain.blockchain.service.FileRegistryService;
 import com.omvaultchain.blockchain.service.VersioningService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,14 +43,19 @@ public class BlockchainController {
      * }
      */
     @PostMapping("/register-file")
-    public ResponseEntity<?> registerFile(@RequestBody FileRegisterRequest request ){
-        String txHash = fileRegistryService.registerFileOnBlockChain(
-                request.getOwnerId(),
-                request.getCid(),
-                request.getFileHash(),
-                request.getVersion()
-        );
-        return ResponseEntity.ok(Map.of("transactionHash", txHash));
+    public ResponseEntity<?> registerFile(@RequestBody FileRegisterRequest request)  {
+        try{
+            Map<String, Object> response = fileRegistryService.registerFileOnBlockChain(request);
+            return ResponseEntity.ok(Map.of(
+                    "message", "File registered successfully",
+                    "data", response
+            ));
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "message", "Failed to register file on blockchain",
+                    "error", e.getMessage()
+            ));
+        }
     }
 
     /*

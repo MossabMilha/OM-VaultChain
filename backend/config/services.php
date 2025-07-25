@@ -39,7 +39,7 @@ return [
     ],
 
     'blockchain_service' => [
-        'base_url' => env('BLOCKCHAIN_SERVICE_URL', 'http://localhost:8004/blockchain'),
+        'base_url' => env('BLOCKCHAIN_SERVICE_URL', 'http://localhost:8081/blockchain'),
     ],
 
     'access_control_service' => [

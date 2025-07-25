@@ -2,23 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FileBlockchainTransaction;
 use App\Models\FileVersion;
-use Exception;
-use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class FileOrchestrationController extends Controller
 {
-
     public function uploadSingleFile(Request $request){
-        if ($request->isMethod('options')) {
-            return response()->json([], 200)
-                ->header('Access-Control-Allow-Origin', 'http://localhost:5173')
-                ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-        }
         $ownerWallet = "0x3598b9413498353D666cA08367c602982DCc4931";
         $storageBase = config('services.storage_service.base_url');
         $blockchainBase = config('services.blockchain_service.base_url');
@@ -45,25 +37,19 @@ class FileOrchestrationController extends Controller
         ];
 
         // 🔁 Send to storage-service
-
         $storageResponse = Http::post("{$storageBase}/upload/single", $payload);
         if (!$storageResponse->successful()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Storage service failed',
-                'error' => $storageResponse->body()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Storage service failed', 'error' => $storageResponse->body()], 500);
         }
 
         $storageData = $storageResponse->json();
 
-
-
+        // Create file version
         $fileId = $storageData['fileId'];
         $cid = $storageData['cid'];
         $fileHash = $validated["metadata"]["hash"];
 
-        FileVersion::create([
+        $fileVersion = FileVersion::create([
             "id" => Str::uuid(),
             "file_id" => $fileId,
             "version_number" => 1,
@@ -72,14 +58,11 @@ class FileOrchestrationController extends Controller
             "is_current" => true
         ]);
 
-
         // 🏗️ Prepare blockchain data
 
 
-
-
         $blockchainResponse = Http::post("{$blockchainBase}/register-file", [
-            "ownerId" => "0x3598b9413498353D666cA08367c602982DCc4931",
+            "uploaderWallet" => "0x3598b9413498353D666cA08367c602982DCc4931",
             "cid" => $cid,
             "fileHash" => $validated["metadata"]["hash"],
             "version" => 1
@@ -89,6 +72,18 @@ class FileOrchestrationController extends Controller
             return response()->json(['success' => false, 'message' => 'Blockchain Service Failed', 'error' => $blockchainResponse->body()], 500);
         }
         $blockchainData = $blockchainResponse->json();
+
+
+        FileBlockchainTransaction::create([
+            "id" => Str::uuid(),
+            "file_version_id" => $fileVersion->id,
+            "tx_hash" => $blockchainData["data"]['transactionHash'],
+            "block_number" => $blockchainData["data"]['blockNumber'],
+            "chain_id" => $blockchainData["data"]['chainId'],
+            "tx_status" => $blockchainData["data"]['transactionStatus']
+        ]);
+
+
         $finalData = array_merge($storageData, $blockchainData);
 
 
@@ -108,4 +103,3 @@ class FileOrchestrationController extends Controller
         return $request;
     }
 }
-

@@ -138,7 +138,8 @@ public class FileRegistry extends Contract {
                 });
     }
 
-    public RemoteFunctionCall<TransactionReceipt> registerFile(String uploader, String cid, String fileHash, BigInteger version) {
+    public RemoteFunctionCall<TransactionReceipt> registerFile(String uploader, String cid,
+            String fileHash, BigInteger version) {
         final Function function = new Function(
                 FUNC_REGISTERFILE, 
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, uploader), 
