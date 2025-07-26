@@ -1,4 +1,4 @@
-import { generateAESKey, exportRawKey, arrayBufferToBase64 } from "./keyUtils.js";
+import {generateAESKey, exportRawKey, arrayBufferToBase64, base64ToArrayBuffer,importRawKey} from "./keyUtils.js";
 import { hashFile } from "./hash.js";
 
 export async function encryptFile(file) {
@@ -40,5 +40,16 @@ export async function encryptBatchFiles(files) {
         mimeType: encrypted.mimeType
     }));
 
+
+}
+
+export async function decryptFile({ encryptedFileBase64, ivBase64, rawAESKeyBase64 }){
+    const encryptedBuffer = base64ToArrayBuffer(encryptedFileBase64);
+    const iv = new Uint8Array(base64ToArrayBuffer(ivBase64));
+    const rawKey = base64ToArrayBuffer(rawAESKeyBase64);
+
+    const AESKey = await importRawKey(rawKey);
+    const decryptedBuffer = await crypto.subtle.decrypt({name:"AES-GCM", iv}, AESKey, encryptedBuffer);
+    return new Blob([decryptedBuffer]);
 
 }

@@ -17,14 +17,7 @@ export function arrayBufferToBase64(buffer) {
         throw new Error(`Failed to convert ArrayBuffer to base64: ${error.message}`);
     }
 }
-export async function exportRawKey(key) {
-    try {
-        return await crypto.subtle.exportKey("raw", key);
-    } catch (error) {
-        console.error('Error exporting raw key:', error);
-        throw error;
-    }
-}
+
 export function base64ToArrayBuffer(base64) {
     try {
         // Validate base64 string
@@ -50,4 +43,18 @@ export function base64ToArrayBuffer(base64) {
 
         throw new Error(`Failed to decode base64: ${error.message}`);
     }
+}
+
+export async function exportRawKey(key) {
+    try {
+        return await crypto.subtle.exportKey("raw", key);
+    } catch (error) {
+        console.error('Error exporting raw key:', error);
+        throw error;
+    }
+}
+
+export async function importRawKey(RawKeyBuffer) {
+    return await crypto.subtle.importKey("raw",RawKeyBuffer,"AES-GCM",true,["decrypt"]);
+
 }

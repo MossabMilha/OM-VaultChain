@@ -234,6 +234,59 @@ sequenceDiagram
     Note right of Client: ✅ File encrypted on client<br/>✅ Stored on decentralized IPFS<br/>✅ Metadata on immutable blockchain<br/>✅ Zero-knowledge architecture
 ```
 
+### 📥 **File Download Flow**
+
+```mermaid
+sequenceDiagram
+    participant Client as 🖥️ Frontend Client
+    participant Laravel as 🎯 Laravel Core API
+    participant Access as 🛡️ Access Service
+    participant Storage as 📦 Storage Service
+    participant Blockchain as ⛓️ Blockchain Service
+    participant IPFS as 🌐 IPFS Network
+    participant Polygon as 🔗 Polygon Blockchain
+
+    Note over Client,Laravel: 📥 Secure Download Request
+    Client->>Laravel: GET /api/files/{id}/download<br/>📋 File ID + user authentication
+
+    Note over Laravel: 🎯 Orchestration & Validation
+    Laravel->>Laravel: Validate request & authenticate user
+    Laravel->>Laravel: Retrieve file metadata from database
+    Laravel->>Laravel: Prepare access validation
+
+    Note over Laravel,Access: 🛡️ Access Permission Validation
+    Laravel->>Access: POST /access/validate<br/>📋 fileId + userWallet + action
+    Access->>Access: Check user permissions & policies
+    Access->>Access: Validate access token & expiration
+    Access-->>Laravel: ✅ Access granted + permission details
+
+    Note over Laravel,Blockchain: ⛓️ Blockchain Key Retrieval
+    Laravel->>Blockchain: GET /get-access-key<br/>🔑 fileId + userWallet
+    Blockchain->>Polygon: Query encrypted key for user
+    Polygon-->>Blockchain: Return encrypted AES key
+    Blockchain-->>Laravel: ✅ Encrypted key retrieved
+
+    Note over Laravel,Storage: 📦 File Retrieval
+    Laravel->>Storage: GET /storage/download/{cid}<br/>📦 CID + access token
+    Storage->>IPFS: Retrieve encrypted file by CID
+    IPFS-->>Storage: Return encrypted file data
+    Storage-->>Laravel: ✅ Encrypted file + metadata
+
+    Note over Laravel: 📊 Final Coordination
+    Laravel->>Laravel: Log download activity
+    Laravel->>Laravel: Update access audit trail
+    Laravel-->>Client: ✅ Encrypted file + encrypted key + metadata
+
+    Note over Client: 🔓 Client-Side Decryption
+    Client->>Client: Decrypt AES key with user's private key
+    Client->>Client: Decrypt file with recovered AES key
+    Client->>Client: Verify file integrity with SHA-256 hash
+    Client->>Client: Present decrypted file to user
+
+    Note over Client,Polygon: 🔒 Security Result
+    Note right of Client: ✅ File decrypted on client only<br/>✅ Zero-knowledge download<br/>✅ Access logged on blockchain<br/>✅ End-to-end security maintained
+```
+
 ### 🔑 **Access Control Flow**
 
 ```mermaid

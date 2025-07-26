@@ -85,14 +85,23 @@ class FileOrchestrationController extends Controller
         ]);
 
 
-        $finalData = array_merge($storageData, $blockchainData);
-
 
         return response()->json([
             "success" => true,
-            "message" => "File Uploaded Successfully",
-            "data" => $finalData
-        ]);
+            "message" => "File uploaded and registered successfully.",
+            "data" => [
+                "fileId" => $storageData['fileId'],
+                "fileName" => $validated["metadata"]["name"],
+                "mimeType" => $validated["metadata"]["mimeType"],
+                "sizeBytes" => $validated["metadata"]["size"],
+                "ipfsCid" => $storageData['cid'],
+                "blockchainTxHash" => $blockchainData["data"]['transactionHash'],
+                "version" => 1,
+                "ownerId" => $validated["metadata"]["ownerId"],
+                "timestamp" => now()->toIso8601String(),
+                "fileHash" => $validated["metadata"]["hash"]
+            ]
+        ], 201);
 
     }
     public function uploadBatchFile(Request $request)
@@ -200,4 +209,18 @@ class FileOrchestrationController extends Controller
 
 
     }
+    public function listFiles(Request $request){
+        $validated = $request->validate([
+            "ownerId" => "required|uuid"
+        ]);
+        $files = File::where('owner_id', $validated['ownerId'])->get();
+
+        return response()->json(["files"=>$files], 200);
+    }
+
+    public function downloadSingleFile(Request $request){
+
+    }
+
+
 }
