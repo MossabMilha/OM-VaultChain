@@ -1,30 +1,37 @@
 import { useState } from 'react'
-import viteLogo from '/vite.svg'
 import './App.css'
+import SignupForm from './components/auth/SignupForm.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentView, setCurrentView] = useState('home')
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
+      <div style={{ padding: '20px' }}>
+        <nav style={{ marginBottom: '20px' }}>
+          <button
+            onClick={() => setCurrentView('home')}
+            style={{ marginRight: '10px', padding: '8px 16px' }}
+          >
+            Home
+          </button>
+          <button
+            onClick={() => setCurrentView('signup')}
+            style={{ padding: '8px 16px' }}
+          >
+            Signup
+          </button>
+        </nav>
 
+        {currentView === 'home' && (
+          <div>
+            <h1>OM VaultChain</h1>
+            <p>Welcome to the secure file management system.</p>
+          </div>
+        )}
+
+        {currentView === 'signup' && <SignupForm />}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
