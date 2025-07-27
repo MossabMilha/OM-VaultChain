@@ -42,4 +42,41 @@ export async function encryptBatchFiles(files) {
 
 
 }
+export async function deriveKeyFromBackupCode(backupCode) {
+    const encoder = new TextEncoder();
+    const code = backupCode.replace(/-/g, '');
+    const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(code),
+        'PBKDF2',
+        false,
+        ['deriveKey']
 
+    );
+    return await crypto.subtle.deriveKey(
+        {
+            name:"PBKDF2",
+            salt: encoder.encode("om-vault-chain-salt"),
+            iterations:100000,
+            hash: "SHA-512"
+        },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt"]
+
+    );
+}
+export async function encryptPrivateKeyAES(privateKeyBase64,key){
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoder = new TextEncoder();
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        encoder.encode(privateKeyBase64)
+    );
+    return {
+        encryptedPrivateKey: arrayBufferToBase64(ciphertext),
+        iv: arrayBufferToBase64(iv.buffer)
+    }
+}

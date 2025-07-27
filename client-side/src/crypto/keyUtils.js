@@ -86,3 +86,27 @@ export async function importAESKey(keyBuffer){
         ["decrypt"]
     );
 }
+
+
+
+
+export async function generateEncryptionKeyPair() {
+    return await crypto.subtle.generateKey(
+        {
+            name: "RSA-OAEP",
+            modulusLength: 2048,
+            publicExponent: new Uint8Array([1, 0, 1]),
+            hash: "SHA-512"
+        },
+        true,
+        ["encrypt", "decrypt"]
+    );
+}
+export async function exportPublicKeyToBase64(publicKey) {
+    const spki = await crypto.subtle.exportKey("spki", publicKey);
+    return btoa(String.fromCharCode(...new Uint8Array(spki)));
+}
+export async function exportPrivateKeyToBase64(privateKey) {
+    const pkcs8 = await crypto.subtle.exportKey("pkcs8", privateKey);
+    return btoa(String.fromCharCode(...new Uint8Array(pkcs8)));
+}
