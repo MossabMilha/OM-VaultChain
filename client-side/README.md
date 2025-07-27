@@ -385,22 +385,106 @@ This project uses **Vite** with the following plugins:
 - **[@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react)** - Uses Babel for Fast Refresh
 - **ESLint integration** for code quality and consistency
 
-## 🔗 Integration
+## 🔗 Laravel Backend Integration
 
 <div align="center">
 
-**🌐 Backend Services Integration**
+**🎯 Where the Real Signup & Authentication Happens**
 
 </div>
 
-This client-side application integrates with the OM VaultChain backend ecosystem:
+### 🏗️ Laravel Core API - The Central Hub
 
-| 🔧 Service | 🎯 Purpose | 🔗 Integration |
-|------------|------------|----------------|
-| **🎯 Laravel Core API** | Authentication and business logic | RESTful API calls |
-| **📦 Storage Service** | IPFS file storage | Encrypted file uploads |
-| **⛓️ Blockchain Service** | Smart contract interactions | Web3 transactions |
-| **🛡️ Access Control Service** | Permission management | Access validation |
+The **Laravel Core API** is where all the actual signup, authentication, and user management occurs. This client-side application is just the interface - the real business logic happens on the Laravel backend.
+
+#### 🔐 **Signup Flow: Client ↔ Laravel**
+
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant Client as 🖥️ Client App
+    participant Laravel as 🎯 Laravel Core API
+    participant DB as 🗄️ MySQL Database
+    participant Services as 🔧 Microservices
+
+    Note over Client,Laravel: 🔐 Real Signup Process
+    Client->>Client: Generate key pair + backup code
+    Client->>Laravel: POST /api/auth/register
+    Note right of Client: {email, password, publicKey, encryptedPrivateKey}
+
+    Note over Laravel: � Laravel Handles Everything
+    Laravel->>Laravel: Validate user data
+    Laravel->>Laravel: Hash password (bcrypt)
+    Laravel->>DB: Store user account
+    Laravel->>DB: Store encrypted private key
+    Laravel->>Laravel: Generate JWT token
+    Laravel->>Services: Coordinate with microservices
+    Laravel-->>Client: ✅ Registration success + JWT
+
+    Note over Laravel: 🛡️ Laravel Responsibilities
+    Note right of Laravel: ✅ User account creation<br/>✅ Password hashing & validation<br/>✅ JWT token management<br/>✅ Database operations<br/>✅ Microservice coordination
+```
+
+</div>
+
+#### 🎯 **Laravel API Endpoints Used by Client**
+
+| �🌐 Endpoint | 📝 Description | 📋 Client Sends | 📤 Laravel Returns |
+|-------------|----------------|------------------|-------------------|
+| `POST /api/auth/register` | **Real signup happens here** | `{email, password, publicKey, encryptedPrivateKey}` | `{userId, token, success}` |
+| `POST /api/auth/login` | **Authentication & key retrieval** | `{email, password}` | `{token, encryptedPrivateKey, userProfile}` |
+| `GET /api/auth/profile` | **User profile data** | `Authorization: Bearer <token>` | `{user, preferences, metadata}` |
+| `POST /api/files/upload` | **File operations** | `{encryptedFile, metadata}` | `{fileId, cid, success}` |
+
+#### 🔄 **What Laravel Actually Does**
+
+<div align="center">
+
+| 🎯 Laravel Responsibility | 📝 Description | 🔧 Implementation |
+|---------------------------|----------------|------------------|
+| **👤 User Account Management** | Creates and manages user accounts | Database operations, validation |
+| **🔐 Authentication System** | JWT tokens, session management | Built-in Laravel auth |
+| **🗄️ Data Persistence** | Stores encrypted keys and metadata | MySQL database |
+| **🎯 Business Logic** | File sharing, permissions, workflows | Laravel controllers & services |
+| **🔧 Microservice Coordination** | Orchestrates storage, blockchain, access control | Service delegation |
+| **🛡️ Security & Validation** | Input validation, rate limiting, security headers | Laravel middleware |
+
+</div>
+
+### 🌐 **Complete Backend Ecosystem**
+
+This client-side application integrates with the full OM VaultChain backend ecosystem:
+
+| 🔧 Service | 🎯 Purpose | 🔗 Integration | 📍 Where It Runs |
+|------------|------------|----------------|------------------|
+| **🎯 Laravel Core API** | **Main signup & auth logic** | RESTful API calls | **Primary backend server** |
+| **📦 Storage Service** | IPFS file storage | Encrypted file uploads | Microservice (Port 8003) |
+| **⛓️ Blockchain Service** | Smart contract interactions | Web3 transactions | Microservice (Port 8004) |
+| **🛡️ Access Control Service** | Permission management | Access validation | Microservice (Port 8005) |
+
+### 🔑 **Key Point: Laravel is the Boss**
+
+<div align="center">
+
+> **🎯 Important Understanding**
+>
+> This React client is just the **user interface**. All the real signup, authentication, user management, and business logic happens in the **Laravel Core API**. The client generates keys and sends them to Laravel, but Laravel does all the heavy lifting.
+
+</div>
+
+#### 🏗️ **Architecture Summary**
+
+```
+🖥️ CLIENT-SIDE (This App)          🎯 LARAVEL BACKEND (The Real Work)
+├── 🎨 User Interface              ├── 👤 User Account Creation
+├── 🔐 Key Generation              ├── 🔐 Authentication System
+├── 🔑 Backup Code Creation        ├── 🗄️ Database Operations
+├── 📤 API Calls to Laravel        ├── 🛡️ Security & Validation
+└── 💾 Local Storage               ├── 🎯 Business Logic
+                                   ├── 🔧 Microservice Coordination
+                                   └── 📊 Data Management
+```
 
 ## 📚 Key Features
 
