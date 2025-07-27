@@ -1,7 +1,8 @@
-//package com.omvaultchain.storage.controller;
-//
-//import com.omvaultchain.storage.model.DownloadBatchRequest;
+package com.omvaultchain.storage.controller;
+
+import com.omvaultchain.storage.model.DownloadBatchRequest;
 import com.omvaultchain.storage.model.DownloadRequest;
+import com.omvaultchain.storage.model.DownloadSingleFileResponse;
 import com.omvaultchain.storage.model.StreamRequest;
 import com.omvaultchain.storage.service.FileDownloadService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,9 +28,10 @@ public class DownloadController {
      *
      * @return Encrypted file content as a downloadable resource
      */
-    @GetMapping("/id")
-    public ResponseEntity<Resource> downloadById(@RequestBody DownloadRequest request){
-        return fileDownloadService.downloadByFileId(request.getFileId());
+    @PostMapping("/single/id")
+    public ResponseEntity<DownloadSingleFileResponse> downloadById(@RequestBody DownloadRequest request){
+        DownloadSingleFileResponse response = fileDownloadService.downloadByFileId(request.getFileId());
+        return ResponseEntity.ok(response);
     }
     /**
      * Downloads a file from IPFS using its CID.
@@ -41,10 +43,10 @@ public class DownloadController {
      *
      * @return Encrypted file content as a downloadable resource
      */
-    @GetMapping("/cid")
-    public ResponseEntity<Resource> downloadByCid(@RequestBody DownloadRequest request){
-        return fileDownloadService.downloadByCid(request.getCid());
-    }
+//    @GetMapping("/single/cid")
+//    public ResponseEntity<Resource> downloadByCid(@RequestBody DownloadRequest request){
+//        return fileDownloadService.downloadByCid(request.getCid());
+//    }
     /**
      * Downloads multiple files from storage using their file IDs.
      *

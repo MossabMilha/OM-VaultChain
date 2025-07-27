@@ -2,19 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessPermission;
 use App\Models\File;
 use App\Models\FileBlockchainTransaction;
 use App\Models\FileVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FileOrchestrationController extends Controller
 {
+    private $storageBase;
+    private $blockchainBase;
+
+    public function __construct()
+    {
+        $this->storageBase = config('services.storage_service.base_url');
+        $this->blockchainBase = config('services.blockchain_service.base_url');
+    }
     public function uploadSingleFile(Request $request){
 
-        $storageBase = config('services.storage_service.base_url');
-        $blockchainBase = config('services.blockchain_service.base_url');
 
         $validated = $request->validate([
             "encryptedFile"=>"required|string",
@@ -38,7 +46,7 @@ class FileOrchestrationController extends Controller
         ];
 
         // 🔁 Send to storage-service
-        $storageResponse = Http::post("{$storageBase}/upload/single", $payload);
+        $storageResponse = Http::post("{$this->storageBase}/upload/single", $payload);
         if (!$storageResponse->successful()) {
             return response()->json(['success' => false, 'message' => 'Storage service failed', 'error' => $storageResponse->body()], 500);
         }
@@ -62,7 +70,7 @@ class FileOrchestrationController extends Controller
         // 🏗️ Prepare blockchain data
 
 
-        $blockchainResponse = Http::post("{$blockchainBase}/register-file", [
+        $blockchainResponse = Http::post("{$this->blockchainBase}/register-file", [
             "uploaderWallet" => "0x3598b9413498353D666cA08367c602982DCc4931",
             "cid" => $cid,
             "fileHash" => $validated["metadata"]["hash"],
@@ -107,10 +115,6 @@ class FileOrchestrationController extends Controller
     public function uploadBatchFile(Request $request)
     {
 
-        $storageBase = config('services.storage_service.base_url');
-        $blockchainBase = config('services.blockchain_service.base_url');
-
-
         $validated = $request->validate([
             "ownerId" => "required|uuid",
             "files" => "required|array",
@@ -127,7 +131,7 @@ class FileOrchestrationController extends Controller
             "ownerId" => $validated["ownerId"],
             "files" => $validated["files"]
         ];
-        $storageResponse = Http::post("{$storageBase}/upload/batch", $payloads);
+        $storageResponse = Http::post("{$this->storageBase}/upload/batch", $payloads);
         if (!$storageResponse->successful()) {
             return response()->json(['success' => false, 'message' => 'Storage service failed', 'error' => $storageResponse->body()], 500);
         }
@@ -165,7 +169,7 @@ class FileOrchestrationController extends Controller
             $fileVersions[] = $fileVersion;
 
             // Register each file with blockchain service
-            $blockchainResponse = Http::post("{$blockchainBase}/register-file", [
+            $blockchainResponse = Http::post("{$this->blockchainBase}/register-file", [
                 "uploaderWallet" => "0x3598b9413498353D666cA08367c602982DCc4931",
                 "cid" => $cid,
                 "fileHash" => $fileHash,
@@ -219,6 +223,46 @@ class FileOrchestrationController extends Controller
     }
 
     public function downloadSingleFile(Request $request){
+        $validated = $request->validate([
+            "fileId" => "required|uuid",
+            "ownerId" => "required|uuid"
+        ]);
+        $file = File::where('id', $validated['fileId'])->where('owner_id', $validated['ownerId'])->where('is_deleted',0)->first();
+        if (!$file) {
+            return response()->json(['success' => false, 'message' => 'File Not Found'], 404);
+        }
+
+        $hasAccess = false;
+        $encryptedKey = null;
+
+        if($file->ownerId === $validated['ownerId']){
+            $hasAccess = true;
+            $encryptedKey = $file->encryptedKey;
+        }else{
+            $permission = AccessPermission::where('file_id', $file->id)
+                ->where('user_id', $validated['ownerId'])
+                ->active()
+                ->first();
+            if ($permission) {
+                $hasAccess = true;
+                $encryptedKey = $permission->encrypted_key;
+            }
+        }
+        if (!$hasAccess) {
+            return response()->json(['success' => false, 'message' => 'Access Denied'], 403);
+        }
+
+        $payload = ["fileId" => $file->id];
+
+        $StorageResponse = Http::post("{$this->storageBase}/download/single/id", $payload);
+        if (!$StorageResponse->successful()) {
+            return response()->json(['success' => false, 'message' => 'Storage Service Failed', 'error' => $StorageResponse->body()], 500);
+        }
+        $storageData = $StorageResponse->json();
+        $storageData['encryptedKey'] = $encryptedKey;
+
+        
+        return response()->json($storageData, 200);
 
     }
 

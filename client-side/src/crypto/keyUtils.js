@@ -1,7 +1,6 @@
 export async function generateAESKey() {
     return crypto.subtle.generateKey({name: "AES-GCM",length: 256},true, ["encrypt", "decrypt"]);
 }
-
 export function arrayBufferToBase64(buffer) {
     try {
         if (!buffer) {
@@ -17,7 +16,6 @@ export function arrayBufferToBase64(buffer) {
         throw new Error(`Failed to convert ArrayBuffer to base64: ${error.message}`);
     }
 }
-
 export function base64ToArrayBuffer(base64) {
     try {
         // Validate base64 string
@@ -44,17 +42,47 @@ export function base64ToArrayBuffer(base64) {
         throw new Error(`Failed to decode base64: ${error.message}`);
     }
 }
-
-export async function exportRawKey(key) {
-    try {
-        return await crypto.subtle.exportKey("raw", key);
-    } catch (error) {
-        console.error('Error exporting raw key:', error);
-        throw error;
-    }
-}
-
 export async function importRawKey(RawKeyBuffer) {
     return await crypto.subtle.importKey("raw",RawKeyBuffer,"AES-GCM",true,["decrypt"]);
 
+}
+export async function exportRawKey(cryptoKey) {
+    try {
+        const rawKeyBuffer = await crypto.subtle.exportKey("raw", cryptoKey);
+        return rawKeyBuffer;
+    } catch (error) {
+        throw new Error(`Failed to export raw key: ${error.message}`);
+    }
+}
+export async function importRSAPrivateKey(privateKeyPem) {
+    try {
+        const pemContents = privateKeyPem
+            .replace(/-----BEGIN PRIVATE KEY-----/, '')
+            .replace(/-----END PRIVATE KEY-----/, '')
+            .replace(/\s/g, '');
+        
+        const keyBuffer = base64ToArrayBuffer(pemContents);
+        
+        return await crypto.subtle.importKey(
+            'pkcs8',
+            keyBuffer,
+            {
+                name: 'RSA-OAEP',
+                hash: 'SHA-512'  // Changed from SHA-256 to SHA-512
+            },
+            false,
+            ['decrypt']
+        );
+    } catch (error) {
+        throw new Error(`Failed to import RSA private key: ${error.message}`);
+    }
+}
+export async function importAESKey(keyBuffer){
+    return await crypto.subtle.importKey(
+        "raw",
+        keyBuffer,
+        {name: "AES-GCM"},
+        false,
+        ["decrypt"]
+    );
 }

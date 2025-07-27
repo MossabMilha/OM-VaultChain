@@ -1,4 +1,4 @@
-import {generateAESKey, exportRawKey, arrayBufferToBase64, base64ToArrayBuffer,importRawKey} from "./keyUtils.js";
+import {generateAESKey, exportRawKey, arrayBufferToBase64} from "./keyUtils.js";
 import { hashFile } from "./hash.js";
 
 export async function encryptFile(file) {
@@ -31,25 +31,15 @@ export async function encryptBatchFiles(files) {
     const encryptedFiles = await Promise.all(files.map(file => encryptFile(file)));
 
     return encryptedFiles.map(encrypted => ({
-        fileData: encrypted.encryptedFileBase64,  // rename to fileData for backend
-        iv: encrypted.ivBase64,                    // rename ivBase64 → iv
-        encryptedKey: encrypted.rawAESKeyBase64,  // rename rawAESKeyBase64 → encryptedKey
-        fileHash: encrypted.fileHashBase64,       // rename fileHashBase64 → fileHash
-        fileName: encrypted.name,                  // rename name → fileName
-        sizeBytes: encrypted.size,                 // rename size → sizeBytes
+        fileData: encrypted.encryptedFileBase64,
+        iv: encrypted.ivBase64,
+        encryptedKey: encrypted.rawAESKeyBase64,
+        fileHash: encrypted.fileHashBase64,
+        fileName: encrypted.name,
+        sizeBytes: encrypted.size,
         mimeType: encrypted.mimeType
     }));
 
 
 }
 
-export async function decryptFile({ encryptedFileBase64, ivBase64, rawAESKeyBase64 }){
-    const encryptedBuffer = base64ToArrayBuffer(encryptedFileBase64);
-    const iv = new Uint8Array(base64ToArrayBuffer(ivBase64));
-    const rawKey = base64ToArrayBuffer(rawAESKeyBase64);
-
-    const AESKey = await importRawKey(rawKey);
-    const decryptedBuffer = await crypto.subtle.decrypt({name:"AES-GCM", iv}, AESKey, encryptedBuffer);
-    return new Blob([decryptedBuffer]);
-
-}

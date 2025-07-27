@@ -1,5 +1,6 @@
 package com.omvaultchain.storage.service;
 
+import com.omvaultchain.storage.model.DownloadSingleFileResponse;
 import com.omvaultchain.storage.model.FileMetadata;
 import com.omvaultchain.storage.model.LimitedInputStream;
 import com.omvaultchain.storage.repository.FileMetadataRepository;
@@ -14,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+import java.util.Base64;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,30 +31,34 @@ public class FileDownloadService {
     private final FileMetadataRepository fileMetadataRepository;
     private final IPFSClient IPFSClient;
 
-    private ResponseEntity<Resource> prepareDownloadResponse(byte[] data, String name, String mime) {
-        ByteArrayResource resource = new ByteArrayResource(data);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(mime))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + name + "\"")
-                .body(resource);
-    }
-    public ResponseEntity<Resource> downloadByFileId(String fileId){
-        FileMetadata metadata = fileMetadataRepository.findById(fileId).orElseThrow(
-                ()->new RuntimeException("File Not Found"));
+
+
+    public DownloadSingleFileResponse   downloadByFileId(String fileId){
+        FileMetadata metadata = fileMetadataRepository.findById(fileId).orElseThrow(()->new RuntimeException("File Not Found"));
         byte[] content = IPFSClient.downloadFile(metadata.getCid());
-        return prepareDownloadResponse(content,metadata.getFileName(), metadata.getMimeType());
-
+        String base64Data = Base64.getEncoder().encodeToString(content);
+        DownloadSingleFileResponse response = new DownloadSingleFileResponse(
+                base64Data,
+                metadata.getFileName(),
+                metadata.getMimeType(),
+                metadata.getSizeBytes(),
+                metadata.getCid(),
+                metadata.getFileHash(),
+                metadata.getIv()
+        );
+        
+        return response;
     }
-    public ResponseEntity<Resource> downloadByCid(String cid){
-        Optional<FileMetadata> optionalMetadata = fileMetadataRepository.findByCid(cid);
-        if (optionalMetadata.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        FileMetadata metadata = optionalMetadata.get();
-        byte[] content = IPFSClient.downloadFile(cid);
-        return prepareDownloadResponse(content, metadata.getFileName(), metadata.getMimeType());
-
-    }
+//    public ResponseEntity<Resource> downloadByCid(String cid){
+//        Optional<FileMetadata> optionalMetadata = fileMetadataRepository.findByCid(cid);
+//        if (optionalMetadata.isEmpty()){
+//            return ResponseEntity.notFound().build();
+//        }
+//        FileMetadata metadata = optionalMetadata.get();
+//        byte[] content = IPFSClient.downloadFile(cid);
+//        return prepareDownloadResponse(content, metadata.getFileName(), metadata.getMimeType());
+//
+//    }
     public ResponseEntity<Resource> downloadBatchByFileIds(List<String> fileIds){
         try{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

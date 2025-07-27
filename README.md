@@ -46,6 +46,7 @@
 
 - [🚀 Quick Start](#-quick-start)
 - [🏗️ Architecture Overview](#️-architecture-overview)
+- [🔐 Authentication Architecture](#-authentication-architecture)
 - [🛠️ Technology Stack](#️-technology-stack)
 - [🔧 Microservices](#-microservices)
 - [⛓️ Smart Contracts](#️-smart-contracts)
@@ -62,7 +63,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **PHP 8.1+** - For Laravel Core API
+- **PHP 8.1+** - For Laravel Core API (handles authentication, business logic, and service orchestration)
 - **Composer** - PHP dependency management
 - **Java 17+** - For microservices (Storage, Blockchain, Access Control)
 - **Node.js 18+** - For smart contract development and frontend
@@ -108,7 +109,9 @@ OM VaultChain follows a **microservices architecture** with a **Laravel backend 
 
 ### 🎯 Core Architecture Principles
 
-**OM VaultChain** implements a **Laravel-centric orchestration model** where the Laravel backend serves as the **primary API gateway and business logic coordinator**, delegating specialized operations to independent microservices while maintaining centralized control and consistency.
+**OM VaultChain** implements a **Laravel-centric orchestration model** where the Laravel backend serves as the **primary API gateway, authentication system, and business logic coordinator**, delegating specialized operations to independent microservices while maintaining centralized control and consistency.
+
+> **🔐 Authentication Architecture**: Unlike traditional microservices where authentication might be a separate service, OM VaultChain integrates authentication directly into the Laravel Core API for enhanced security, simplified architecture, and better performance.
 
 #### 🔄 Data Flow & Security Model
 
@@ -121,7 +124,7 @@ graph TB
     end
 
     subgraph "Laravel Core Orchestrator"
-        LARAVEL[Laravel Backend API<br/>🎯 Central Orchestrator<br/>📋 Business Logic<br/>🔒 Authentication & Authorization<br/>📊 Request Routing & Validation]
+        LARAVEL[Laravel Backend API<br/>🎯 Central Orchestrator<br/>📋 Business Logic<br/>🔒 Integrated Authentication & Authorization<br/>📊 Request Routing & Validation<br/>🛡️ Security Gateway]
     end
 
     subgraph "Independent Microservices"
@@ -157,12 +160,13 @@ graph TB
 
 The **Laravel backend** serves as the **central nervous system** of OM VaultChain, handling:
 
-#### 🔐 **Security & Authentication**
-- **User authentication** and session management
-- **JWT token** generation and validation
+#### 🔐 **Integrated Authentication & Security**
+- **Built-in user authentication** and session management (no separate auth microservice)
+- **JWT token** generation and validation within Laravel
 - **Wallet signature** verification for blockchain identity
 - **Rate limiting** and DDoS protection
 - **Input validation** and sanitization
+- **Centralized security policies** and access control
 
 #### 📋 **Business Logic Coordination**
 - **File upload orchestration**: Coordinates encrypted file storage and blockchain registration
@@ -354,12 +358,13 @@ The **Laravel Core API** serves as the **primary entry point** and **business lo
 
 ### 🏗️ **Core Responsibilities**
 
-#### 🔐 **Authentication & Security Gateway**
-- **User Authentication**: JWT-based authentication with wallet signature verification
+#### 🔐 **Integrated Authentication & Security Gateway**
+- **Built-in User Authentication**: JWT-based authentication with wallet signature verification (no separate auth service)
 - **Request Validation**: Comprehensive input validation and sanitization
 - **Rate Limiting**: DDoS protection and abuse prevention
 - **Security Headers**: CORS, CSP, and other security policy enforcement
 - **Session Management**: Secure session handling with Redis-backed storage
+- **Centralized Security**: All authentication logic consolidated in Laravel for better security and maintainability
 
 #### 🎯 **Service Orchestration**
 - **Request Routing**: Intelligent routing of requests to appropriate microservices
@@ -482,6 +487,138 @@ class FileUploadController extends Controller
 - **HIPAA Ready**: Healthcare data handling capabilities
 - **SOX Compliance**: Financial audit trail requirements
 - **Custom Policies**: Configurable compliance rules and validation
+
+---
+
+## 🔐 Authentication Architecture
+
+OM VaultChain implements a **Laravel-integrated authentication system** where all authentication, authorization, and security functions are built directly into the Laravel Core API rather than being separated into a dedicated microservice.
+
+### 🎯 **Why Laravel-Integrated Authentication?**
+
+Unlike many microservices architectures that use separate authentication services, OM VaultChain consolidates authentication within Laravel for several strategic reasons:
+
+#### 🛡️ **Enhanced Security**
+- **Reduced Attack Surface**: Fewer services mean fewer potential security vulnerabilities
+- **Centralized Security Policies**: All authentication logic in one place for easier auditing and maintenance
+- **Simplified Token Management**: JWT tokens generated and validated within the same service
+- **Direct Database Access**: No network calls for authentication, reducing latency and potential security risks
+
+#### ⚡ **Performance Benefits**
+- **Faster Authentication**: No inter-service communication overhead for auth checks
+- **Reduced Latency**: Authentication happens locally within Laravel
+- **Better Caching**: Session and user data cached efficiently within Laravel's Redis integration
+- **Optimized Database Queries**: Direct access to user data without service-to-service calls
+
+#### 🏗️ **Architectural Simplicity**
+- **Fewer Moving Parts**: Simpler deployment and maintenance
+- **Easier Development**: Authentication logic co-located with business logic
+- **Simplified Testing**: No need to mock authentication service calls
+- **Better Error Handling**: Unified error handling for auth and business logic
+
+### 🔄 **Laravel Authentication Flow**
+
+```mermaid
+sequenceDiagram
+    participant Client as 🖥️ Client Application
+    participant Laravel as 🎯 Laravel Core API
+    participant Redis as ⚡ Redis Cache
+    participant MySQL as 🗄️ MySQL Database
+    participant Blockchain as ⛓️ Blockchain Service
+
+    Note over Client,Laravel: 🔐 Authentication Process
+    Client->>Laravel: POST /api/auth/login<br/>📋 wallet_address + signature
+
+    Note over Laravel: 🛡️ Built-in Authentication
+    Laravel->>Laravel: Validate signature format
+    Laravel->>MySQL: Verify user exists
+    Laravel->>Laravel: Validate wallet signature
+    Laravel->>Laravel: Generate JWT token
+    Laravel->>Redis: Cache session data
+    Laravel-->>Client: ✅ JWT token + user profile
+
+    Note over Client,Laravel: 🔒 Authenticated Request
+    Client->>Laravel: GET /api/files<br/>🔑 Authorization: Bearer <jwt>
+    Laravel->>Laravel: Validate JWT token (internal)
+    Laravel->>Redis: Check session cache
+    Laravel->>Laravel: Authorize request
+    Laravel->>Blockchain: Delegate blockchain operations
+    Laravel-->>Client: ✅ Authorized response
+
+    Note over Laravel: 🎯 Key Benefits
+    Note right of Laravel: ✅ No auth microservice needed<br/>✅ Faster authentication<br/>✅ Centralized security<br/>✅ Simplified architecture
+```
+
+### 🔑 **Laravel Authentication Components**
+
+#### **AuthController** - Core Authentication Logic
+```php
+<?php
+class AuthController extends Controller
+{
+    // Built-in Laravel authentication - no external auth service
+    public function login(Request $request) {
+        // Wallet signature verification
+        // JWT token generation
+        // Session management
+        // User profile retrieval
+    }
+
+    public function logout(Request $request) {
+        // Token invalidation
+        // Session cleanup
+        // Cache clearing
+    }
+}
+```
+
+#### **AuthMiddleware** - Request Authentication
+```php
+<?php
+class AuthMiddleware
+{
+    // Validates JWT tokens internally within Laravel
+    // No calls to external authentication services
+    // Direct Redis cache access for session validation
+    // Immediate user context loading
+}
+```
+
+#### **WalletAuthService** - Blockchain Identity
+```php
+<?php
+class WalletAuthService
+{
+    // Wallet signature verification
+    // Public key validation
+    // Blockchain identity mapping
+    // Integrated with Laravel's auth system
+}
+```
+
+### 🏢 **Laravel vs. Microservice Authentication Comparison**
+
+| **Aspect** | **Laravel-Integrated** | **Separate Auth Microservice** |
+|------------|------------------------|--------------------------------|
+| **Performance** | ⚡ Fast (no network calls) | 🐌 Slower (network overhead) |
+| **Security** | 🛡️ Centralized, fewer attack vectors | 🔓 Distributed, more complexity |
+| **Maintenance** | 🔧 Simple, unified codebase | 🛠️ Complex, multiple services |
+| **Development** | 👨‍💻 Easier debugging and testing | 🧩 Complex inter-service testing |
+| **Deployment** | 🚀 Single service deployment | 🐳 Multiple service coordination |
+| **Scaling** | 📈 Scale with main application | ⚖️ Independent scaling complexity |
+
+### 🎯 **Authentication Responsibilities in Laravel**
+
+The Laravel Core API handles all authentication-related functions:
+
+- **🔐 User Registration & Login**: Wallet-based authentication with signature verification
+- **🎫 JWT Token Management**: Generation, validation, and refresh of access tokens
+- **👤 User Profile Management**: User data, preferences, and organization memberships
+- **🔑 Session Management**: Redis-backed session storage and validation
+- **🛡️ Access Control**: Permission validation before delegating to microservices
+- **📊 Audit Logging**: Authentication events and security monitoring
+- **🔄 Password Reset**: Wallet-based account recovery mechanisms
+- **🏢 Organization Auth**: Team-based access control and role management
 
 ---
 
@@ -759,7 +896,7 @@ OM VaultChain implements a **Laravel-orchestrated microservices architecture** w
 ```mermaid
 graph TB
     subgraph "Laravel Core Orchestrator"
-        LARAVEL[🎯 Laravel Core API<br/>Central Business Logic<br/>Request Coordination<br/>Security Gateway]
+        LARAVEL[🎯 Laravel Core API<br/>Central Business Logic<br/>Integrated Authentication<br/>Request Coordination<br/>Security Gateway]
     end
 
     subgraph "Specialized Microservices"
@@ -781,8 +918,9 @@ graph TB
 - **🎯 Laravel as Orchestrator**: All client requests go through Laravel, which coordinates microservice calls
 - **🔄 Service Independence**: Each microservice operates independently with its own database and logic
 - **📊 Centralized State**: Laravel maintains overall system state and business rules
-- **🛡️ Security Boundary**: Laravel enforces authentication and authorization before service delegation
+- **🛡️ Integrated Security**: Laravel handles all authentication and authorization internally (no separate auth microservice)
 - **📈 Scalability**: Individual services can be scaled based on demand
+- **🔐 Authentication Consolidation**: All user authentication, JWT management, and security policies centralized in Laravel
 
 ### 🧠 Client-Side Encryption (React)
 **Folder:** `client-side/src/crypto` | **Technology:** React + CryptoJS + Web Crypto API
@@ -933,10 +1071,12 @@ contract FileRegistry {
 ### 🎯 **Benefits of Laravel-Orchestrated Architecture**
 
 #### 🔐 **Enhanced Security**
-- **Single Security Boundary**: All authentication and authorization handled by Laravel
+- **Integrated Authentication**: All authentication and authorization handled directly by Laravel (no separate auth microservice)
+- **Single Security Boundary**: Unified security model with centralized access control
 - **Consistent Validation**: Unified input validation and sanitization across all operations
 - **Centralized Audit**: Complete audit trail maintained by Laravel orchestrator
 - **Zero-Knowledge Coordination**: Laravel coordinates encrypted data without decryption access
+- **Simplified Security Model**: Reduced attack surface by consolidating authentication in Laravel core
 
 #### 📈 **Scalability & Performance**
 - **Independent Scaling**: Each microservice can be scaled based on specific demand
@@ -1251,7 +1391,9 @@ OM VaultChain implements multiple layers of security to ensure data protection a
 
 ### 🎯 **Laravel-Centric API Architecture**
 
-**All client applications interact exclusively with the Laravel Core API**, which orchestrates calls to the underlying microservices. This ensures consistent authentication, validation, and business logic enforcement across all operations.
+**All client applications interact exclusively with the Laravel Core API**, which handles authentication internally and orchestrates calls to the underlying microservices. This ensures consistent authentication, validation, and business logic enforcement across all operations.
+
+> **🔐 Authentication Note**: Authentication is **built into Laravel** - there is no separate authentication microservice. Laravel handles all user authentication, JWT tokens, wallet verification, and session management directly.
 
 ### � Quick Reference
 
