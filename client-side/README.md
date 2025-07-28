@@ -271,7 +271,7 @@ sequenceDiagram
 
 <div align="center">
 
-**🔗 Optional MetaMask/WalletConnect Support**
+**🔗 Dual Authentication Options**
 
 [![MetaMask](https://img.shields.io/badge/MetaMask-Supported-orange.svg)](https://metamask.io/)
 [![WalletConnect](https://img.shields.io/badge/WalletConnect-Supported-blue.svg)](https://walletconnect.org/)
@@ -284,6 +284,183 @@ sequenceDiagram
 |-----------|-----------|-------------|-------------|
 | **🔑 Wallet-Free** | Generated keys + backup codes | Mainstream users | Client-side encryption |
 | **🦊 Wallet-Based** | MetaMask/WalletConnect | Crypto enthusiasts | Hardware wallet support |
+
+### 🦊 **Wallet-Based Signup Flow — How It Works**
+
+<div align="center">
+
+**🔗 Seamless Web3 Authentication Experience**
+
+</div>
+
+#### 🔄 **Complete Wallet Signup Process**
+
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Client App
+    participant W as Web3 Wallet
+    participant API as OM VaultChain API
+    participant DB as Database
+
+    Note over U,C: 🦊 Wallet-Based Signup
+    U->>C: Click "Sign up with Wallet"
+    C->>W: Request wallet connection
+    W->>U: Show connection prompt
+    U->>W: Approve connection
+    W->>C: Return wallet address (0x1234...)
+
+    Note over C,W: 🔐 Ownership Verification
+    C->>C: Generate unique message/nonce
+    C->>W: Request message signature
+    W->>U: Show signature prompt (no gas cost)
+    U->>W: Sign message
+    W->>C: Return cryptographic signature
+
+    Note over C,API: 📤 Backend Registration
+    C->>API: POST /api/auth/signup/wallet
+    Note right of C: {firstName, lastName, email,<br/>walletAddress, signature, message}
+    
+    Note over API: 🛡️ Backend Verification
+    API->>API: Verify signature matches wallet + message
+    API->>API: Confirm wallet ownership
+    API->>DB: Create user account + link wallet
+    API->>API: Generate session token
+    API-->>C: ✅ Signup success + JWT token
+
+    Note over U: 🎉 Complete!
+    C->>U: Show success message
+```
+
+</div>
+
+#### 📋 **Step-by-Step Breakdown**
+
+| 🔢 Step | 🎯 Action | 🔧 Implementation | 🛡️ Security |
+|---------|-----------|------------------|-------------|
+| **1** | **🦊 User Initiates Signup** | Click "Sign up with Wallet" button | User choice |
+| **2** | **🔗 Connect to User's Wallet** | Frontend requests wallet connection | MetaMask/WalletConnect |
+| **3** | **📝 Optional: User Signs Message** | Prove wallet ownership via signature | No gas cost, cryptographic proof |
+| **4** | **📤 Send Signup Data to Backend** | API call with wallet data + signature | Secure transmission |
+| **5** | **🛡️ Backend Verifies Signature** | Cryptographic signature validation | Ownership confirmation |
+| **6** | **✅ Signup Complete** | Account created, session established | Ready for use |
+
+#### 🔐 **Signature Verification Process**
+
+<div align="center">
+
+**🛡️ Cryptographic Ownership Proof**
+
+</div>
+
+```javascript
+// 1. Generate unique message for signing
+const message = `Welcome to OM VaultChain!\nNonce: ${Date.now()}-${Math.random()}`;
+
+// 2. Request wallet signature (no gas cost)
+const signature = await window.ethereum.request({
+    method: 'personal_sign',
+    params: [message, walletAddress]
+});
+
+// 3. Send to backend for verification
+const signupData = {
+    firstName,
+    lastName, 
+    email,
+    walletAddress,
+    signature,
+    message
+};
+```
+
+#### 🎯 **Why This Flow?**
+
+<div align="center">
+
+| 🛡️ Benefit | 📝 Description | ✅ Advantage |
+|-------------|----------------|-------------|
+| **🔐 Security** | Wallet signature proves ownership without revealing private keys | Zero private key exposure |
+| **👤 User Convenience** | No need to create or remember passwords | Seamless Web3 experience |
+| **⛓️ Blockchain-native** | The wallet is the user's identity | True decentralized identity |
+| **🚫 No Gas Costs** | Message signing is free | Cost-effective verification |
+
+</div>
+
+#### 🔧 **Optional Enhancements**
+
+<div align="center">
+
+| 🎯 Enhancement | 📝 Description | 💡 Benefit |
+|----------------|----------------|------------|
+| **🔢 Nonce System** | Use unique message each time | Prevents replay attacks |
+| **🔑 Public Key Storage** | Store wallet public key | Future encryption capabilities |
+| **🔄 Session Management** | JWT tokens for authenticated requests | Seamless app experience |
+| **🛡️ Multi-Signature** | Support for multi-sig wallets | Enterprise security |
+
+</div>
+
+#### 🚀 **Implementation Example**
+
+<div align="center">
+
+**🔧 Wallet Signup Component**
+
+</div>
+
+```javascript
+// Wallet-based signup implementation
+async function signupWithWallet(firstName, lastName, email) {
+    try {
+        // 1. Connect to wallet
+        const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts'
+        });
+        const walletAddress = accounts[0];
+
+        // 2. Generate message and get signature
+        const message = `Welcome to OM VaultChain!\nNonce: ${Date.now()}`;
+        const signature = await window.ethereum.request({
+            method: 'personal_sign',
+            params: [message, walletAddress]
+        });
+
+        // 3. Send signup request
+        const response = await signupUserWallet({
+            firstName,
+            lastName,
+            email,
+            walletAddress,
+            signature,
+            message
+        });
+
+        if (response.success) {
+            // Store session token
+            localStorage.setItem('authToken', response.token);
+            alert('✅ Wallet signup successful!');
+        }
+    } catch (error) {
+        console.error('Wallet signup error:', error);
+        alert('❌ Wallet signup failed');
+    }
+}
+```
+
+#### 🔄 **Integration with Existing System**
+
+<div align="center">
+
+| 🎯 Integration Point | 📝 Description | 🔧 Implementation |
+|---------------------|----------------|------------------|
+| **🔐 Encryption Keys** | Generate encryption keys for wallet users | Same crypto system as backup codes |
+| **📁 File Management** | Wallet users get same file encryption | Unified encryption architecture |
+| **🔄 Multi-Device** | Wallet signature for device authorization | Consistent across devices |
+| **🛡️ Access Control** | Wallet-based permissions | Blockchain-native authorization |
+
+</div>
 
 ## �🛠️ Technology Stack
 
@@ -517,3 +694,4 @@ This client-side application integrates with the full OM VaultChain backend ecos
 **Made with ❤️ by the OM VaultChain Team**
 
 </div>
+

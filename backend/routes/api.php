@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 // Test route for CORS
 
 
-Route::post('/auth/signup', [AuthController::class, 'signup']);
+Route::post('/auth/signup/backupCode', [AuthController::class, 'signupBackupCode']);
 
 
 

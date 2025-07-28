@@ -1,7 +1,7 @@
 import {generateEncryptionKeyPair, exportPublicKeyToBase64,exportPrivateKeyToBase64,} from "../../crypto/keyUtils.js";
 import { generateBackupCode } from "../../crypto/backupCodeUtils.js";
 import { deriveKeyFromBackupCode, encryptPrivateKeyAES } from "../../crypto/encrypt.js";
-import { signupUser } from "../../services/api/authService.js";
+import {signupUserBackupCode} from "../../services/api/authService.js";
 import {storePrivateKey} from "../../utils/userKeyStorage.js";
 
 
@@ -26,7 +26,7 @@ async function signupWithBackupCode(firstName, lastName, email, password) {
         alert("📌 IMPORTANT: Save this backup code securely!\n\n" + backupCode);
 
         // 6. Send signup request
-        const response = await signupUser({
+        const response = await signupUserBackupCode({
             firstName,
             lastName,
             email,

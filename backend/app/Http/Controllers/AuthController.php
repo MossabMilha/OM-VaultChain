@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function signup(Request $request){
+    public function signupBackupCode(Request $request){
         try {
             $validated = $request->validate([
                 "firstName" => "required|string|max:255",
@@ -64,4 +64,5 @@ class AuthController extends Controller
             ], 500);
         }
     }
+    
 }
