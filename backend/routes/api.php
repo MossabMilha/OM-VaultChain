@@ -1,13 +1,19 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileOrchestrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Test route for CORS
-Route::get('/test', function () {
-    return response()->json(['message' => 'CORS is working!', 'timestamp' => now()]);
-});
+
+
+Route::post('/auth/signup', [AuthController::class, 'signup']);
+
+
+
+
+
 
 Route::post('/files/list', [FileOrchestrationController::class, 'listFiles']);
 

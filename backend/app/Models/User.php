@@ -18,9 +18,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'id',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'wallet_address',
+        'public_key',
+        'encrypted_private_key',
+        'iv',
     ];
 
     /**
@@ -31,6 +37,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'encrypted_private_key',
+        'iv',
     ];
 
     /**
@@ -44,5 +52,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function validatePassword(String $password):bool{
+        return strlen($password)>= 8 &&
+            preg_match('/[A-Z]/', $password) &&
+            preg_match('/[a-z]/', $password) &&
+            preg_match('/[0-9]/', $password) &&
+            preg_match('/[\W_]/', $password);
     }
 }
