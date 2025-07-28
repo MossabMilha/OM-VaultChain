@@ -7,7 +7,7 @@
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.4-purple.svg)](https://vitejs.dev/)
 [![Encryption](https://img.shields.io/badge/Encryption-AES--256--GCM-green.svg)](https://github.com/your-repo)
-[![Key Derivation](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange.svg)](https://github.com/your-repo)
+[![Key Derivation](https://img.shields.io/badge/KDF-PBKDF2--SHA512-orange.svg)](https://github.com/your-repo)
 
 ---
 
@@ -18,14 +18,13 @@
 ## 📚 Table of Contents
 
 - [🚀 Quick Start](#-quick-start)
+- [🎯 What is OM VaultChain?](#-what-is-om-vaultchain)
 - [🏗️ Project Structure](#️-project-structure)
-- [🔐 Signup Process & Key Management](#-signup-process--key-management)
-- [🔄 Multi-Device Access](#-multi-device-access)
-- [🦊 Wallet Integration](#-wallet-integration)
+- [🔐 How Authentication Works](#-how-authentication-works)
+- [🔑 Private Key Management](#-private-key-management)
 - [🛠️ Technology Stack](#️-technology-stack)
-- [🔒 Security Considerations](#-security-considerations)
-- [🚀 Development](#-development)
-- [🔗 Integration](#-integration)
+- [💻 Development Guide](#-development-guide)
+- [🔒 Security & Best Practices](#-security--best-practices)
 
 ---
 
@@ -50,635 +49,424 @@ npm run preview
 npm run lint
 ```
 
+## 🎯 What is OM VaultChain?
+
+OM VaultChain is a **secure file management system** that puts **privacy first**. Here's what makes it special:
+
+### 🔐 **Zero-Knowledge Architecture**
+- **Your files are encrypted on YOUR device** before they ever leave your computer
+- **We never see your private keys** - they're generated and stored locally
+- **Even if our servers are hacked**, your files remain secure because we only store encrypted data
+
+### 🎯 **Two Ways to Sign Up**
+
+| Method | Best For | How It Works |
+|--------|----------|--------------|
+| **🔑 Backup Code** | Regular users | Generate keys in browser + 16-chunk recovery code |
+| **🦊 Wallet-Based** | Crypto users | Use your existing MetaMask/Web3 wallet |
+
+### 🌟 **Key Benefits**
+- ✅ **No wallet required** - works for everyone
+- ✅ **True privacy** - we can't access your files
+- ✅ **Multi-device** - access from anywhere with your backup code
+- ✅ **Web3 compatible** - works with existing crypto wallets
+
 ## 🏗️ Project Structure
 
 ```
 src/
 ├── crypto/                    # 🔐 Client-Side Encryption Engine
-│   ├── encrypt.js            # AES-256-GCM file encryption
+│   ├── encrypt.js            # File encryption + private key encryption
 │   ├── decrypt.js            # File decryption operations
-│   ├── keyUtils.js           # Cryptographic key management
+│   ├── keyUtils.js           # RSA key generation & management
 │   ├── hash.js               # SHA-256 hashing utilities
+│   ├── backupCodeUtils.js    # 16-chunk backup code generation
 │   ├── envelopeManager.js    # Multi-recipient key envelopes
-│   ├── createEnvelope.js     # Secure envelope creation
-│   └── backupCodeUtils.js    # 🔑 Backup code generation (16x4 format)
-├── components/               # 🧩 React Components
-│   ├── auth/                 # Authentication components
-│   ├── common/               # Shared UI components
-│   ├── files/                # File management components
-│   └── layout/               # Layout and navigation
-├── pages/                    # 📄 Application Pages
-│   ├── auth/                 # Login/Signup pages
-│   ├── dashboard/            # Main dashboard
-│   ├── profile/              # User profile management
-│   ├── error/                # Error pages
-│   └── public/               # Public pages
-├── services/                 # 🌐 API Integration
-│   ├── api/                  # API service modules
-│   └── apiClient.js          # HTTP client configuration
-├── context/                  # ⚛️ React Context Providers
-├── hooks/                    # 🪝 Custom React Hooks
+│   └── createEnvelope.js     # Secure envelope creation
+├── pages/auth/               # 📄 Authentication Pages
+│   ├── SignupBackupCode.js   # Wallet-free signup flow
+│   ├── SignupBackupCode.html # Backup code signup UI
+│   ├── SignupWallet.js       # MetaMask/Web3 wallet signup
+│   └── SignupWallet.html     # Wallet signup UI
+├── services/api/             # 🌐 Backend Integration
+│   ├── authService.js        # Authentication API calls
+│   └── apiClient.js          # HTTP client (connects to Laravel)
 ├── utils/                    # 🛠️ Utility Functions
+│   ├── userKeyStorage.js     # Local storage for private keys
+│   └── walletUtils.js        # MetaMask integration utilities
+├── components/               # 🧩 React Components (Future)
 ├── styles/                   # 🎨 Styling
-│   ├── components/           # Component-specific styles
-│   ├── pages/                # Page-specific styles
-│   ├── globals.css           # Global styles
-│   ├── themes.css            # Theme definitions
-│   └── variables.css         # CSS variables
 └── assets/                   # 📁 Static Assets
-    ├── images/               # Image files
-    ├── fonts/                # Font files
-    └── animations/           # Animation assets
 ```
 
-## 🔐 Signup Process & Key Management
+### 🎯 **Key Files Explained**
 
-### 🎯 Wallet-Free Signup Feature
+| File | Purpose | What It Does |
+|------|---------|--------------|
+| `crypto/keyUtils.js` | **RSA Key Generation** | Creates 2048-bit RSA key pairs for encryption |
+| `crypto/backupCodeUtils.js` | **Backup Code Creation** | Generates 16-chunk recovery codes |
+| `crypto/encrypt.js` | **Encryption Engine** | Encrypts files + derives keys from backup codes |
+| `pages/auth/SignupBackupCode.js` | **Wallet-Free Signup** | Complete signup flow without external wallet |
+| `pages/auth/SignupWallet.js` | **Web3 Signup** | MetaMask-based authentication |
+| `utils/userKeyStorage.js` | **Local Key Storage** | Stores encrypted private keys in browser |
+| `services/apiClient.js` | **Laravel Integration** | Connects to backend API at `localhost:8000` |
 
-OM VaultChain offers a unique **wallet-free signup option** that generates cryptographic key pairs entirely in the browser, providing users with secure access without requiring external wallet software.
+## 🔐 How Authentication Works
 
-#### 🔑 16-Chunk Backup Code System
+OM VaultChain offers **two authentication methods** - choose what works best for you:
 
-<div align="center">
+### 🎯 **Method 1: Backup Code Signup** (Recommended for most users)
 
-**🔢 Backup Code Format**
+This is our **wallet-free option** - no MetaMask or crypto wallet needed!
+
+#### 🔄 **How It Works**
+
+```mermaid
+flowchart TD
+    A[👤 User clicks 'Sign Up'] --> B[🔐 Generate RSA Keys in Browser]
+    B --> C[🎲 Generate 16-Chunk Backup Code]
+    C --> D[🔑 Derive AES Key from Backup Code]
+    D --> E[🔒 Encrypt Private Key with AES]
+    E --> F[📤 Send to Laravel Backend]
+    F --> G[💾 Store Encrypted Key + User Data]
+    G --> H[✅ Account Created!]
+```
+
+#### 🔑 **16-Chunk Backup Code System**
+
+Your backup code looks like this:
 ```
 ABCD-EFGH-IJKL-MNOP-QRST-UVWX-YZ12-3456-
 H1J8-W2E5-Z9X4-C6V7-B3N1-Q8M5-F2K9-D7L4
 ```
 *64 characters • 16 chunks • 4 chars each • Dash separated*
 
-</div>
+> **🚨 CRITICAL**: This backup code is your **master key**. If you lose it, you lose access to your files forever!
 
-#### 🎯 Generation Process
+#### 📋 **Step-by-Step Process**
 
-<div align="center">
+| Step | What Happens | Where | Security |
+|------|-------------|-------|----------|
+| **1. Generate Keys** | Create 2048-bit RSA key pair | Your browser | Keys never leave your device |
+| **2. Create Backup Code** | Generate 16-chunk recovery code | Your browser | Cryptographically secure random |
+| **3. Derive AES Key** | Use backup code to create encryption key | Your browser | PBKDF2 with 100k iterations |
+| **4. Encrypt Private Key** | Encrypt your private key with AES | Your browser | AES-256-GCM encryption |
+| **5. Send to Backend** | Send encrypted data to Laravel API | Network | Only encrypted data transmitted |
+| **6. Store Locally** | Save keys in browser storage | Your browser | For convenience on this device |
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant C as Client App
-    participant Crypto as Crypto Engine
-    participant Storage as Local Storage
+### 🎯 **Method 2: Wallet-Based Signup** (For crypto users)
 
-    Note over U,C: � Key Generation Phase
-    U->>C: Choose "Create Account" (wallet-free)
-    C->>Crypto: Generate secp256k1 key pair
-    Crypto->>Crypto: Generate private key (32 bytes)
-    Crypto->>Crypto: Derive public key from private key
-    Crypto->>Crypto: Derive wallet address from public key
+If you already have MetaMask or another Web3 wallet, you can use it to sign up!
 
-    Note over C,Crypto: 🔢 Backup Code Generation
-    C->>Crypto: Generate 16-chunk backup code
-    Crypto->>Crypto: Create 16 segments of 4 characters each
-    Crypto->>Crypto: Use backup code to derive encryption key
-    Crypto->>Crypto: Encrypt private key with derived key
-
-    Note over C,Storage: 💾 Secure Storage
-    C->>Storage: Store encrypted private key locally
-    C->>C: Display backup code to user
-    C->>C: Require user to confirm backup code saved
-
-    Note over U: 🔒 Security Result
-    Note right of U: ✅ Full cryptographic identity created<br/>✅ Private key encrypted and stored<br/>✅ Backup code for recovery<br/>✅ No external wallet needed
-```
-
-</div>
-
-| 🔢 Step | 🎯 Action | 🔧 Implementation | 🛡️ Security |
-|---------|-----------|------------------|-------------|
-| **1** | **🔐 Key Pair Generation** | secp256k1 in browser | Private key never transmitted |
-| **2** | **🎲 Backup Code Creation** | 16×4 alphanumeric chunks | Cryptographically secure random |
-| **3** | **🔄 Key Derivation** | PBKDF2-SHA256 from backup code | 100k+ iterations |
-| **4** | **🔒 Private Key Encryption** | AES-256-GCM encryption | Local encryption only |
-| **5** | **💾 Secure Storage** | Encrypted key in browser | Device-specific storage |
-| **6** | **👤 User Education** | Backup code display & warnings | Critical importance emphasized |
-
-#### 🛡️ Security Features
-
-<div align="center">
-
-| 🛡️ Feature | 📝 Description | ✅ Benefit |
-|-------------|----------------|------------|
-| **🔐 Client-Side Only** | All cryptographic operations in browser | Zero server-side key exposure |
-| **🚫 Zero Server Knowledge** | Backend never sees unencrypted private keys | Complete user privacy |
-| **🔑 Human-Readable Recovery** | 16-chunk backup code format | Easy to write down and store |
-| **⚡ Hardware Wallet Security** | Same cryptographic strength | Enterprise-grade protection |
-| **🌐 Web3 Compatible** | Generated addresses work everywhere | Universal blockchain access |
-
-</div>
-
-### 📝 Implementation Example
-
-<div align="center">
-
-**🔧 Backup Code Generation (backupCodeUtils.js)**
-
-</div>
-
-```javascript
-// Generate 16-chunk backup code with cryptographically secure randomness
-export function generateBackupCode(){
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const segment = Array.from({length: 16}, () =>
-        Array.from({length: 4}, () =>
-            charset[Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32 * charset.length)]
-        ).join("")
-    );
-    return segment.join("-");
-}
-
-// Example output: "ABCD-EFGH-IJKL-MNOP-QRST-UVWX-YZ12-3456-H1J8-W2E5-Z9X4-C6V7-B3N1-Q8M5-F2K9-D7L4"
-```
-
-#### 🔐 Complete Cryptographic Flow
-
-```javascript
-// 1. Generate secp256k1 private key (32 bytes)
-const privateKey = crypto.getRandomValues(new Uint8Array(32));
-
-// 2. Derive public key using elliptic curve cryptography
-const publicKey = secp256k1.getPublicKey(privateKey);
-
-// 3. Derive Ethereum-compatible wallet address
-const walletAddress = ethereumjs.pubToAddress(publicKey);
-
-// 4. Generate backup code for recovery
-const backupCode = generateBackupCode(); // 16x4 format
-
-// 5. Derive encryption key from backup code
-const encryptionKey = await crypto.subtle.importKey(
-    'raw',
-    await crypto.subtle.deriveBits({
-        name: 'PBKDF2',
-        salt: new TextEncoder().encode('omvaultchain-salt'),
-        iterations: 100000,
-        hash: 'SHA-256'
-    }, backupCodeKey, 256),
-    { name: 'AES-GCM' },
-    false,
-    ['encrypt', 'decrypt']
-);
-
-// 6. Encrypt private key with derived key
-const encryptedPrivateKey = await crypto.subtle.encrypt({
-    name: 'AES-GCM',
-    iv: crypto.getRandomValues(new Uint8Array(12))
-}, encryptionKey, privateKey);
-```
-
-## � Multi-Device Access
-
-<div align="center">
-
-**🔄 Seamless Cross-Device Experience**
-
-</div>
-
-### 📱 Logging in on a New Device
-
-<div align="center">
+#### 🔄 **How It Works**
 
 ```mermaid
-sequenceDiagram
-    participant U as User
-    participant D as New Device
-    participant API as OM VaultChain API
-    participant Storage as Local Storage
-
-    U->>D: Enter email/password
-    D->>API: Authenticate user
-    API->>D: Return encrypted private key
-    U->>D: Enter 16-chunk backup code
-    D->>D: Derive decryption key (PBKDF2)
-    D->>D: Decrypt private key locally
-    D->>Storage: Store in local storage
-    Note over D: 🎉 Ready for use!
+flowchart TD
+    A[👤 User clicks 'Sign Up with Wallet'] --> B[🦊 Connect MetaMask]
+    B --> C[🖊️ Sign Verification Message]
+    C --> D[📤 Send Signature to Backend]
+    D --> E[🛡️ Backend Verifies Signature]
+    E --> F[✅ Account Created!]
 ```
 
-</div>
+#### 📋 **Step-by-Step Process**
 
-| 🔢 Step | 🎯 Action | 🔧 Implementation | 🛡️ Security |
-|---------|-----------|------------------|-------------|
-| **1** | **🔐 Authentication** | Email/password login | Standard auth validation |
-| **2** | **📥 Key Retrieval** | Fetch encrypted private key | Encrypted data only |
-| **3** | **🔑 Backup Code Entry** | User enters 16-chunk code | Client-side input |
-| **4** | **🔄 Key Derivation** | PBKDF2 derives decryption key | KDF on client |
-| **5** | **🔓 Decryption** | Decrypt private key | Local processing |
-| **6** | **💾 Local Storage** | Store for future use | Device-specific storage |
+| Step | What Happens | Cost | Security |
+|------|-------------|------|----------|
+| **1. Connect Wallet** | MetaMask connects to app | Free | Wallet address obtained |
+| **2. Sign Message** | Sign verification message | **Free** (no gas) | Proves wallet ownership |
+| **3. Send to Backend** | Submit signature + user info | Free | Cryptographic proof |
+| **4. Verify & Create** | Backend verifies signature | Free | Account created |
 
-## 🦊 Wallet Integration
+> **💡 Pro Tip**: Wallet signup is **completely free** - no gas fees required!
 
-<div align="center">
+## 🔑 Private Key Management
 
-**🔗 Dual Authentication Options**
+Understanding how your private keys work is crucial for using OM VaultChain safely.
 
-[![MetaMask](https://img.shields.io/badge/MetaMask-Supported-orange.svg)](https://metamask.io/)
-[![WalletConnect](https://img.shields.io/badge/WalletConnect-Supported-blue.svg)](https://walletconnect.org/)
+### 🎯 **What Are Private Keys?**
 
-</div>
+Think of private keys as the **master password** to your encrypted files:
+- 🔐 **They encrypt/decrypt your files** - without them, your files are unreadable
+- 🔑 **They prove you own your data** - like a digital signature
+- 💾 **They're generated on YOUR device** - we never see them
 
-### 🎯 Dual Authentication Options
+### 📍 **Where Are Private Keys Stored?**
 
-| 🔢 Option | 🎯 Method | 💡 Best For | 🛡️ Security |
-|-----------|-----------|-------------|-------------|
-| **🔑 Wallet-Free** | Generated keys + backup codes | Mainstream users | Client-side encryption |
-| **🦊 Wallet-Based** | MetaMask/WalletConnect | Crypto enthusiasts | Hardware wallet support |
+| Scenario | Location | How to Access | Security Level |
+|----------|----------|---------------|----------------|
+| **Same Device** | Browser Local Storage | Automatic login | 🟢 Convenient |
+| **New Device** | Need backup code to decrypt | Enter 16-chunk code | 🟡 Requires backup code |
+| **Lost Backup Code** | ❌ **PERMANENTLY LOST** | No recovery possible | 🔴 **Critical** |
 
-### 🦊 **Wallet-Based Signup Flow — How It Works**
+### 🔄 **How to Get Your Private Key**
 
-<div align="center">
+#### 🏠 **Scenario 1: On Your Current Device**
 
-**🔗 Seamless Web3 Authentication Experience**
-
-</div>
-
-#### 🔄 **Complete Wallet Signup Process**
-
-<div align="center">
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant C as Client App
-    participant W as Web3 Wallet
-    participant API as OM VaultChain API
-    participant DB as Database
-
-    Note over U,C: 🦊 Wallet-Based Signup
-    U->>C: Click "Sign up with Wallet"
-    C->>W: Request wallet connection
-    W->>U: Show connection prompt
-    U->>W: Approve connection
-    W->>C: Return wallet address (0x1234...)
-
-    Note over C,W: 🔐 Ownership Verification
-    C->>C: Generate unique message/nonce
-    C->>W: Request message signature
-    W->>U: Show signature prompt (no gas cost)
-    U->>W: Sign message
-    W->>C: Return cryptographic signature
-
-    Note over C,API: 📤 Backend Registration
-    C->>API: POST /api/auth/signup/wallet
-    Note right of C: {firstName, lastName, email,<br/>walletAddress, signature, message}
-    
-    Note over API: 🛡️ Backend Verification
-    API->>API: Verify signature matches wallet + message
-    API->>API: Confirm wallet ownership
-    API->>DB: Create user account + link wallet
-    API->>API: Generate session token
-    API-->>C: ✅ Signup success + JWT token
-
-    Note over U: 🎉 Complete!
-    C->>U: Show success message
-```
-
-</div>
-
-#### 📋 **Step-by-Step Breakdown**
-
-| 🔢 Step | 🎯 Action | 🔧 Implementation | 🛡️ Security |
-|---------|-----------|------------------|-------------|
-| **1** | **🦊 User Initiates Signup** | Click "Sign up with Wallet" button | User choice |
-| **2** | **🔗 Connect to User's Wallet** | Frontend requests wallet connection | MetaMask/WalletConnect |
-| **3** | **📝 Optional: User Signs Message** | Prove wallet ownership via signature | No gas cost, cryptographic proof |
-| **4** | **📤 Send Signup Data to Backend** | API call with wallet data + signature | Secure transmission |
-| **5** | **🛡️ Backend Verifies Signature** | Cryptographic signature validation | Ownership confirmation |
-| **6** | **✅ Signup Complete** | Account created, session established | Ready for use |
-
-#### 🔐 **Signature Verification Process**
-
-<div align="center">
-
-**🛡️ Cryptographic Ownership Proof**
-
-</div>
+If you're on the device where you signed up:
 
 ```javascript
-// 1. Generate unique message for signing
-const message = `Welcome to OM VaultChain!\nNonce: ${Date.now()}-${Math.random()}`;
-
-// 2. Request wallet signature (no gas cost)
-const signature = await window.ethereum.request({
-    method: 'personal_sign',
-    params: [message, walletAddress]
-});
-
-// 3. Send to backend for verification
-const signupData = {
-    firstName,
-    lastName, 
-    email,
-    walletAddress,
-    signature,
-    message
-};
+// Your private key is automatically available in browser storage
+// Located in: localStorage['VaultChain_Users']
+// Format: { email: { privateKey: "base64...", publicKey: "base64..." } }
 ```
 
-#### 🎯 **Why This Flow?**
-
-<div align="center">
-
-| 🛡️ Benefit | 📝 Description | ✅ Advantage |
-|-------------|----------------|-------------|
-| **🔐 Security** | Wallet signature proves ownership without revealing private keys | Zero private key exposure |
-| **👤 User Convenience** | No need to create or remember passwords | Seamless Web3 experience |
-| **⛓️ Blockchain-native** | The wallet is the user's identity | True decentralized identity |
-| **🚫 No Gas Costs** | Message signing is free | Cost-effective verification |
-
-</div>
-
-#### 🔧 **Optional Enhancements**
-
-<div align="center">
-
-| 🎯 Enhancement | 📝 Description | 💡 Benefit |
-|----------------|----------------|------------|
-| **🔢 Nonce System** | Use unique message each time | Prevents replay attacks |
-| **🔑 Public Key Storage** | Store wallet public key | Future encryption capabilities |
-| **🔄 Session Management** | JWT tokens for authenticated requests | Seamless app experience |
-| **🛡️ Multi-Signature** | Support for multi-sig wallets | Enterprise security |
-
-</div>
-
-#### 🚀 **Implementation Example**
-
-<div align="center">
-
-**🔧 Wallet Signup Component**
-
-</div>
-
+**To access it programmatically:**
 ```javascript
-// Wallet-based signup implementation
-async function signupWithWallet(firstName, lastName, email) {
-    try {
-        // 1. Connect to wallet
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-        });
-        const walletAddress = accounts[0];
+import { getUserPrivateKey } from './src/utils/userKeyStorage.js';
 
-        // 2. Generate message and get signature
-        const message = `Welcome to OM VaultChain!\nNonce: ${Date.now()}`;
-        const signature = await window.ethereum.request({
-            method: 'personal_sign',
-            params: [message, walletAddress]
-        });
-
-        // 3. Send signup request
-        const response = await signupUserWallet({
-            firstName,
-            lastName,
-            email,
-            walletAddress,
-            signature,
-            message
-        });
-
-        if (response.success) {
-            // Store session token
-            localStorage.setItem('authToken', response.token);
-            alert('✅ Wallet signup successful!');
-        }
-    } catch (error) {
-        console.error('Wallet signup error:', error);
-        alert('❌ Wallet signup failed');
-    }
+const userData = getUserPrivateKey('your-email@example.com');
+if (userData) {
+    console.log('Private Key:', userData.privateKey);
+    console.log('Public Key:', userData.publicKey);
 }
 ```
 
-#### 🔄 **Integration with Existing System**
+#### 🌐 **Scenario 2: On a New Device**
 
-<div align="center">
+If you're on a new device, you need your **16-chunk backup code**:
 
-| 🎯 Integration Point | 📝 Description | 🔧 Implementation |
-|---------------------|----------------|------------------|
-| **🔐 Encryption Keys** | Generate encryption keys for wallet users | Same crypto system as backup codes |
-| **📁 File Management** | Wallet users get same file encryption | Unified encryption architecture |
-| **🔄 Multi-Device** | Wallet signature for device authorization | Consistent across devices |
-| **🛡️ Access Control** | Wallet-based permissions | Blockchain-native authorization |
+1. **Login with email/password** (gets your encrypted private key from server)
+2. **Enter your 16-chunk backup code** (decrypts your private key locally)
+3. **Private key is now available** (stored locally for future use)
 
-</div>
+**The decryption process:**
+```javascript
+import { deriveKeyFromBackupCode } from './src/crypto/encrypt.js';
 
-## �🛠️ Technology Stack
+// 1. Get your backup code (16 chunks)
+const backupCode = "ABCD-EFGH-IJKL-MNOP-..."; // Your actual code
 
-<div align="center">
+// 2. Derive decryption key
+const aesKey = await deriveKeyFromBackupCode(backupCode);
 
-| **Category** | **Technology** | **Version** | **Purpose** |
-|--------------|----------------|-------------|-------------|
-| **🔐 Encryption** | Web Crypto API / CryptoJS | ES2021+ | AES-GCM, SHA-256, secp256k1 |
+// 3. Decrypt your private key (happens automatically during login)
+```
+
+### 🚨 **Critical Security Notes**
+
+| ⚠️ Warning | Why It Matters | What To Do |
+|------------|----------------|------------|
+| **Backup Code = Master Key** | If lost, ALL files become unrecoverable | Write it down, store safely |
+| **We Can't Help You Recover** | Zero-knowledge means we don't have your keys | Multiple secure backups |
+| **Private Key = File Access** | Anyone with your private key can decrypt files | Keep devices secure |
+
+### 🛠️ **For Developers: Key Management Code**
+
+**Generate and store private key (signup):**
+```javascript
+// In SignupBackupCode.js
+const { publicKey, privateKey } = await generateEncryptionKeyPair();
+const backupCode = generateBackupCode();
+const aesKey = await deriveKeyFromBackupCode(backupCode);
+const { encryptedPrivateKey, iv } = await encryptPrivateKeyAES(privateKeyBase64, aesKey);
+
+// Store locally for convenience
+storePrivateKey(email, privateKeyBase64, publicKeyBase64);
+```
+
+**Retrieve private key (login on new device):**
+```javascript
+// User enters backup code, we decrypt their private key
+const aesKey = await deriveKeyFromBackupCode(userBackupCode);
+const decryptedPrivateKey = await decryptPrivateKeyAES(encryptedPrivateKey, aesKey, iv);
+```
+
+## 🛠️ Technology Stack
+
+| Category | Technology | Version | Purpose |
+|----------|------------|---------|---------|
+| **🔐 Encryption** | Web Crypto API | Native | RSA-2048, AES-256-GCM, PBKDF2 |
 | **⚛️ Frontend** | React | 19.1.0 | Modern UI framework |
-| **⚡ Build Tool** | Vite | 7.0.4 | Fast build tool and dev server |
-| **🔑 Cryptography** | @noble/secp256k1 | 2.3.0 | Elliptic curve cryptography |
+| **⚡ Build Tool** | Vite | 7.0.4 | Fast development server |
+| **🔑 Crypto Library** | @noble/secp256k1 | 2.3.0 | Elliptic curve cryptography |
 | **🌐 Web3 Utils** | ethereumjs-util | 7.1.5 | Ethereum address generation |
-| **🔒 Crypto Ops** | crypto-js | 4.2.0 | Additional cryptographic operations |
+| **🔒 Additional Crypto** | crypto-js | 4.2.0 | Additional cryptographic operations |
+| **🎯 Backend** | Laravel API | - | User management & data storage |
 
-</div>
-
-## 🔒 Security Considerations
-
-<div align="center">
-
-**🛡️ Enterprise-Grade Security Architecture**
-
-</div>
-
-### 🛡️ What We Protect Against
-
-<div align="center">
-
-| 🎯 Threat | 🔒 Protection | ✅ Status |
-|-----------|---------------|-----------|
-| **🏢 Server Breaches** | Encrypted keys useless without backup codes | ✅ Protected |
-| **🕵️ Man-in-the-Middle** | All encryption/decryption client-side | ✅ Protected |
-| **👨‍💼 Insider Threats** | Admins cannot access user private keys | ✅ Protected |
-| **📱 Device Loss** | Backup code enables recovery | ✅ Protected |
-
-</div>
-
-### ⚠️ Critical User Responsibilities
-
-<div align="center">
-
-> **🔑 Backup Code is Your Master Key**
->
-> The 16-chunk backup code is the **ONLY** way to recover your account on new devices. If lost, all encrypted files become permanently inaccessible.
-
-</div>
-
-| 🎯 Responsibility | 📝 Description | 🚨 Risk Level |
-|------------------|----------------|---------------|
-| **🔐 Secure Backup Code Storage** | Store codes safely (offline, password manager) | 🔴 Critical |
-| **📱 Device Security** | Maintain device security (updates, antivirus) | 🟡 High |
-| **🤐 Backup Code Confidentiality** | Never share codes with anyone | 🔴 Critical |
-
-### 📋 Security Best Practices
-
-- **📝 Write Down Backup Code**: Store physically in multiple secure locations
-- **🚫 Never Share**: Backup code grants full access to your account
-- **🔒 Secure Storage**: Consider using a password manager or safe
-- **✅ Verify Backup**: Test recovery process before storing important files
-- **🔄 Regular Backups**: Periodically verify backup code is still accessible
-
-### 🚫 Recovery Limitations
-
-<div align="center">
-
-| ❌ Limitation | 📝 Explanation | 💡 Mitigation |
-|---------------|----------------|---------------|
-| **🔑 No Backup Code = No Recovery** | We cannot recover lost backup codes | Store multiple secure copies |
-| **� No Password Reset for Keys** | Password reset only affects account access | Backup code is separate |
-| **💀 Permanent Data Loss** | Lost codes = permanent encrypted data loss | Education & warnings |
-
-</div>
-
-## �🚀 Development
-
-<div align="center">
-
-**⚙️ Development Environment Setup**
-
-</div>
-
-### Prerequisites
-- **Node.js 18+** - JavaScript runtime
-- **npm or yarn** - Package manager
-
-### Available Scripts
-
-```bash
-# Development
-npm run dev          # Start development server with HMR
-npm run build        # Build for production
-npm run preview      # Preview production build locally
-npm run lint         # Run ESLint for code quality
-```
-
-### Build Configuration
-
-This project uses **Vite** with the following plugins:
-- **[@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react)** - Uses Babel for Fast Refresh
-- **ESLint integration** for code quality and consistency
-
-## 🔗 Laravel Backend Integration
-
-<div align="center">
-
-**🎯 Where the Real Signup & Authentication Happens**
-
-</div>
-
-### 🏗️ Laravel Core API - The Central Hub
-
-The **Laravel Core API** is where all the actual signup, authentication, and user management occurs. This client-side application is just the interface - the real business logic happens on the Laravel backend.
-
-#### 🔐 **Signup Flow: Client ↔ Laravel**
-
-<div align="center">
-
-```mermaid
-sequenceDiagram
-    participant Client as 🖥️ Client App
-    participant Laravel as 🎯 Laravel Core API
-    participant DB as 🗄️ MySQL Database
-    participant Services as 🔧 Microservices
-
-    Note over Client,Laravel: 🔐 Real Signup Process
-    Client->>Client: Generate key pair + backup code
-    Client->>Laravel: POST /api/auth/register
-    Note right of Client: {email, password, publicKey, encryptedPrivateKey}
-
-    Note over Laravel: � Laravel Handles Everything
-    Laravel->>Laravel: Validate user data
-    Laravel->>Laravel: Hash password (bcrypt)
-    Laravel->>DB: Store user account
-    Laravel->>DB: Store encrypted private key
-    Laravel->>Laravel: Generate JWT token
-    Laravel->>Services: Coordinate with microservices
-    Laravel-->>Client: ✅ Registration success + JWT
-
-    Note over Laravel: 🛡️ Laravel Responsibilities
-    Note right of Laravel: ✅ User account creation<br/>✅ Password hashing & validation<br/>✅ JWT token management<br/>✅ Database operations<br/>✅ Microservice coordination
-```
-
-</div>
-
-#### 🎯 **Laravel API Endpoints Used by Client**
-
-| �🌐 Endpoint | 📝 Description | 📋 Client Sends | 📤 Laravel Returns |
-|-------------|----------------|------------------|-------------------|
-| `POST /api/auth/register` | **Real signup happens here** | `{email, password, publicKey, encryptedPrivateKey}` | `{userId, token, success}` |
-| `POST /api/auth/login` | **Authentication & key retrieval** | `{email, password}` | `{token, encryptedPrivateKey, userProfile}` |
-| `GET /api/auth/profile` | **User profile data** | `Authorization: Bearer <token>` | `{user, preferences, metadata}` |
-| `POST /api/files/upload` | **File operations** | `{encryptedFile, metadata}` | `{fileId, cid, success}` |
-
-#### 🔄 **What Laravel Actually Does**
-
-<div align="center">
-
-| 🎯 Laravel Responsibility | 📝 Description | 🔧 Implementation |
-|---------------------------|----------------|------------------|
-| **👤 User Account Management** | Creates and manages user accounts | Database operations, validation |
-| **🔐 Authentication System** | JWT tokens, session management | Built-in Laravel auth |
-| **🗄️ Data Persistence** | Stores encrypted keys and metadata | MySQL database |
-| **🎯 Business Logic** | File sharing, permissions, workflows | Laravel controllers & services |
-| **🔧 Microservice Coordination** | Orchestrates storage, blockchain, access control | Service delegation |
-| **🛡️ Security & Validation** | Input validation, rate limiting, security headers | Laravel middleware |
-
-</div>
-
-### 🌐 **Complete Backend Ecosystem**
-
-This client-side application integrates with the full OM VaultChain backend ecosystem:
-
-| 🔧 Service | 🎯 Purpose | 🔗 Integration | 📍 Where It Runs |
-|------------|------------|----------------|------------------|
-| **🎯 Laravel Core API** | **Main signup & auth logic** | RESTful API calls | **Primary backend server** |
-| **📦 Storage Service** | IPFS file storage | Encrypted file uploads | Microservice (Port 8003) |
-| **⛓️ Blockchain Service** | Smart contract interactions | Web3 transactions | Microservice (Port 8004) |
-| **🛡️ Access Control Service** | Permission management | Access validation | Microservice (Port 8005) |
-
-### 🔑 **Key Point: Laravel is the Boss**
-
-<div align="center">
-
-> **🎯 Important Understanding**
->
-> This React client is just the **user interface**. All the real signup, authentication, user management, and business logic happens in the **Laravel Core API**. The client generates keys and sends them to Laravel, but Laravel does all the heavy lifting.
-
-</div>
-
-#### 🏗️ **Architecture Summary**
+### 🏗️ **Architecture Overview**
 
 ```
-🖥️ CLIENT-SIDE (This App)          🎯 LARAVEL BACKEND (The Real Work)
-├── 🎨 User Interface              ├── 👤 User Account Creation
+🖥️ CLIENT-SIDE (This App)          🎯 LARAVEL BACKEND (localhost:8000)
+├── 🎨 User Interface              ├── 👤 User Account Management
 ├── 🔐 Key Generation              ├── 🔐 Authentication System
 ├── 🔑 Backup Code Creation        ├── 🗄️ Database Operations
 ├── 📤 API Calls to Laravel        ├── 🛡️ Security & Validation
-└── 💾 Local Storage               ├── 🎯 Business Logic
-                                   ├── 🔧 Microservice Coordination
-                                   └── 📊 Data Management
+└── 💾 Local Key Storage           └── 📊 Encrypted Data Storage
 ```
 
-## 📚 Key Features
+### 🔗 **Backend Integration**
 
-<div align="center">
+This client connects to a **Laravel API** running on `localhost:8000`:
 
-**✨ Production-Ready Features**
+| Endpoint | Purpose | What Client Sends |
+|----------|---------|-------------------|
+| `POST /api/auth/signup/backupCode` | Backup code signup | `{firstName, lastName, email, password, publicKey, encryptedPrivateKey, iv}` |
+| `POST /api/auth/signup/wallet` | Wallet-based signup | `{firstName, lastName, email, walletAddress, signature, message}` |
+| `POST /api/auth/login` | User login | `{email, password}` |
+| `GET /api/auth/profile` | Get user profile | `Authorization: Bearer <token>` |
 
-</div>
+> **🎯 Important**: The Laravel backend handles user accounts, but **never sees unencrypted private keys**!
 
-- **🔐 Client-Side Encryption**: Files encrypted before leaving your device
-- **🔑 Wallet-Free Signup**: No external wallet software required
-- **💾 16-Chunk Backup Recovery**: Human-readable recovery system
-- **🌐 Web3 Compatible**: Works with existing Ethereum tools
-- **📱 Responsive Design**: Works on desktop and mobile
-- **⚡ Fast Performance**: Optimized with Vite and modern React
-- **🛡️ Zero-Knowledge Architecture**: Complete user privacy
-- **🔄 Multi-Device Access**: Seamless cross-device experience
+## 💻 Development Guide
+
+### 🚀 **Getting Started**
+
+1. **Clone and Install**
+```bash
+git clone <repository-url>
+cd client-side
+npm install
+```
+
+2. **Start Development Server**
+```bash
+npm run dev
+# Opens at http://localhost:5173
+```
+
+3. **Make Sure Laravel Backend is Running**
+```bash
+# The client expects Laravel API at http://127.0.0.1:8000
+# Make sure your Laravel backend is running first!
+```
+
+### 🔧 **Key Development Files**
+
+| File | Purpose | When to Edit |
+|------|---------|--------------|
+| `src/crypto/keyUtils.js` | RSA key generation | Adding new crypto functions |
+| `src/crypto/encrypt.js` | Encryption logic | Modifying encryption algorithms |
+| `src/services/apiClient.js` | Backend connection | Changing API endpoints |
+| `src/pages/auth/SignupBackupCode.js` | Backup code signup | Modifying signup flow |
+| `src/utils/userKeyStorage.js` | Local storage | Changing how keys are stored |
+
+### 🧪 **Testing Your Changes**
+
+1. **Test Backup Code Signup**
+   - Fill out signup form
+   - Check that backup code is generated
+   - Verify private key is stored locally
+   - Confirm API call to Laravel succeeds
+
+2. **Test Wallet Signup**
+   - Connect MetaMask
+   - Sign verification message
+   - Check API call succeeds
+
+3. **Test Private Key Access**
+   - Check browser localStorage
+   - Verify keys are properly formatted
+   - Test key retrieval functions
+
+### 🔍 **Debugging Tips**
+
+```javascript
+// Check if private key is stored locally
+console.log(localStorage.getItem('VaultChain_Users'));
+
+// Test backup code generation
+import { generateBackupCode } from './src/crypto/backupCodeUtils.js';
+console.log(generateBackupCode());
+
+// Test key derivation
+import { deriveKeyFromBackupCode } from './src/crypto/encrypt.js';
+const key = await deriveKeyFromBackupCode('YOUR-BACKUP-CODE-HERE');
+console.log(key);
+```
+
+## 🔒 Security & Best Practices
+
+### 🛡️ **What Makes OM VaultChain Secure?**
+
+| Security Feature | How It Works | Why It Matters |
+|------------------|--------------|----------------|
+| **🔐 Client-Side Encryption** | Files encrypted on YOUR device | We never see your data |
+| **🚫 Zero-Knowledge** | We don't have your private keys | Even if hacked, your files stay safe |
+| **🔑 Local Key Generation** | Keys created in your browser | No network transmission of keys |
+| **🛡️ Strong Encryption** | RSA-2048 + AES-256-GCM | Military-grade protection |
+
+### ⚠️ **Critical Security Rules**
+
+> **🚨 MOST IMPORTANT**: Your 16-chunk backup code is your **MASTER KEY**. If you lose it, your files are **GONE FOREVER**.
+
+| Rule | Why | What To Do |
+|------|-----|------------|
+| **🔐 Backup Code = Everything** | Only way to recover on new devices | Write it down, store safely |
+| **🚫 We Can't Help You** | Zero-knowledge means we don't have your keys | Multiple secure backups |
+| **📱 Device Security Matters** | Private keys stored locally | Keep devices updated & secure |
+| **🤐 Never Share Codes** | Anyone with backup code = full access | Treat like bank account password |
+
+### 📋 **Security Best Practices**
+
+#### ✅ **DO These Things**
+- 📝 **Write down backup code** on paper, store in safe place
+- 🔒 **Use password manager** to store backup code securely
+- 📱 **Keep devices secure** with updates and antivirus
+- ✅ **Test recovery** before storing important files
+- 🔄 **Multiple backups** of your backup code in different locations
+
+#### ❌ **DON'T Do These Things**
+- 🚫 **Don't screenshot** backup codes (can be hacked)
+- 🚫 **Don't email** backup codes to yourself
+- 🚫 **Don't share** backup codes with anyone
+- 🚫 **Don't store** backup codes in cloud notes apps
+- 🚫 **Don't assume** we can recover lost codes (we can't!)
+
+### 🚨 **Recovery Limitations**
+
+| Scenario | Can We Help? | What Happens |
+|----------|--------------|--------------|
+| **Lost backup code** | ❌ **NO** | Files permanently lost |
+| **Forgot password** | ✅ Yes | Can reset password, but need backup code for files |
+| **Device stolen** | ✅ Yes | Use backup code on new device |
+| **Account hacked** | ✅ Yes | Change password, files still encrypted |
+
+### 🛡️ **For Developers: Security Notes**
+
+- Private keys are **RSA-2048** (not secp256k1 as mentioned in old docs)
+- Backup codes use **PBKDF2 with 100k iterations** and **SHA-512**
+- AES encryption uses **256-bit keys** with **GCM mode**
+- All crypto operations use **Web Crypto API** for security
+- Keys are stored in **localStorage** for convenience (encrypted on server)
+
+---
+
+## 🎯 **Quick Reference**
+
+### 🔑 **Getting Your Private Key**
+
+| Scenario | Steps | Code Location |
+|----------|-------|---------------|
+| **Same Device** | Already in localStorage | `src/utils/userKeyStorage.js` |
+| **New Device** | Login + enter backup code | `src/crypto/encrypt.js` (deriveKeyFromBackupCode) |
+| **Lost Everything** | ❌ No recovery possible | Create new account |
+
+### 🚀 **Common Development Tasks**
+
+```bash
+# Start development
+npm run dev
+
+# Test backup code generation
+node -e "import('./src/crypto/backupCodeUtils.js').then(m => console.log(m.generateBackupCode()))"
+
+# Check stored keys
+# Open browser console: localStorage.getItem('VaultChain_Users')
+
+# Test API connection
+curl http://127.0.0.1:8000/api/auth/signup/backupCode
+```
+
+### 🔧 **Key Functions Reference**
+
+| Function | File | Purpose |
+|----------|------|---------|
+| `generateBackupCode()` | `crypto/backupCodeUtils.js` | Create 16-chunk recovery code |
+| `generateEncryptionKeyPair()` | `crypto/keyUtils.js` | Generate RSA-2048 key pair |
+| `deriveKeyFromBackupCode()` | `crypto/encrypt.js` | Convert backup code to AES key |
+| `storePrivateKey()` | `utils/userKeyStorage.js` | Save keys to localStorage |
+| `connectWallet()` | `utils/walletUtils.js` | Connect to MetaMask |
 
 ---
 
@@ -686,10 +474,10 @@ This client-side application integrates with the full OM VaultChain backend ecos
 
 **🔐 OM VaultChain Client - Secure by Design**
 
-*Providing enterprise-grade security with consumer-friendly usability.*
+*Zero-knowledge file encryption that puts privacy first.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Security](https://img.shields.io/badge/Security-Audited-green.svg)](https://github.com/your-org/om-vaultchain)
+[![Security](https://img.shields.io/badge/Security-Zero--Knowledge-green.svg)](https://github.com/your-org/om-vaultchain)
 
 **Made with ❤️ by the OM VaultChain Team**
 

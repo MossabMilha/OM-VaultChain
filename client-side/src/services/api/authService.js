@@ -11,3 +11,7 @@ export async function signupUserBackupCode({firstName,lastName,email,password,pu
         iv
     });
 }
+
+export async function signupUserWallet(data){
+    return await post("/auth/signup/wallet",data);
+}

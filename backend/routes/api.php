@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/auth/signup/backupCode', [AuthController::class, 'signupBackupCode']);
+Route::post('/auth/signup/wallet', [AuthController::class, 'signupWallet']);
 
 
 
