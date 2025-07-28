@@ -119,17 +119,50 @@ OM VaultChain offers **two authentication methods** - choose what works best for
 
 This is our **wallet-free option** - no MetaMask or crypto wallet needed!
 
-#### 🔄 **How It Works**
+#### 🔄 **Complete Backup Code Signup Flow**
 
 ```mermaid
-flowchart TD
-    A[👤 User clicks 'Sign Up'] --> B[🔐 Generate RSA Keys in Browser]
-    B --> C[🎲 Generate 16-Chunk Backup Code]
-    C --> D[🔑 Derive AES Key from Backup Code]
-    D --> E[🔒 Encrypt Private Key with AES]
-    E --> F[📤 Send to Laravel Backend]
-    F --> G[💾 Store Encrypted Key + User Data]
-    G --> H[✅ Account Created!]
+sequenceDiagram
+    participant U as 👤 User
+    participant C as 🖥️ Client App
+    participant Crypto as 🔐 Crypto Engine
+    participant L as 🎯 Laravel API
+    participant DB as 🗄️ Database
+
+    Note over U,C: 🔐 Client-Side Key Generation
+    U->>C: Fill signup form & click "Create Account"
+    C->>Crypto: Generate RSA-2048 key pair
+    Crypto->>Crypto: Create public key + private key
+    Crypto->>Crypto: Export keys to base64 format
+
+    Note over C,Crypto: 🎲 Backup Code Generation
+    C->>Crypto: Generate 16-chunk backup code
+    Crypto->>Crypto: Create ABCD-EFGH-... format
+    C->>Crypto: Derive AES key from backup code (PBKDF2)
+    C->>Crypto: Encrypt private key with AES-256-GCM
+
+    Note over C,U: 🚨 Critical User Action
+    C->>U: Display backup code: "SAVE THIS CODE!"
+    U->>U: Write down backup code securely
+
+    Note over C,L: 📤 Send to Laravel Backend
+    C->>L: POST /api/auth/signup/backupCode
+    Note right of C: {firstName, lastName, email, password,<br/>publicKey, encryptedPrivateKey, iv}
+
+    Note over L,DB: 🎯 Laravel Processing
+    L->>L: Validate user data
+    L->>L: Hash password with bcrypt
+    L->>DB: Store user account
+    L->>DB: Store encrypted private key
+    L->>L: Generate JWT token
+    L-->>C: ✅ Success + JWT token
+
+    Note over C: 💾 Local Storage
+    C->>C: Store private key in localStorage
+    C->>U: Show success message
+
+    Note over U: 🎉 Complete!
+    Note right of U: ✅ Account created<br/>✅ Private key encrypted & stored<br/>✅ Backup code for recovery<br/>✅ Ready to encrypt files
 ```
 
 #### 🔑 **16-Chunk Backup Code System**
@@ -158,15 +191,49 @@ H1J8-W2E5-Z9X4-C6V7-B3N1-Q8M5-F2K9-D7L4
 
 If you already have MetaMask or another Web3 wallet, you can use it to sign up!
 
-#### 🔄 **How It Works**
+#### 🔄 **Complete Wallet Signup Flow**
 
 ```mermaid
-flowchart TD
-    A[👤 User clicks 'Sign Up with Wallet'] --> B[🦊 Connect MetaMask]
-    B --> C[🖊️ Sign Verification Message]
-    C --> D[📤 Send Signature to Backend]
-    D --> E[🛡️ Backend Verifies Signature]
-    E --> F[✅ Account Created!]
+sequenceDiagram
+    participant U as 👤 User
+    participant C as 🖥️ Client App
+    participant W as 🦊 MetaMask
+    participant L as 🎯 Laravel API
+    participant DB as 🗄️ Database
+
+    Note over U,C: 🦊 Wallet-Based Signup
+    U->>C: Fill form & click "Sign up with Wallet"
+    C->>W: Request wallet connection
+    W->>U: Show connection prompt
+    U->>W: Approve connection
+    W->>C: Return wallet address (0x1234...)
+
+    Note over C,W: 🔐 Ownership Verification
+    C->>C: Generate unique message/nonce
+    Note right of C: "Welcome to OM VaultChain!<br/>Nonce: 1234567890"
+    C->>W: Request message signature
+    W->>U: Show signature prompt (FREE - no gas)
+    U->>W: Sign message
+    W->>C: Return cryptographic signature
+
+    Note over C,L: 📤 Send to Laravel Backend
+    C->>L: POST /api/auth/signup/wallet
+    Note right of C: {firstName, lastName, email,<br/>walletAddress, signature, message}
+
+    Note over L,DB: 🛡️ Laravel Verification & Storage
+    L->>L: Verify signature matches wallet + message
+    L->>L: Confirm wallet ownership cryptographically
+    L->>DB: Create user account
+    L->>DB: Link wallet address to account
+    L->>L: Generate JWT session token
+    L-->>C: ✅ Signup success + JWT token
+
+    Note over C: 💾 Session Storage
+    C->>C: Store JWT token for authentication
+    C->>U: Show success message
+
+    Note over U: 🎉 Complete!
+    Note right of U: ✅ Account created with wallet<br/>✅ No backup code needed<br/>✅ Wallet is your identity<br/>✅ Ready to use
 ```
 
 #### 📋 **Step-by-Step Process**
@@ -226,9 +293,37 @@ if (userData) {
 
 If you're on a new device, you need your **16-chunk backup code**:
 
-1. **Login with email/password** (gets your encrypted private key from server)
-2. **Enter your 16-chunk backup code** (decrypts your private key locally)
-3. **Private key is now available** (stored locally for future use)
+#### 🔄 **Multi-Device Access Flow**
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant D as 🖥️ New Device
+    participant L as 🎯 Laravel API
+    participant DB as 🗄️ Database
+    participant Storage as 💾 Local Storage
+
+    Note over U,D: 🔐 Login on New Device
+    U->>D: Enter email/password
+    D->>L: POST /api/auth/login
+    L->>L: Validate credentials
+    L->>DB: Fetch user account
+    L->>DB: Get encrypted private key + IV
+    L-->>D: Return encrypted private key data
+
+    Note over U,D: 🔑 Backup Code Recovery
+    D->>U: Prompt: "Enter your 16-chunk backup code"
+    U->>D: Enter backup code: "ABCD-EFGH-IJKL-..."
+    D->>D: Derive AES key from backup code (PBKDF2)
+    D->>D: Decrypt private key locally
+    D->>Storage: Store decrypted private key
+
+    Note over D: ✅ Ready to Use
+    D->>U: Show success: "Welcome back!"
+
+    Note over U: 🎉 Multi-Device Access Complete!
+    Note right of U: ✅ Private key recovered<br/>✅ Files accessible<br/>✅ Same security as original device<br/>✅ No data lost
+```
 
 **The decryption process:**
 ```javascript
@@ -295,18 +390,68 @@ const decryptedPrivateKey = await decryptPrivateKeyAES(encryptedPrivateKey, aesK
 └── 💾 Local Key Storage           └── 📊 Encrypted Data Storage
 ```
 
-### 🔗 **Backend Integration**
+### 🔗 **Laravel Backend Integration**
 
-This client connects to a **Laravel API** running on `localhost:8000`:
+This client is the **frontend interface** - all the real business logic happens in the **Laravel Core API**.
 
-| Endpoint | Purpose | What Client Sends |
-|----------|---------|-------------------|
-| `POST /api/auth/signup/backupCode` | Backup code signup | `{firstName, lastName, email, password, publicKey, encryptedPrivateKey, iv}` |
-| `POST /api/auth/signup/wallet` | Wallet-based signup | `{firstName, lastName, email, walletAddress, signature, message}` |
-| `POST /api/auth/login` | User login | `{email, password}` |
-| `GET /api/auth/profile` | Get user profile | `Authorization: Bearer <token>` |
+#### 🏗️ **Complete System Architecture**
 
-> **🎯 Important**: The Laravel backend handles user accounts, but **never sees unencrypted private keys**!
+```mermaid
+flowchart TB
+    subgraph "🖥️ CLIENT-SIDE (This App)"
+        UI[🎨 User Interface]
+        Crypto[🔐 Crypto Engine]
+        Storage[💾 Local Storage]
+        API[📡 API Client]
+    end
+
+    subgraph "🎯 LARAVEL BACKEND (localhost:8000)"
+        Auth[🔐 Authentication]
+        Users[👤 User Management]
+        DB[(🗄️ MySQL Database)]
+        JWT[🎫 JWT Tokens]
+    end
+
+    subgraph "🔧 MICROSERVICES"
+        FileService[📦 File Storage]
+        BlockchainService[⛓️ Blockchain]
+        AccessService[🛡️ Access Control]
+    end
+
+    UI --> Crypto
+    Crypto --> Storage
+    UI --> API
+    API <--> Auth
+    Auth <--> Users
+    Users <--> DB
+    Auth --> JWT
+
+    Auth <--> FileService
+    Auth <--> BlockchainService
+    Auth <--> AccessService
+```
+
+#### 🌐 **API Endpoints & Data Flow**
+
+| Endpoint | Purpose | Client Sends | Laravel Does | Returns |
+|----------|---------|--------------|--------------|---------|
+| `POST /api/auth/signup/backupCode` | **Backup code signup** | `{firstName, lastName, email, password, publicKey, encryptedPrivateKey, iv}` | Validate data, hash password, store user + encrypted key | `{success, token, userId}` |
+| `POST /api/auth/signup/wallet` | **Wallet-based signup** | `{firstName, lastName, email, walletAddress, signature, message}` | Verify signature, create account, link wallet | `{success, token, userId}` |
+| `POST /api/auth/login` | **User login** | `{email, password}` | Validate credentials, return encrypted key | `{token, encryptedPrivateKey, iv, userProfile}` |
+| `GET /api/auth/profile` | **Get user profile** | `Authorization: Bearer <token>` | Validate JWT, return user data | `{user, preferences, metadata}` |
+
+#### 🛡️ **Security Division of Responsibility**
+
+| Responsibility | Client-Side | Laravel Backend |
+|----------------|-------------|-----------------|
+| **🔐 Key Generation** | ✅ RSA keys generated in browser | ❌ Never sees private keys |
+| **🔑 Backup Codes** | ✅ Generated & used locally | ❌ Never sees backup codes |
+| **🔒 Encryption/Decryption** | ✅ All crypto operations local | ❌ Only stores encrypted data |
+| **👤 User Accounts** | ❌ Just sends signup data | ✅ Creates & manages accounts |
+| **🔐 Authentication** | ❌ Just sends credentials | ✅ Validates & issues JWT tokens |
+| **🗄️ Data Storage** | ❌ Only localStorage | ✅ MySQL database operations |
+
+> **🎯 Key Point**: Laravel handles all the **business logic** but maintains **zero-knowledge** of your private keys!
 
 ## 💻 Development Guide
 
