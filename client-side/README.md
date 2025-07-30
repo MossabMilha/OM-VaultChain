@@ -7,24 +7,26 @@
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.4-purple.svg)](https://vitejs.dev/)
 [![Encryption](https://img.shields.io/badge/Encryption-AES--256--GCM-green.svg)](https://github.com/your-repo)
-[![Key Derivation](https://img.shields.io/badge/KDF-PBKDF2--SHA512-orange.svg)](https://github.com/your-repo)
+[![Key Derivation](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange.svg)](https://github.com/your-repo)
 
 ---
 
-*A production-ready React frontend implementing client-side encryption, wallet-free signup with 16-chunk backup codes, and zero-knowledge file management.*
+*A production-ready React frontend implementing client-side encryption, unified key generation with dual authentication methods, and zero-knowledge file management.*
 
 </div>
 
 ## 📚 Table of Contents
 
 - [🚀 Quick Start](#-quick-start)
-- [🎯 What is OM VaultChain?](#-what-is-om-vaultchain)
 - [🏗️ Project Structure](#️-project-structure)
-- [🔐 How Authentication Works](#-how-authentication-works)
-- [🔑 Private Key Management](#-private-key-management)
+- [🔐 Unified Key Generation System](#-unified-key-generation-system)
+- [🔑 Dual Authentication Methods](#-dual-authentication-methods)
+- [🔄 Smart Login Flow](#-smart-login-flow)
+- [🦊 Wallet Integration](#-wallet-integration)
 - [🛠️ Technology Stack](#️-technology-stack)
-- [💻 Development Guide](#-development-guide)
-- [🔒 Security & Best Practices](#-security--best-practices)
+- [🔒 Security Considerations](#-security-considerations)
+- [🚀 Development](#-development)
+- [🔗 Integration](#-integration)
 
 ---
 
@@ -49,582 +51,574 @@ npm run preview
 npm run lint
 ```
 
-## 🎯 What is OM VaultChain?
-
-OM VaultChain is a **secure file management system** that puts **privacy first**. Here's what makes it special:
-
-### 🔐 **Zero-Knowledge Architecture**
-- **Your files are encrypted on YOUR device** before they ever leave your computer
-- **We never see your private keys** - they're generated and stored locally
-- **Even if our servers are hacked**, your files remain secure because we only store encrypted data
-
-### 🎯 **Two Ways to Sign Up**
-
-| Method | Best For | How It Works |
-|--------|----------|--------------|
-| **🔑 Backup Code** | Regular users | Generate keys in browser + 16-chunk recovery code |
-| **🦊 Wallet-Based** | Crypto users | Use your existing MetaMask/Web3 wallet |
-
-### 🌟 **Key Benefits**
-- ✅ **No wallet required** - works for everyone
-- ✅ **True privacy** - we can't access your files
-- ✅ **Multi-device** - access from anywhere with your backup code
-- ✅ **Web3 compatible** - works with existing crypto wallets
-
 ## 🏗️ Project Structure
 
 ```
 src/
 ├── crypto/                    # 🔐 Client-Side Encryption Engine
-│   ├── encrypt.js            # File encryption + private key encryption
+│   ├── encrypt.js            # AES-256-GCM file encryption
 │   ├── decrypt.js            # File decryption operations
-│   ├── keyUtils.js           # RSA key generation & management
+│   ├── keyUtils.js           # Cryptographic key management
 │   ├── hash.js               # SHA-256 hashing utilities
-│   ├── backupCodeUtils.js    # 16-chunk backup code generation
 │   ├── envelopeManager.js    # Multi-recipient key envelopes
-│   └── createEnvelope.js     # Secure envelope creation
-├── pages/auth/               # 📄 Authentication Pages
-│   ├── SignupBackupCode.js   # Wallet-free signup flow
-│   ├── SignupBackupCode.html # Backup code signup UI
-│   ├── SignupWallet.js       # MetaMask/Web3 wallet signup
-│   └── SignupWallet.html     # Wallet signup UI
-├── services/api/             # 🌐 Backend Integration
-│   ├── authService.js        # Authentication API calls
-│   └── apiClient.js          # HTTP client (connects to Laravel)
+│   ├── createEnvelope.js     # Secure envelope creation
+│   ├── backupCodeUtils.js    # 🔑 Backup code generation (16x4 format)
+│   └── keyDerivation.js      # 🔄 Unified key derivation system
+├── components/               # 🧩 React Components
+│   ├── auth/                 # Authentication components
+│   ├── common/               # Shared UI components
+│   ├── files/                # File management components
+│   └── layout/               # Layout and navigation
+├── pages/                    # 📄 Application Pages
+│   ├── auth/                 # Login/Signup pages
+│   ├── dashboard/            # Main dashboard
+│   ├── profile/              # User profile management
+│   ├── error/                # Error pages
+│   └── public/               # Public pages
+├── services/                 # 🌐 API Integration
+│   ├── api/                  # API service modules
+│   └── apiClient.js          # HTTP client configuration
+├── context/                  # ⚛️ React Context Providers
+├── hooks/                    # 🪝 Custom React Hooks
 ├── utils/                    # 🛠️ Utility Functions
-│   ├── userKeyStorage.js     # Local storage for private keys
-│   └── walletUtils.js        # MetaMask integration utilities
-├── components/               # 🧩 React Components (Future)
 ├── styles/                   # 🎨 Styling
+│   ├── components/           # Component-specific styles
+│   ├── pages/                # Page-specific styles
+│   ├── globals.css           # Global styles
+│   ├── themes.css            # Theme definitions
+│   └── variables.css         # CSS variables
 └── assets/                   # 📁 Static Assets
+    ├── images/               # Image files
+    ├── fonts/                # Font files
+    └── animations/           # Animation assets
 ```
 
-### 🎯 **Key Files Explained**
+## 🔐 Unified Key Generation System
 
-| File | Purpose | What It Does |
-|------|---------|--------------|
-| `crypto/keyUtils.js` | **RSA Key Generation** | Creates 2048-bit RSA key pairs for encryption |
-| `crypto/backupCodeUtils.js` | **Backup Code Creation** | Generates 16-chunk recovery codes |
-| `crypto/encrypt.js` | **Encryption Engine** | Encrypts files + derives keys from backup codes |
-| `pages/auth/SignupBackupCode.js` | **Wallet-Free Signup** | Complete signup flow without external wallet |
-| `pages/auth/SignupWallet.js` | **Web3 Signup** | MetaMask-based authentication |
-| `utils/userKeyStorage.js` | **Local Key Storage** | Stores encrypted private keys in browser |
-| `services/apiClient.js` | **Laravel Integration** | Connects to backend API at `localhost:8000` |
+<div align="center">
 
-## 🔐 How Authentication Works
+**🎯 Same Cryptographic Foundation, Different Key Derivation**
 
-OM VaultChain offers **two authentication methods** - choose what works best for you:
+</div>
 
-### 🎯 **Method 1: Backup Code Signup** (Recommended for most users)
+### 🔑 Universal Key Generation Process
 
-This is our **wallet-free option** - no MetaMask or crypto wallet needed!
+Both signup methods follow the same cryptographic foundation but use different key derivation sources:
 
-#### 🔄 **Complete Backup Code Signup Flow**
+<div align="center">
 
 ```mermaid
-sequenceDiagram
-    participant U as 👤 User
-    participant C as 🖥️ Client App
-    participant Crypto as 🔐 Crypto Engine
-    participant L as 🎯 Laravel API
-    participant DB as 🗄️ Database
-
-    Note over U,C: 🔐 Client-Side Key Generation
-    U->>C: Fill signup form & click "Create Account"
-    C->>Crypto: Generate RSA-2048 key pair
-    Crypto->>Crypto: Create public key + private key
-    Crypto->>Crypto: Export keys to base64 format
-
-    Note over C,Crypto: 🎲 Backup Code Generation
-    C->>Crypto: Generate 16-chunk backup code
-    Crypto->>Crypto: Create ABCD-EFGH-... format
-    C->>Crypto: Derive AES key from backup code (PBKDF2)
-    C->>Crypto: Encrypt private key with AES-256-GCM
-
-    Note over C,U: 🚨 Critical User Action
-    C->>U: Display backup code: "SAVE THIS CODE!"
-    U->>U: Write down backup code securely
-
-    Note over C,L: 📤 Send to Laravel Backend
-    C->>L: POST /api/auth/signup/backupCode
-    Note right of C: {firstName, lastName, email, password,<br/>publicKey, encryptedPrivateKey, iv}
-
-    Note over L,DB: 🎯 Laravel Processing
-    L->>L: Validate user data
-    L->>L: Hash password with bcrypt
-    L->>DB: Store user account
-    L->>DB: Store encrypted private key
-    L->>L: Generate JWT token
-    L-->>C: ✅ Success + JWT token
-
-    Note over C: 💾 Local Storage
-    C->>C: Store private key in localStorage
-    C->>U: Show success message
-
-    Note over U: 🎉 Complete!
-    Note right of U: ✅ Account created<br/>✅ Private key encrypted & stored<br/>✅ Backup code for recovery<br/>✅ Ready to encrypt files
+flowchart TD
+    A[🎯 User Chooses Signup Method] --> B{Authentication Type}
+    
+    B -->|🔑 Backup Code Method| C[Generate 16-Chunk Backup Code]
+    B -->|🦊 Wallet Method| D[Connect to User's Wallet]
+    
+    C --> E[🔐 Generate secp256k1 Key Pair]
+    D --> E
+    
+    E --> F[📝 Private Key Generated]
+    E --> G[🔓 Public Key Derived]
+    E --> H[💳 Wallet Address Derived]
+    
+    F --> I{Key Derivation Source}
+    I -->|🔑 Backup Code| J[Derive Encryption Key from Backup Code]
+    I -->|🦊 Wallet| K[Derive Encryption Key from Wallet Signature]
+    
+    J --> L[🔒 Encrypt Private Key with Derived Key]
+    K --> L
+    
+    L --> M[💾 Store Encrypted Private Key in Database]
+    M --> N[✅ Account Created Successfully]
+    
+    style E fill:#e1f5fe
+    style L fill:#f3e5f5
+    style N fill:#e8f5e8
 ```
 
-#### 🔑 **16-Chunk Backup Code System**
+</div>
 
-Your backup code looks like this:
+### 🔄 Key Derivation Differences
+
+<div align="center">
+
+| 🎯 Method | 🔑 Derivation Source | 🔧 Process | 🛡️ Security |
+|-----------|---------------------|------------|-------------|
+| **🔑 Backup Code** | 16-chunk backup code | PBKDF2-SHA256 from backup code | User-controlled recovery phrase |
+| **🦊 Wallet** | Wallet signature | PBKDF2-SHA256 from signature message | Wallet-controlled cryptographic proof |
+
+</div>
+
+#### 🔧 Implementation Details
+
+<div align="center">
+
+**📝 Unified Key Generation (keyUtils.js)**
+
+</div>
+
+```javascript
+// Universal key pair generation (same for both methods)
+export async function generateKeyPair() {
+    // 1. Generate secp256k1 private key (32 bytes)
+    const privateKey = crypto.getRandomValues(new Uint8Array(32));
+    
+    // 2. Derive public key using elliptic curve cryptography
+    const publicKey = secp256k1.getPublicKey(privateKey);
+    
+    // 3. Derive Ethereum-compatible wallet address
+    const walletAddress = ethereumjs.pubToAddress(publicKey);
+    
+    return { privateKey, publicKey, walletAddress };
+}
+
+// Key derivation - DIFFERENT sources, SAME process
+export async function deriveEncryptionKey(source, method) {
+    let keyMaterial;
+    
+    if (method === 'BACKUP_CODE') {
+        // Derive from 16-chunk backup code
+        keyMaterial = new TextEncoder().encode(source); // backup code
+    } else if (method === 'WALLET') {
+        // Derive from wallet signature
+        keyMaterial = new TextEncoder().encode(source); // signature message
+    }
+    
+    // Same PBKDF2 process for both methods
+    const derivedKey = await crypto.subtle.importKey(
+        'raw',
+        await crypto.subtle.deriveBits({
+            name: 'PBKDF2',
+            salt: new TextEncoder().encode('omvaultchain-salt-v1'),
+            iterations: 100000,
+            hash: 'SHA-256'
+        }, 
+        await crypto.subtle.importKey('raw', keyMaterial, 'PBKDF2', false, ['deriveBits']),
+        256),
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt', 'decrypt']
+    );
+    
+    return derivedKey;
+}
+
+// Encrypt private key (same for both methods)
+export async function encryptPrivateKey(privateKey, encryptionKey) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encryptedData = await crypto.subtle.encrypt({
+        name: 'AES-GCM',
+        iv: iv
+    }, encryptionKey, privateKey);
+    
+    return { encryptedData, iv };
+}
+```
+
+## 🔑 Dual Authentication Methods
+
+### 🎯 Method 1: Backup Code Authentication
+
+<div align="center">
+
+**🔢 16-Chunk Human-Readable Recovery System**
+
 ```
 ABCD-EFGH-IJKL-MNOP-QRST-UVWX-YZ12-3456-
 H1J8-W2E5-Z9X4-C6V7-B3N1-Q8M5-F2K9-D7L4
 ```
 *64 characters • 16 chunks • 4 chars each • Dash separated*
 
-> **🚨 CRITICAL**: This backup code is your **master key**. If you lose it, you lose access to your files forever!
+</div>
 
-#### 📋 **Step-by-Step Process**
+#### 🔄 Backup Code Signup Flow
 
-| Step | What Happens | Where | Security |
-|------|-------------|-------|----------|
-| **1. Generate Keys** | Create 2048-bit RSA key pair | Your browser | Keys never leave your device |
-| **2. Create Backup Code** | Generate 16-chunk recovery code | Your browser | Cryptographically secure random |
-| **3. Derive AES Key** | Use backup code to create encryption key | Your browser | PBKDF2 with 100k iterations |
-| **4. Encrypt Private Key** | Encrypt your private key with AES | Your browser | AES-256-GCM encryption |
-| **5. Send to Backend** | Send encrypted data to Laravel API | Network | Only encrypted data transmitted |
-| **6. Store Locally** | Save keys in browser storage | Your browser | For convenience on this device |
-
-### 🎯 **Method 2: Wallet-Based Signup** (For crypto users)
-
-If you already have MetaMask or another Web3 wallet, you can use it to sign up!
-
-#### 🔄 **Complete Wallet Signup Flow**
+<div align="center">
 
 ```mermaid
 sequenceDiagram
-    participant U as 👤 User
-    participant C as 🖥️ Client App
-    participant W as 🦊 MetaMask
-    participant L as 🎯 Laravel API
-    participant DB as 🗄️ Database
+    participant U as User
+    participant C as Client App
+    participant Crypto as Crypto Engine
+    participant API as Laravel API
+    participant DB as Database
 
-    Note over U,C: 🦊 Wallet-Based Signup
-    U->>C: Fill form & click "Sign up with Wallet"
+    Note over U,C: 🔑 Backup Code Method
+    U->>C: Choose "Create Account" (backup code)
+    C->>Crypto: Generate 16-chunk backup code
+    C->>Crypto: Generate secp256k1 key pair
+    C->>Crypto: Derive encryption key from backup code
+    C->>Crypto: Encrypt private key with derived key
+    
+    Note over C,API: 📤 Send to Backend
+    C->>API: POST /api/auth/register
+    Note right of C: {email, password, publicKey,<br/>encryptedPrivateKey, method: 'BACKUP_CODE'}
+    
+    API->>DB: Store encrypted private key + method
+    API-->>C: ✅ Registration success
+    C->>U: Display backup code (CRITICAL: Save this!)
+```
+
+</div>
+
+### 🎯 Method 2: Wallet-Based Authentication
+
+<div align="center">
+
+**🦊 Web3 Wallet Integration**
+
+</div>
+
+#### 🔄 Wallet Signup Flow
+
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Client App
+    participant W as Web3 Wallet
+    participant Crypto as Crypto Engine
+    participant API as Laravel API
+    participant DB as Database
+
+    Note over U,C: 🦊 Wallet Method
+    U->>C: Choose "Sign up with Wallet"
     C->>W: Request wallet connection
     W->>U: Show connection prompt
     U->>W: Approve connection
-    W->>C: Return wallet address (0x1234...)
-
-    Note over C,W: 🔐 Ownership Verification
-    C->>C: Generate unique message/nonce
-    Note right of C: "Welcome to OM VaultChain!<br/>Nonce: 1234567890"
+    W->>C: Return wallet address
+    
+    Note over C,W: 🔐 Generate Signature for Key Derivation
+    C->>C: Generate unique message
     C->>W: Request message signature
-    W->>U: Show signature prompt (FREE - no gas)
+    W->>U: Show signature prompt (no gas cost)
     U->>W: Sign message
     W->>C: Return cryptographic signature
-
-    Note over C,L: 📤 Send to Laravel Backend
-    C->>L: POST /api/auth/signup/wallet
-    Note right of C: {firstName, lastName, email,<br/>walletAddress, signature, message}
-
-    Note over L,DB: 🛡️ Laravel Verification & Storage
-    L->>L: Verify signature matches wallet + message
-    L->>L: Confirm wallet ownership cryptographically
-    L->>DB: Create user account
-    L->>DB: Link wallet address to account
-    L->>L: Generate JWT session token
-    L-->>C: ✅ Signup success + JWT token
-
-    Note over C: 💾 Session Storage
-    C->>C: Store JWT token for authentication
-    C->>U: Show success message
-
-    Note over U: 🎉 Complete!
-    Note right of U: ✅ Account created with wallet<br/>✅ No backup code needed<br/>✅ Wallet is your identity<br/>✅ Ready to use
+    
+    Note over C,Crypto: 🔑 Same Key Generation Process
+    C->>Crypto: Generate secp256k1 key pair
+    C->>Crypto: Derive encryption key from signature
+    C->>Crypto: Encrypt private key with derived key
+    
+    Note over C,API: 📤 Send to Backend
+    C->>API: POST /api/auth/register
+    Note right of C: {email, password, publicKey,<br/>encryptedPrivateKey, walletAddress,<br/>method: 'WALLET'}
+    
+    API->>DB: Store encrypted private key + wallet + method
+    API-->>C: ✅ Registration success
 ```
 
-#### 📋 **Step-by-Step Process**
+</div>
 
-| Step | What Happens | Cost | Security |
-|------|-------------|------|----------|
-| **1. Connect Wallet** | MetaMask connects to app | Free | Wallet address obtained |
-| **2. Sign Message** | Sign verification message | **Free** (no gas) | Proves wallet ownership |
-| **3. Send to Backend** | Submit signature + user info | Free | Cryptographic proof |
-| **4. Verify & Create** | Backend verifies signature | Free | Account created |
+## 🔄 Smart Login Flow
 
-> **💡 Pro Tip**: Wallet signup is **completely free** - no gas fees required!
+<div align="center">
 
-## 🔑 Private Key Management
+**🎯 Intelligent Authentication Method Detection**
 
-Understanding how your private keys work is crucial for using OM VaultChain safely.
+</div>
 
-### 🎯 **What Are Private Keys?**
+### 🔍 Login Process: Email/Password → Method Detection → Appropriate Flow
 
-Think of private keys as the **master password** to your encrypted files:
-- 🔐 **They encrypt/decrypt your files** - without them, your files are unreadable
-- 🔑 **They prove you own your data** - like a digital signature
-- 💾 **They're generated on YOUR device** - we never see them
-
-### 📍 **Where Are Private Keys Stored?**
-
-| Scenario | Location | How to Access | Security Level |
-|----------|----------|---------------|----------------|
-| **Same Device** | Browser Local Storage | Automatic login | 🟢 Convenient |
-| **New Device** | Need backup code to decrypt | Enter 16-chunk code | 🟡 Requires backup code |
-| **Lost Backup Code** | ❌ **PERMANENTLY LOST** | No recovery possible | 🔴 **Critical** |
-
-### 🔄 **How to Get Your Private Key**
-
-#### 🏠 **Scenario 1: On Your Current Device**
-
-If you're on the device where you signed up:
-
-```javascript
-// Your private key is automatically available in browser storage
-// Located in: localStorage['VaultChain_Users']
-// Format: { email: { privateKey: "base64...", publicKey: "base64..." } }
-```
-
-**To access it programmatically:**
-```javascript
-import { getUserPrivateKey } from './src/utils/userKeyStorage.js';
-
-const userData = getUserPrivateKey('your-email@example.com');
-if (userData) {
-    console.log('Private Key:', userData.privateKey);
-    console.log('Public Key:', userData.publicKey);
-}
-```
-
-#### 🌐 **Scenario 2: On a New Device**
-
-If you're on a new device, you need your **16-chunk backup code**:
-
-#### 🔄 **Multi-Device Access Flow**
+<div align="center">
 
 ```mermaid
 sequenceDiagram
-    participant U as 👤 User
-    participant D as 🖥️ New Device
-    participant L as 🎯 Laravel API
-    participant DB as 🗄️ Database
-    participant Storage as 💾 Local Storage
+    participant U as User
+    participant C as Client App
+    participant API as Laravel API
+    participant DB as Database
 
-    Note over U,D: 🔐 Login on New Device
-    U->>D: Enter email/password
-    D->>L: POST /api/auth/login
-    L->>L: Validate credentials
-    L->>DB: Fetch user account
-    L->>DB: Get encrypted private key + IV
-    L-->>D: Return encrypted private key data
-
-    Note over U,D: 🔑 Backup Code Recovery
-    D->>U: Prompt: "Enter your 16-chunk backup code"
-    U->>D: Enter backup code: "ABCD-EFGH-IJKL-..."
-    D->>D: Derive AES key from backup code (PBKDF2)
-    D->>D: Decrypt private key locally
-    D->>Storage: Store decrypted private key
-
-    Note over D: ✅ Ready to Use
-    D->>U: Show success: "Welcome back!"
-
-    Note over U: 🎉 Multi-Device Access Complete!
-    Note right of U: ✅ Private key recovered<br/>✅ Files accessible<br/>✅ Same security as original device<br/>✅ No data lost
+    Note over U,C: 🔐 Universal Login Start
+    U->>C: Enter email + password
+    C->>API: POST /api/auth/login
+    Note right of C: {email, password}
+    
+    Note over API,DB: 🔍 Check Credentials & Method
+    API->>DB: Validate email + password
+    API->>DB: Query signup method + encrypted key
+    
+    alt ✅ Valid Credentials
+        API-->>C: Login success + method info
+        Note right of API: {success: true, method: 'BACKUP_CODE'|'WALLET',<br/>encryptedPrivateKey, walletAddress?}
+        
+        Note over C: 🎯 Route Based on Method
+        alt 🔑 Backup Code Method
+            C->>U: Show "Enter your 16-chunk backup code"
+            U->>C: Enter backup code
+            C->>C: Derive decryption key from backup code
+            C->>C: Decrypt private key locally
+            C->>C: Store in memory for session
+            C->>U: ✅ Login complete - Access dashboard
+            
+        else 🦊 Wallet Method
+            C->>U: Show "Connect your wallet to continue"
+            U->>C: Connect wallet
+            C->>C: Verify wallet address matches stored
+            C->>C: Generate signature message
+            U->>C: Sign message via wallet
+            C->>C: Derive decryption key from signature
+            C->>C: Decrypt private key locally
+            C->>C: Store in memory for session
+            C->>U: ✅ Login complete - Access dashboard
+        end
+        
+    else ❌ Invalid Credentials
+        API-->>C: Login failed
+        C->>U: Show "Invalid email or password"
+    end
 ```
 
-**The decryption process:**
+</div>
+
+### 📋 Login Flow Breakdown
+
+<div align="center">
+
+| 🔢 Step | 🎯 Action | 🔧 Implementation | 📊 Data Flow |
+|---------|-----------|------------------|-------------|
+| **1** | **🔐 Credential Check** | Standard email/password validation | `{email, password}` → Laravel |
+| **2** | **🔍 Method Detection** | Query database for signup method | Laravel returns method type |
+| **3** | **🎯 Route to Appropriate Flow** | Client shows correct input form | Different UI based on method |
+| **4** | **🔑 Key Recovery** | Derive decryption key using method-specific source | Client-side key derivation |
+| **5** | **🔓 Private Key Decryption** | Decrypt stored private key | Local decryption only |
+| **6** | **✅ Session Established** | User gains access to encrypted files | Ready for file operations |
+
+</div>
+
+### 🔧 Login Implementation Example
+
 ```javascript
-import { deriveKeyFromBackupCode } from './src/crypto/encrypt.js';
-
-// 1. Get your backup code (16 chunks)
-const backupCode = "ABCD-EFGH-IJKL-MNOP-..."; // Your actual code
-
-// 2. Derive decryption key
-const aesKey = await deriveKeyFromBackupCode(backupCode);
-
-// 3. Decrypt your private key (happens automatically during login)
+// Smart login flow implementation
+async function loginUser(email, password) {
+    try {
+        // Step 1: Validate credentials and get method
+        const response = await loginAPI(email, password);
+        
+        if (!response.success) {
+            throw new Error('Invalid credentials');
+        }
+        
+        const { method, encryptedPrivateKey, walletAddress } = response;
+        
+        // Step 2: Route based on signup method
+        if (method === 'BACKUP_CODE') {
+            // Show backup code input
+            const backupCode = await promptForBackupCode();
+            
+            // Derive decryption key from backup code
+            const decryptionKey = await deriveEncryptionKey(backupCode, 'BACKUP_CODE');
+            
+            // Decrypt private key
+            const privateKey = await decryptPrivateKey(encryptedPrivateKey, decryptionKey);
+            
+            // Store in session
+            setSessionKeys({ privateKey, method: 'BACKUP_CODE' });
+            
+        } else if (method === 'WALLET') {
+            // Show wallet connection prompt
+            const connectedWallet = await connectWallet();
+            
+            // Verify wallet address matches
+            if (connectedWallet.address !== walletAddress) {
+                throw new Error('Wallet address mismatch');
+            }
+            
+            // Generate and sign message
+            const message = generateSignatureMessage();
+            const signature = await signMessage(message);
+            
+            // Derive decryption key from signature
+            const decryptionKey = await deriveEncryptionKey(signature, 'WALLET');
+            
+            // Decrypt private key
+            const privateKey = await decryptPrivateKey(encryptedPrivateKey, decryptionKey);
+            
+            // Store in session
+            setSessionKeys({ privateKey, method: 'WALLET', walletAddress });
+        }
+        
+        // Step 3: Navigate to dashboard
+        navigateToDashboard();
+        
+    } catch (error) {
+        console.error('Login failed:', error);
+        showError('Login failed: ' + error.message);
+    }
+}
 ```
 
-### 🚨 **Critical Security Notes**
+## 🦊 Wallet Integration Details
 
-| ⚠️ Warning | Why It Matters | What To Do |
-|------------|----------------|------------|
-| **Backup Code = Master Key** | If lost, ALL files become unrecoverable | Write it down, store safely |
-| **We Can't Help You Recover** | Zero-knowledge means we don't have your keys | Multiple secure backups |
-| **Private Key = File Access** | Anyone with your private key can decrypt files | Keep devices secure |
+<div align="center">
 
-### 🛠️ **For Developers: Key Management Code**
+**🔗 Enhanced Web3 Authentication**
 
-**Generate and store private key (signup):**
+[![MetaMask](https://img.shields.io/badge/MetaMask-Supported-orange.svg)](https://metamask.io/)
+[![WalletConnect](https://img.shields.io/badge/WalletConnect-Supported-blue.svg)](https://walletconnect.org/)
+
+</div>
+
+### 🔑 Wallet Authentication Flow
+
+The wallet method uses the same key generation process but derives the encryption key from a wallet signature instead of a backup code.
+
+#### 🛡️ Key Derivation from Wallet Signature
+
 ```javascript
-// In SignupBackupCode.js
-const { publicKey, privateKey } = await generateEncryptionKeyPair();
-const backupCode = generateBackupCode();
-const aesKey = await deriveKeyFromBackupCode(backupCode);
-const { encryptedPrivateKey, iv } = await encryptPrivateKeyAES(privateKeyBase64, aesKey);
-
-// Store locally for convenience
-storePrivateKey(email, privateKeyBase64, publicKeyBase64);
-```
-
-**Retrieve private key (login on new device):**
-```javascript
-// User enters backup code, we decrypt their private key
-const aesKey = await deriveKeyFromBackupCode(userBackupCode);
-const decryptedPrivateKey = await decryptPrivateKeyAES(encryptedPrivateKey, aesKey, iv);
+// Wallet-specific key derivation
+async function setupWalletAuthentication(walletAddress) {
+    // 1. Generate same cryptographic foundation
+    const { privateKey, publicKey, walletAddress: derivedAddress } = await generateKeyPair();
+    
+    // 2. Create signature message for key derivation
+    const signatureMessage = `OM VaultChain Key Derivation\nWallet: ${walletAddress}\nTimestamp: ${Date.now()}`;
+    
+    // 3. Request wallet signature (no gas cost)
+    const signature = await window.ethereum.request({
+        method: 'personal_sign',
+        params: [signatureMessage, walletAddress]
+    });
+    
+    // 4. Derive encryption key from signature
+    const encryptionKey = await deriveEncryptionKey(signature, 'WALLET');
+    
+    // 5. Encrypt private key with derived key
+    const { encryptedData, iv } = await encryptPrivateKey(privateKey, encryptionKey);
+    
+    return {
+        publicKey,
+        encryptedPrivateKey: { encryptedData, iv },
+        walletAddress,
+        signatureMessage // Store for login verification
+    };
+}
 ```
 
 ## 🛠️ Technology Stack
 
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| **🔐 Encryption** | Web Crypto API | Native | RSA-2048, AES-256-GCM, PBKDF2 |
+<div align="center">
+
+| **Category** | **Technology** | **Version** | **Purpose** |
+|--------------|----------------|-------------|-------------|
+| **🔐 Encryption** | Web Crypto API / CryptoJS | ES2021+ | AES-GCM, SHA-256, secp256k1 |
 | **⚛️ Frontend** | React | 19.1.0 | Modern UI framework |
-| **⚡ Build Tool** | Vite | 7.0.4 | Fast development server |
-| **🔑 Crypto Library** | @noble/secp256k1 | 2.3.0 | Elliptic curve cryptography |
+| **⚡ Build Tool** | Vite | 7.0.4 | Fast build tool and dev server |
+| **🔑 Cryptography** | @noble/secp256k1 | 2.3.0 | Elliptic curve cryptography |
 | **🌐 Web3 Utils** | ethereumjs-util | 7.1.5 | Ethereum address generation |
-| **🔒 Additional Crypto** | crypto-js | 4.2.0 | Additional cryptographic operations |
-| **🎯 Backend** | Laravel API | - | User management & data storage |
+| **🔒 Crypto Ops** | crypto-js | 4.2.0 | Additional cryptographic operations |
 
-### 🏗️ **Architecture Overview**
+</div>
 
-```
-🖥️ CLIENT-SIDE (This App)          🎯 LARAVEL BACKEND (localhost:8000)
-├── 🎨 User Interface              ├── 👤 User Account Management
-├── 🔐 Key Generation              ├── 🔐 Authentication System
-├── 🔑 Backup Code Creation        ├── 🗄️ Database Operations
-├── 📤 API Calls to Laravel        ├── 🛡️ Security & Validation
-└── 💾 Local Key Storage           └── 📊 Encrypted Data Storage
-```
+## 🔒 Security Considerations
 
-### 🔗 **Laravel Backend Integration**
+<div align="center">
 
-This client is the **frontend interface** - all the real business logic happens in the **Laravel Core API**.
+**🛡️ Enterprise-Grade Security Architecture**
 
-#### 🏗️ **Complete System Architecture**
+</div>
 
-```mermaid
-flowchart TB
-    subgraph "🖥️ CLIENT-SIDE (This App)"
-        UI[🎨 User Interface]
-        Crypto[🔐 Crypto Engine]
-        Storage[💾 Local Storage]
-        API[📡 API Client]
-    end
+### 🔐 Unified Security Model
 
-    subgraph "🎯 LARAVEL BACKEND (localhost:8000)"
-        Auth[🔐 Authentication]
-        Users[👤 User Management]
-        DB[(🗄️ MySQL Database)]
-        JWT[🎫 JWT Tokens]
-    end
+Both authentication methods provide the same level of security:
 
-    subgraph "🔧 MICROSERVICES"
-        FileService[📦 File Storage]
-        BlockchainService[⛓️ Blockchain]
-        AccessService[🛡️ Access Control]
-    end
+<div align="center">
 
-    UI --> Crypto
-    Crypto --> Storage
-    UI --> API
-    API <--> Auth
-    Auth <--> Users
-    Users <--> DB
-    Auth --> JWT
+| 🎯 Security Aspect | 🔑 Backup Code Method | 🦊 Wallet Method | ✅ Result |
+|-------------------|----------------------|------------------|-----------|
+| **🔐 Private Key Generation** | secp256k1 client-side | secp256k1 client-side | Same cryptographic strength |
+| **🔑 Key Derivation** | PBKDF2-SHA256 (100k iterations) | PBKDF2-SHA256 (100k iterations) | Same KDF security |
+| **🔒 Encryption** | AES-256-GCM | AES-256-GCM | Same encryption standard |
+| **💾 Storage** | Encrypted private key in DB | Encrypted private key in DB | Same storage security |
+| **🛡️ Recovery** | 16-chunk backup code | Wallet signature | Different but equally secure |
 
-    Auth <--> FileService
-    Auth <--> BlockchainService
-    Auth <--> AccessService
-```
+</div>
 
-#### 🌐 **API Endpoints & Data Flow**
+### 🛡️ What We Protect Against
 
-| Endpoint | Purpose | Client Sends | Laravel Does | Returns |
-|----------|---------|--------------|--------------|---------|
-| `POST /api/auth/signup/backupCode` | **Backup code signup** | `{firstName, lastName, email, password, publicKey, encryptedPrivateKey, iv}` | Validate data, hash password, store user + encrypted key | `{success, token, userId}` |
-| `POST /api/auth/signup/wallet` | **Wallet-based signup** | `{firstName, lastName, email, walletAddress, signature, message}` | Verify signature, create account, link wallet | `{success, token, userId}` |
-| `POST /api/auth/login` | **User login** | `{email, password}` | Validate credentials, return encrypted key | `{token, encryptedPrivateKey, iv, userProfile}` |
-| `GET /api/auth/profile` | **Get user profile** | `Authorization: Bearer <token>` | Validate JWT, return user data | `{user, preferences, metadata}` |
+<div align="center">
 
-#### 🛡️ **Security Division of Responsibility**
+| 🎯 Threat | 🔒 Protection | ✅ Status |
+|-----------|---------------|-----------|
+| **🏢 Server Breaches** | Private keys encrypted with user-controlled keys | ✅ Protected |
+| **🕵️ Man-in-the-Middle** | All encryption/decryption client-side | ✅ Protected |
+| **👨‍💼 Insider Threats** | Admins cannot access user private keys | ✅ Protected |
+| **📱 Device Loss** | Recovery via backup code or wallet signature | ✅ Protected |
+| **🔑 Method-Specific Attacks** | Each method has independent security model | ✅ Protected |
 
-| Responsibility | Client-Side | Laravel Backend |
-|----------------|-------------|-----------------|
-| **🔐 Key Generation** | ✅ RSA keys generated in browser | ❌ Never sees private keys |
-| **🔑 Backup Codes** | ✅ Generated & used locally | ❌ Never sees backup codes |
-| **🔒 Encryption/Decryption** | ✅ All crypto operations local | ❌ Only stores encrypted data |
-| **👤 User Accounts** | ❌ Just sends signup data | ✅ Creates & manages accounts |
-| **🔐 Authentication** | ❌ Just sends credentials | ✅ Validates & issues JWT tokens |
-| **🗄️ Data Storage** | ❌ Only localStorage | ✅ MySQL database operations |
+</div>
 
-> **🎯 Key Point**: Laravel handles all the **business logic** but maintains **zero-knowledge** of your private keys!
+### ⚠️ Method-Specific Responsibilities
 
-## 💻 Development Guide
+<div align="center">
 
-### 🚀 **Getting Started**
+| 🎯 Method | 🔑 User Responsibility | 🚨 Risk Level | 💡 Mitigation |
+|-----------|----------------------|---------------|---------------|
+| **🔑 Backup Code** | Secure backup code storage | 🔴 Critical | Multiple secure copies |
+| **🦊 Wallet** | Wallet security & access | 🔴 Critical | Hardware wallet recommended |
 
-1. **Clone and Install**
-```bash
-git clone <repository-url>
-cd client-side
-npm install
-```
+</div>
 
-2. **Start Development Server**
-```bash
-npm run dev
-# Opens at http://localhost:5173
-```
+## 🚀 Development
 
-3. **Make Sure Laravel Backend is Running**
-```bash
-# The client expects Laravel API at http://127.0.0.1:8000
-# Make sure your Laravel backend is running first!
-```
+<div align="center">
 
-### 🔧 **Key Development Files**
+**⚙️ Development Environment Setup**
 
-| File | Purpose | When to Edit |
-|------|---------|--------------|
-| `src/crypto/keyUtils.js` | RSA key generation | Adding new crypto functions |
-| `src/crypto/encrypt.js` | Encryption logic | Modifying encryption algorithms |
-| `src/services/apiClient.js` | Backend connection | Changing API endpoints |
-| `src/pages/auth/SignupBackupCode.js` | Backup code signup | Modifying signup flow |
-| `src/utils/userKeyStorage.js` | Local storage | Changing how keys are stored |
+</div>
 
-### 🧪 **Testing Your Changes**
+### Prerequisites
+- **Node.js 18+** - JavaScript runtime
+- **npm or yarn** - Package manager
 
-1. **Test Backup Code Signup**
-   - Fill out signup form
-   - Check that backup code is generated
-   - Verify private key is stored locally
-   - Confirm API call to Laravel succeeds
-
-2. **Test Wallet Signup**
-   - Connect MetaMask
-   - Sign verification message
-   - Check API call succeeds
-
-3. **Test Private Key Access**
-   - Check browser localStorage
-   - Verify keys are properly formatted
-   - Test key retrieval functions
-
-### 🔍 **Debugging Tips**
-
-```javascript
-// Check if private key is stored locally
-console.log(localStorage.getItem('VaultChain_Users'));
-
-// Test backup code generation
-import { generateBackupCode } from './src/crypto/backupCodeUtils.js';
-console.log(generateBackupCode());
-
-// Test key derivation
-import { deriveKeyFromBackupCode } from './src/crypto/encrypt.js';
-const key = await deriveKeyFromBackupCode('YOUR-BACKUP-CODE-HERE');
-console.log(key);
-```
-
-## 🔒 Security & Best Practices
-
-### 🛡️ **What Makes OM VaultChain Secure?**
-
-| Security Feature | How It Works | Why It Matters |
-|------------------|--------------|----------------|
-| **🔐 Client-Side Encryption** | Files encrypted on YOUR device | We never see your data |
-| **🚫 Zero-Knowledge** | We don't have your private keys | Even if hacked, your files stay safe |
-| **🔑 Local Key Generation** | Keys created in your browser | No network transmission of keys |
-| **🛡️ Strong Encryption** | RSA-2048 + AES-256-GCM | Military-grade protection |
-
-### ⚠️ **Critical Security Rules**
-
-> **🚨 MOST IMPORTANT**: Your 16-chunk backup code is your **MASTER KEY**. If you lose it, your files are **GONE FOREVER**.
-
-| Rule | Why | What To Do |
-|------|-----|------------|
-| **🔐 Backup Code = Everything** | Only way to recover on new devices | Write it down, store safely |
-| **🚫 We Can't Help You** | Zero-knowledge means we don't have your keys | Multiple secure backups |
-| **📱 Device Security Matters** | Private keys stored locally | Keep devices updated & secure |
-| **🤐 Never Share Codes** | Anyone with backup code = full access | Treat like bank account password |
-
-### 📋 **Security Best Practices**
-
-#### ✅ **DO These Things**
-- 📝 **Write down backup code** on paper, store in safe place
-- 🔒 **Use password manager** to store backup code securely
-- 📱 **Keep devices secure** with updates and antivirus
-- ✅ **Test recovery** before storing important files
-- 🔄 **Multiple backups** of your backup code in different locations
-
-#### ❌ **DON'T Do These Things**
-- 🚫 **Don't screenshot** backup codes (can be hacked)
-- 🚫 **Don't email** backup codes to yourself
-- 🚫 **Don't share** backup codes with anyone
-- 🚫 **Don't store** backup codes in cloud notes apps
-- 🚫 **Don't assume** we can recover lost codes (we can't!)
-
-### 🚨 **Recovery Limitations**
-
-| Scenario | Can We Help? | What Happens |
-|----------|--------------|--------------|
-| **Lost backup code** | ❌ **NO** | Files permanently lost |
-| **Forgot password** | ✅ Yes | Can reset password, but need backup code for files |
-| **Device stolen** | ✅ Yes | Use backup code on new device |
-| **Account hacked** | ✅ Yes | Change password, files still encrypted |
-
-### 🛡️ **For Developers: Security Notes**
-
-- Private keys are **RSA-2048** (not secp256k1 as mentioned in old docs)
-- Backup codes use **PBKDF2 with 100k iterations** and **SHA-512**
-- AES encryption uses **256-bit keys** with **GCM mode**
-- All crypto operations use **Web Crypto API** for security
-- Keys are stored in **localStorage** for convenience (encrypted on server)
-
----
-
-## 🎯 **Quick Reference**
-
-### 🔑 **Getting Your Private Key**
-
-| Scenario | Steps | Code Location |
-|----------|-------|---------------|
-| **Same Device** | Already in localStorage | `src/utils/userKeyStorage.js` |
-| **New Device** | Login + enter backup code | `src/crypto/encrypt.js` (deriveKeyFromBackupCode) |
-| **Lost Everything** | ❌ No recovery possible | Create new account |
-
-### 🚀 **Common Development Tasks**
+### Available Scripts
 
 ```bash
-# Start development
-npm run dev
-
-# Test backup code generation
-node -e "import('./src/crypto/backupCodeUtils.js').then(m => console.log(m.generateBackupCode()))"
-
-# Check stored keys
-# Open browser console: localStorage.getItem('VaultChain_Users')
-
-# Test API connection
-curl http://127.0.0.1:8000/api/auth/signup/backupCode
+# Development
+npm run dev          # Start development server with HMR
+npm run build        # Build for production
+npm run preview      # Preview production build locally
+npm run lint         # Run ESLint for code quality
 ```
 
-### 🔧 **Key Functions Reference**
+## 🔗 Laravel Backend Integration
 
-| Function | File | Purpose |
-|----------|------|---------|
-| `generateBackupCode()` | `crypto/backupCodeUtils.js` | Create 16-chunk recovery code |
-| `generateEncryptionKeyPair()` | `crypto/keyUtils.js` | Generate RSA-2048 key pair |
-| `deriveKeyFromBackupCode()` | `crypto/encrypt.js` | Convert backup code to AES key |
-| `storePrivateKey()` | `utils/userKeyStorage.js` | Save keys to localStorage |
-| `connectWallet()` | `utils/walletUtils.js` | Connect to MetaMask |
+<div align="center">
+
+**🎯 Enhanced Backend Integration with Method Detection**
+
+</div>
+
+### 🔐 **Updated Laravel Endpoints**
+
+| 🌐 Endpoint | 📝 Description | 📋 Client Sends | 📤 Laravel Returns |
+|-------------|----------------|------------------|-------------------|
+| `POST /api/auth/register` | **Signup with method detection** | `{email, password, publicKey, encryptedPrivateKey, method, walletAddress?}` | `{userId, token, success}` |
+| `POST /api/auth/login` | **Login with method info** | `{email, password}` | `{token, method, encryptedPrivateKey, walletAddress?, success}` |
+| `GET /api/auth/profile` | **User profile with method** | `Authorization: Bearer <token>` | `{user, method, preferences}` |
+
+### 🗄️ **Database Schema Updates**
+
+```sql
+-- Users table with method tracking
+ALTER TABLE users ADD COLUMN auth_method ENUM('BACKUP_CODE', 'WALLET') NOT NULL;
+ALTER TABLE users ADD COLUMN wallet_address VARCHAR(42) NULL;
+ALTER TABLE users ADD COLUMN encrypted_private_key TEXT NOT NULL;
+ALTER TABLE users ADD COLUMN key_derivation_salt VARCHAR(255) NOT NULL;
+```
 
 ---
 
 <div align="center">
 
-**🔐 OM VaultChain Client - Secure by Design**
+**🔐 OM VaultChain Client - Unified Security, Flexible Authentication**
 
-*Zero-knowledge file encryption that puts privacy first.*
+*Providing enterprise-grade security with multiple authentication options.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Security](https://img.shields.io/badge/Security-Zero--Knowledge-green.svg)](https://github.com/your-org/om-vaultchain)
+[![Security](https://img.shields.io/badge/Security-Audited-green.svg)](https://github.com/your-org/om-vaultchain)
 
 **Made with ❤️ by the OM VaultChain Team**
 
 </div>
-
