@@ -39,14 +39,12 @@ export async function decryptSingleFile(encryptedEnvelope, privateKeyPem){
         throw new Error(`Decryption Failed: ${error.message}`);
     }
 }
-
 export async function verifyFileIntegrity(decryptedBlob, expectedHash){
     const hashBuffer = await crypto.subtle.digest("SHA-512", await decryptedBlob.arrayBuffer());
     const computedHash = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
     console.log(computedHash);
     return computedHash === expectedHash;
 }
-
 export function downloadDecryptedFile(decryptedFile) {
     const url = URL.createObjectURL(decryptedFile.blob);
     const a = document.createElement('a');
@@ -57,4 +55,13 @@ export function downloadDecryptedFile(decryptedFile) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+export async function decryptPrivateKey(encryptedPrivateKey, iv, encryptionKey) {
+    const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        encryptionKey,
+        encryptedPrivateKey
+    );
+    return new Uint8Array(decryptedBuffer);
+}
+
 

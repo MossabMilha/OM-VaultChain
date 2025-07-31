@@ -1,9 +1,12 @@
+const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 export function generateBackupCode(){
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const segment = Array.from({length: 16}, () =>
-        Array.from({length: 4}, () =>
-            charset[Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32 * charset.length)]
-        ).join("")
-    );
-    return segment.join("-");
+    let code= "";
+    for(let i = 0;i<16;i++){
+        let chunk = "";
+        for(let j = 0;j<4;j++){
+            chunk += charset.charAt(Math.floor(Math.random()*charset.length));
+        }
+        code += chunk + (i!== 15?"-":"");
+    }
+    return code
 }

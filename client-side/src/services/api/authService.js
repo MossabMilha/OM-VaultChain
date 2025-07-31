@@ -1,17 +1,22 @@
 import {post} from '../apiClient.js';
 
-export async function signupUserBackupCode({firstName,lastName,email,password,publicKey,encryptedPrivateKey,iv}){
-    return await post("/auth/signup/backupCode",{
+export async function signupUser({firstName,lastName,email,password,publicKey,encryptedPrivateKey,iv,walletAddress,signup_method}){
+    return await post("/auth/signup",{
         firstName,
         lastName,
         email,
         password,
         publicKey,
         encryptedPrivateKey,
-        iv
+        iv,
+        walletAddress,
+        signup_method
+
     });
 }
-
-export async function signupUserWallet(data){
-    return await post("/auth/signup/wallet",data);
+export async function loginUser({email,password}){
+    return await post("/auth/login",{
+        email,
+        password
+    });
 }

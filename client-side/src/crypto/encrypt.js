@@ -1,5 +1,9 @@
 import {generateAESKey, exportRawKey, arrayBufferToBase64} from "./keyUtils.js";
-import { hashFile } from "./hash.js";
+import {Buffer} from "buffer";
+import {hashFile } from "./hash.js";
+import {getSharedSecret } from "@noble/secp256k1";
+import {base64ToUint8Array} from "./keyUtils.js";
+
 
 export async function encryptFile(file) {
     const fileBuffer = await file.arrayBuffer();
@@ -42,41 +46,70 @@ export async function encryptBatchFiles(files) {
 
 
 }
-export async function deriveKeyFromBackupCode(backupCode) {
-    const encoder = new TextEncoder();
-    const code = backupCode.replace(/-/g, '');
-    const keyMaterial = await crypto.subtle.importKey(
-        "raw",
-        encoder.encode(code),
-        'PBKDF2',
-        false,
-        ['deriveKey']
-
-    );
-    return await crypto.subtle.deriveKey(
-        {
-            name:"PBKDF2",
-            salt: encoder.encode("om-vault-chain-salt"),
-            iterations:100000,
-            hash: "SHA-512"
-        },
-        keyMaterial,
-        { name: "AES-GCM", length: 256 },
-        true,
-        ["encrypt", "decrypt"]
-
-    );
-}
-export async function encryptPrivateKeyAES(privateKeyBase64,key){
+export async function encryptPrivateKey(privateKey,encryptionKey){
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const encoder = new TextEncoder();
-    const ciphertext = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv },
-        key,
-        encoder.encode(privateKeyBase64)
+    const encryptedPrivateKey = await crypto.subtle.encrypt(
+        {name:"AES-GCM",iv},
+        encryptionKey,
+        privateKey
+
     );
-    return {
-        encryptedPrivateKey: arrayBufferToBase64(ciphertext),
-        iv: arrayBufferToBase64(iv.buffer)
+    return {encryptedPrivateKey,iv}
+}
+
+
+
+async function encryptMessage(receiverPublicKey, senderPrivateKey, message) {
+    // 1. Derive shared secret (ECDH)
+    const sharedSecret = getSharedSecret(senderPrivateKey, receiverPublicKey);
+
+    // 2. Import shared secret as AES-GCM key
+    const aesKey = await crypto.subtle.importKey(
+        "raw",
+        sharedSecret.slice(1), // Remove first byte (formatting) if needed
+        "AES-GCM",
+        false,
+        ["encrypt"]
+    );
+
+    // 3. Encrypt message
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encodedMessage = new TextEncoder().encode(message);
+    const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, encodedMessage);
+
+    return { iv, ciphertext };
+}
+async function decryptMessage(senderPublicKey, receiverPrivateKey, iv, ciphertext) {
+    // 1. Derive shared secret (ECDH)
+    const sharedSecret = getSharedSecret(receiverPrivateKey, senderPublicKey);
+
+    // 2. Import shared secret as AES-GCM key
+    const aesKey = await crypto.subtle.importKey(
+        "raw",
+        sharedSecret.slice(1),
+        "AES-GCM",
+        false,
+        ["decrypt"]
+    );
+
+    // 3. Decrypt
+    const decryptedBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, aesKey, ciphertext);
+    return new TextDecoder().decode(decryptedBuffer);
+}
+export async function testEncryptDecrypt(publicKeyBase64, privateKeyBase64) {
+    try {
+        const publicKey = base64ToUint8Array(publicKeyBase64);
+        const privateKey = base64ToUint8Array(privateKeyBase64);
+
+        const message = "Hello OM VaultChain!";
+
+        const { iv, ciphertext } = await encryptMessage(publicKey, privateKey, message);
+        const decryptedText = await decryptMessage(publicKey, privateKey, iv, ciphertext);
+
+
+        return decryptedText === message;
+    } catch (error) {
+        console.error("❌ ECIES test failed:", error.message);
+        return false;
     }
 }
