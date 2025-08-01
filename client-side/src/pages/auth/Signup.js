@@ -25,7 +25,7 @@ export async function signUp({ firstName, lastName, email, password, method }) {
             await signMessage(signatureMessage, walletAddress);
 
             // Deterministic backup code from walletAddress + password
-            const hash = await hash512(walletAddress + password);
+            const hash = await hash512(walletAddress);
             backupCode = "OMVC" + hash;
             source = backupCode;
 

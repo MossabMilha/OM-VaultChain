@@ -1,19 +1,39 @@
-export function storePrivateKey(email,privateKeyBase64,publicKeyBase64) {
-    const vaultData = JSON.parse(localStorage.getItem("vaultData") || "{}");
-    vaultData[email] = {
-        privateKey: privateKeyBase64,
-        publicKey: publicKeyBase64,
-        lastLogin: Date.now()
+import {arrayBufferToBase64} from "../crypto/keyUtils.js";
+export function saveUserToLocalStorage(userData) {
+    const { email, userId, firstName, lastName, walletAddress, publicKey, decryptedKey, signupMethod } = userData;
+
+    const storedUsersJson = localStorage.getItem("VaultChain_Users");
+    const storedUsers = storedUsersJson ? JSON.parse(storedUsersJson) : {};
+
+    storedUsers[email] = {
+        userId,
+        firstName,
+        lastName,
+        email,
+        walletAddress,
+        publicKey,
+        privateKey: arrayBufferToBase64(decryptedKey),
+        signupMethod
     };
-     localStorage.setItem("VaultChain_Users", JSON.stringify(vaultData));
+
+    localStorage.setItem("VaultChain_Users", JSON.stringify(storedUsers));
 }
 
-export function getUserPrivateKey(email){
-    const vaultData = JSON.parse(localStorage.getItem("VaultChain_Users")|| "{}");
-    return vaultData[email] || null;
+export function getUserFromLocalStorage(email){
+    const storeUsersJson = localStorage.getItem("VaultChain_Users");
+    const storeUsers = storeUsersJson ? JSON.parse(storeUsersJson) : {};
+    return storeUsers[email] || null;
 }
-export function deleteUserPrivateKey(email) {
-    const vaultData = JSON.parse(localStorage.getItem("VaultChain_Users") || "{}");
-    delete vaultData[email];
-    localStorage.setItem("VaultChain_Users", JSON.stringify(vaultData));
+
+export function clearUserByEmail(email){
+    const storedUserJSON = localStorage.getItem("VaultChain_Users");
+    if(!storedUserJSON) return;
+    const storeUsers = JSON.parse(storedUserJSON);
+    if(storeUsers[email]){
+        delete storeUsers[email];
+        localStorage.setItem("VaultChain_Users",JSON.stringify(storeUsers));
+    }
+}
+export function clearAllUsers(){
+    localStorage.removeItem("VaultChain_Users");
 }

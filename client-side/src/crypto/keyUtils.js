@@ -10,13 +10,9 @@ export function pemToBase64(pem) {
         .replace(/-----END (?:RSA )?(?:PUBLIC|PRIVATE) KEY-----/, '')
         .replace(/\s+/g, '');
 }
-
-
-
 export async function generateAESKey() {
     return crypto.subtle.generateKey({name: "AES-GCM",length: 256},true, ["encrypt", "decrypt"]);
 }
-
 export function arrayBufferToBase64(buffer) {
     try {
         if (!buffer) {
