@@ -261,7 +261,7 @@ class FileOrchestrationController extends Controller
         $storageData = $StorageResponse->json();
         $storageData['encryptedKey'] = $encryptedKey;
 
-        
+
         return response()->json($storageData, 200);
 
     }

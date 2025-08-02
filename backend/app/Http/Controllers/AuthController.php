@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\AuthService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -54,21 +55,17 @@ class AuthController extends Controller
     }
 
     public function login(Request $request){
-        $validated = $request->validate([
+        $credentials = $request->validate([
             "email" => "required|email",
             "password" => "required|string|min:8",
         ]);
 
-        $user = User::where("email", $validated["email"])->first();
-
-        if (!$user || !password_verify($validated["password"], $user->password)) {
-            return response()->json([
-                "success" => false,
-                "message" => "Invalid email or password"
-            ], 401);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
         }
 
-        $token = $user->createToken("auth_token")->plainTextToken;
+        $request->session()->regenerate();
+        $user = Auth::user();;
 
         return response()->json([
             "success" => true,
@@ -83,9 +80,8 @@ class AuthController extends Controller
                 "encryptedPrivateKey" => $user->encrypted_private_key,
                 "iv" => $user->iv,
                 "signupMethod" => $user->signup_method,
-
             ],
-            "token" => $token
+
         ], 200);
     }
 

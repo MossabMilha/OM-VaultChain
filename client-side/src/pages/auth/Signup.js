@@ -7,6 +7,7 @@ import {signupUser} from "../../services/api/authService.js";
 import {hash512} from "../../crypto/hash.js";
 import {arrayBufferToBase64} from "../../crypto/keyUtils.js";
 import {decryptPrivateKey} from "../../crypto/decrypt.js";
+import {saveCurrentUser, saveUserToLocalStorage} from "../../utils/userKeyStorage.js";
 
 
 export async function signUp({ firstName, lastName, email, password, method }) {
@@ -67,10 +68,23 @@ export async function signUp({ firstName, lastName, email, password, method }) {
             signup_method: method,
         };
         const response = await signupUser(payload);
-        if (!response || response.success === false) {
-            throw new Error(response?.message || "Signup failed");
-        } else {
-            alert("🎉 Signup successful! Please log in.");
+        if (response && response.success) {
+            const userData = {
+                userId: response.user?.id, // <-- depends on your API response
+                firstName,
+                lastName,
+                email,
+                walletAddress,
+                publicKey: arrayBufferToBase64(publicKey),
+                decryptedKey, // Keep original CryptoKey for storage conversion
+                signupMethod: method
+            };
+
+            // Save user locally
+            saveUserToLocalStorage(userData);
+            saveCurrentUser(userData);
+
+            window.location.href = "/dashboard.html";
         }
 
     } catch (error) {

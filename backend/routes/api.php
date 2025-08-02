@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/auth/signup', [AuthController::class, 'signup']);
-Route::post('/auth/login', [AuthController::class, 'login']);
+Route::middleware('web')->post('/auth/login', [AuthController::class, 'login']);
 
 
 

@@ -6,7 +6,7 @@ import {deriveEncryptionKey} from "../../crypto/keyDerivation.js";
 import {decryptPrivateKey} from "../../crypto/decrypt.js";
 import {testEncryptDecrypt} from "../../crypto/encrypt.js";
 import {arrayBufferToBase64, base64ToArrayBuffer} from "../../crypto/keyUtils.js";
-import {getUserFromLocalStorage, saveUserToLocalStorage} from "../../utils/userKeyStorage.js";
+import {getUserFromLocalStorage, saveCurrentUser, saveUserToLocalStorage} from "../../utils/userKeyStorage.js";
 
 export async function login({ email, password }) {
     try {
@@ -35,7 +35,9 @@ export async function login({ email, password }) {
                 );
                 if (!success) throw new Error("Encryption/decryption test failed");
 
-                saveUserToLocalStorage({ email, userId, firstName, lastName, walletAddress, publicKey, decryptedKey, signupMethod });
+                const userData = { email, userId, firstName, lastName, walletAddress, publicKey, decryptedKey, signupMethod };
+                saveUserToLocalStorage(userData);
+                saveCurrentUser(userData);
 
             } else if (signupMethod === "generated") {
 
@@ -69,11 +71,14 @@ export async function login({ email, password }) {
                 console.log("success : ",success);
                 if (!success) throw new Error("Backup code invalid: decryption failed.");
 
-                saveUserToLocalStorage({ email, userId, firstName, lastName, walletAddress, publicKey, decryptedKey, signupMethod });
+                const userData = { email, userId, firstName, lastName, walletAddress, publicKey, decryptedKey, signupMethod };
+                saveUserToLocalStorage(userData);
+                saveCurrentUser(userData);
             }
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        alert(error.message || "Login failed. Please try again.");
     }
 }
 

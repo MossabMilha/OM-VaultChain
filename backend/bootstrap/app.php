@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
+        $middleware->statefulApi()
+            ->validateCsrfTokens(except: [
+                'api/*', // Exclude API routes from CSRF validation
+            ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
