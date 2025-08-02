@@ -22,6 +22,7 @@
 - [🔐 Unified Key Generation System](#-unified-key-generation-system)
 - [🔑 Dual Authentication Methods](#-dual-authentication-methods)
 - [🔄 Smart Login Flow](#-smart-login-flow)
+- [📤 File Upload Flow](#-file-upload-flow)
 - [🦊 Wallet Integration](#-wallet-integration)
 - [🛠️ Technology Stack](#️-technology-stack)
 - [🔒 Security Considerations](#-security-considerations)
@@ -449,6 +450,215 @@ async function loginUser(email, password) {
 }
 ```
 
+## 📤 File Upload Flow
+
+<div align="center">
+
+**🔒 Zero-Knowledge Client-Side File Encryption**
+
+</div>
+
+The file upload process ensures complete client-side encryption with zero backend access to unencrypted content or unwrapped file keys. Each file receives its own unique AES-256-GCM encryption key, which is itself encrypted using a self-derived key from the user's secp256k1 key pair.
+
+### 🔐 Encryption Architecture
+
+<div align="center">
+
+```mermaid
+flowchart TD
+    A[📁 User Selects File] --> B[🔑 Generate New AES-256 Key]
+    B --> C[🔒 Encrypt File with AES-GCM + Random IV]
+    C --> D[📤 Export AES Key in Raw Format]
+    
+    D --> E[🔐 Generate Self-Derived AES Key]
+    E --> F[📝 User's Private Key + Public Key]
+    F --> G[🤝 ECDH Shared Secret Generation]
+    G --> H[🔑 Derive Wrapper AES Key]
+    
+    H --> I[🔒 Encrypt Raw AES Key with Wrapper Key]
+    I --> J[📦 Prepare Upload Package]
+    
+    J --> K[📤 Send to Backend]
+    K --> L[💾 Backend Stores Encrypted Data]
+    
+    style B fill:#e1f5fe
+    style E fill:#f3e5f5
+    style I fill:#fff3e0
+    style L fill:#e8f5e8
+```
+
+</div>
+
+### 🔄 Step-by-Step Upload Process
+
+<div align="center">
+
+| 🔢 Step | 🎯 Action | 🔧 Implementation | 🛡️ Security |
+|---------|-----------|------------------|-------------|
+| **1** | **📁 File Selection** | User chooses file via file picker | Client-side only |
+| **2** | **🔑 AES Key Generation** | Generate unique AES-256 key for file | Cryptographically secure random |
+| **3** | **🔒 File Encryption** | Encrypt file with AES-256-GCM + 12-byte IV | File never leaves browser unencrypted |
+| **4** | **📤 Key Export** | Export AES key in raw format | Preparation for key wrapping |
+| **5** | **🔐 Self-Derived Key** | Generate wrapper key from user's key pair | ECDH with own keys |
+| **6** | **🔒 Key Wrapping** | Encrypt raw AES key with wrapper key | AES-GCM encryption |
+| **7** | **📦 Package Preparation** | Bundle encrypted file + metadata | Ready for backend |
+
+</div>
+
+### 🔧 Implementation Details
+
+```javascript
+// Complete file upload encryption flow
+async function uploadFile(file, userKeys) {
+    try {
+        // Step 1: File selection (handled by file input)
+        console.log(`Processing file: ${file.name} (${file.size} bytes)`);
+        
+        // Step 2: Generate new AES-256-GCM key for this file
+        const fileEncryptionKey = await crypto.subtle.generateKey(
+            { name: 'AES-GCM', length: 256 },
+            true, // extractable
+            ['encrypt', 'decrypt']
+        );
+        
+        // Step 3: Encrypt file with AES-256-GCM + random IV
+        const iv = crypto.getRandomValues(new Uint8Array(12)); // 12-byte IV for GCM
+        const fileBuffer = await file.arrayBuffer();
+        
+        const encryptedFile = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            fileEncryptionKey,
+            fileBuffer
+        );
+        
+        // Step 4: Export AES key in raw format
+        const rawAESKey = await crypto.subtle.exportKey('raw', fileEncryptionKey);
+        
+        // Step 5: Generate self-derived AES key using user's key pair
+        const selfDerivedKey = await generateSelfDerivedKey(
+            userKeys.privateKey, 
+            userKeys.publicKey
+        );
+        
+        // Step 6: Encrypt the raw AES key with self-derived key
+        const keyWrappingIV = crypto.getRandomValues(new Uint8Array(12));
+        const encryptedAESKey = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: keyWrappingIV },
+            selfDerivedKey,
+            rawAESKey
+        );
+        
+        // Step 7: Prepare upload package
+        const uploadPackage = {
+            // Encrypted content
+            encryptedFile: new Uint8Array(encryptedFile),
+            iv: iv,
+            
+            // Encrypted file key
+            encryptedAESKey: new Uint8Array(encryptedAESKey),
+            keyWrappingIV: keyWrappingIV,
+            
+            // File metadata
+            metadata: {
+                originalName: file.name,
+                size: file.size,
+                mimeType: file.type,
+                hash: await generateFileHash(fileBuffer),
+                uploadTimestamp: Date.now()
+            }
+        };
+        
+        // Send to backend
+        const result = await sendToBackend(uploadPackage);
+        console.log('File uploaded successfully:', result);
+        
+        return result;
+        
+    } catch (error) {
+        console.error('File upload encryption failed:', error);
+        throw new Error('Upload failed: ' + error.message);
+    }
+}
+
+// Generate self-derived key using ECDH with own key pair
+async function generateSelfDerivedKey(privateKey, publicKey) {
+    // Import private key for ECDH
+    const privateKeyObject = await crypto.subtle.importKey(
+        'raw',
+        privateKey,
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false,
+        ['deriveKey']
+    );
+    
+    // Import public key for ECDH
+    const publicKeyObject = await crypto.subtle.importKey(
+        'raw',
+        publicKey,
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false,
+        []
+    );
+    
+    // Derive shared secret using ECDH (self-derived)
+    const derivedKey = await crypto.subtle.deriveKey(
+        { name: 'ECDH', public: publicKeyObject },
+        privateKeyObject,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+    );
+    
+    return derivedKey;
+}
+
+// Generate SHA-256 hash of file for integrity verification
+async function generateFileHash(fileBuffer) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', fileBuffer);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+}
+```
+
+### 📦 Backend Upload Package
+
+The following data structure is sent to the Laravel backend:
+
+<div align="center">
+
+```json
+{
+  "encryptedFile": "Uint8Array", // AES-256-GCM encrypted file content
+  "iv": "Uint8Array(12)",        // File encryption IV
+  "encryptedAESKey": "Uint8Array", // Wrapped file encryption key
+  "keyWrappingIV": "Uint8Array(12)", // Key wrapping IV
+  "metadata": {
+    "originalName": "document.pdf",
+    "size": 1048576,
+    "mimeType": "application/pdf",
+    "hash": "sha256_hash_string",
+    "uploadTimestamp": 1703123456789
+  }
+}
+```
+
+</div>
+
+### 🛡️ Security Guarantees
+
+<div align="center">
+
+| 🎯 Security Aspect | ✅ Guarantee | 🔧 Implementation |
+|-------------------|-------------|------------------|
+| **🔒 File Content** | Never exposed to backend | Client-side AES-256-GCM encryption |
+| **🔑 File Keys** | Never stored in plaintext | Self-derived key wrapping |
+| **🛡️ Key Derivation** | User-controlled private key | ECDH with own key pair |
+| **🔐 Zero Knowledge** | Backend cannot decrypt | All keys derived client-side |
+| **📁 File Integrity** | Cryptographic verification | SHA-256 hash validation |
+
+</div>
+
 ## 🦊 Wallet Integration Details
 
 <div align="center">
@@ -597,6 +807,7 @@ npm run lint         # Run ESLint for code quality
 | `POST /api/auth/register` | **Signup with method detection** | `{email, password, publicKey, encryptedPrivateKey, method, walletAddress?}` | `{userId, token, success}` |
 | `POST /api/auth/login` | **Login with method info** | `{email, password}` | `{token, method, encryptedPrivateKey, walletAddress?, success}` |
 | `GET /api/auth/profile` | **User profile with method** | `Authorization: Bearer <token>` | `{user, method, preferences}` |
+| `POST /api/files/upload` | **Encrypted file upload** | `{encryptedFile, iv, encryptedAESKey, keyWrappingIV, metadata}` | `{fileId, success, uploadedAt}` |
 
 ### 🗄️ **Database Schema Updates**
 
@@ -606,6 +817,26 @@ ALTER TABLE users ADD COLUMN auth_method ENUM('BACKUP_CODE', 'WALLET') NOT NULL;
 ALTER TABLE users ADD COLUMN wallet_address VARCHAR(42) NULL;
 ALTER TABLE users ADD COLUMN encrypted_private_key TEXT NOT NULL;
 ALTER TABLE users ADD COLUMN key_derivation_salt VARCHAR(255) NOT NULL;
+
+-- Files table for encrypted file storage
+CREATE TABLE encrypted_files (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    file_size BIGINT UNSIGNED NOT NULL,
+    file_hash VARCHAR(64) NOT NULL,
+    encrypted_aes_key TEXT NOT NULL,
+    key_wrapping_iv VARCHAR(32) NOT NULL,
+    file_iv VARCHAR(32) NOT NULL,
+    storage_path TEXT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_files (user_id),
+    INDEX idx_file_hash (file_hash)
+);
 ```
 
 ---
@@ -614,7 +845,7 @@ ALTER TABLE users ADD COLUMN key_derivation_salt VARCHAR(255) NOT NULL;
 
 **🔐 OM VaultChain Client - Unified Security, Flexible Authentication**
 
-*Providing enterprise-grade security with multiple authentication options.*
+*Providing enterprise-grade security with multiple authentication options and zero-knowledge file encryption.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Security](https://img.shields.io/badge/Security-Audited-green.svg)](https://github.com/your-org/om-vaultchain)
