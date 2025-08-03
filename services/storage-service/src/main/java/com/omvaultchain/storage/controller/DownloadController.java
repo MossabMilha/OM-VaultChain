@@ -33,20 +33,7 @@ public class DownloadController {
         DownloadSingleFileResponse response = fileDownloadService.downloadByFileId(request.getFileId());
         return ResponseEntity.ok(response);
     }
-    /**
-     * Downloads a file from IPFS using its CID.
-     *
-     * Request Body Example:
-     * {
-     *   "cid": "QmYwAPJzv5CZsnAztb8xueK8Nq8n5j9XAsr9LkUWjz6BCg"
-     * }
-     *
-     * @return Encrypted file content as a downloadable resource
-     */
-//    @GetMapping("/single/cid")
-//    public ResponseEntity<Resource> downloadByCid(@RequestBody DownloadRequest request){
-//        return fileDownloadService.downloadByCid(request.getCid());
-//    }
+
     /**
      * Downloads multiple files from storage using their file IDs.
      *

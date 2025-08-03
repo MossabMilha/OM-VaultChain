@@ -120,30 +120,4 @@ public class UploadController {
         return ResponseEntity.ok(responses);
     }
 
-
-
-
-
-
-//    @PostMapping("/status")
-//    public ResponseEntity<UploadStatusResponse> getUploadStatus(@RequestBody UploadStatusRequest request){
-//        UploadStatusResponse response = fileUploadService.getUploadStatus(request.getUploadId());
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    @PostMapping("/resume")
-//    public ResponseEntity<ResumeUploadResponse> resumeUpload(@RequestParam("uploadId") String uploadId, @RequestPart("file") MultipartFile file){
-//        ResumeUploadResponse response = fileUploadService.resumeUpload(uploadId,file);
-//        return ResponseEntity.ok(response);
-//    }
-//    @DeleteMapping("/cancel")
-//    public ResponseEntity<GenericResponse> cancelUpload(@RequestBody CancelUploadRequest request){
-//        fileUploadService.cancelUpload(request.getUploadId());
-//        return ResponseEntity.ok(new GenericResponse("Upload cancelled successfully"));
-//    }
-
-
-
-
-
 }

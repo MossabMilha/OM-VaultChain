@@ -215,9 +215,31 @@ class FileOrchestrationController extends Controller
     }
     public function listFiles(Request $request){
         $validated = $request->validate([
-            "ownerId" => "required|uuid"
+            "userId" => "required|uuid"
         ]);
-        $files = File::where('owner_id', $validated['ownerId'])->get();
+        $userId = $validated['userId'];
+        $ownedFiles = File::where('owner_id', $userId)
+            ->where('is_deleted', false)
+            ->get()
+            ->map(function ($file) {
+                $file->accessType = 'owned';
+                return $file;
+            });
+
+        // 2️⃣ Fetch files with access and tag them as "hasAccess"
+        $accessFiles = AccessPermission::active()
+            ->where('user_id', $userId)
+            ->with(['file' => fn($q) => $q->where('is_deleted', false)])
+            ->get()
+            ->pluck('file')
+            ->filter() // remove null (if file deleted)
+            ->reject(fn($file) => $file->owner_id === $userId) // remove duplicates if already owned
+            ->map(function ($file) {
+                $file->accessType = 'hasAccess';
+                return $file;
+            });
+        $files = $ownedFiles->merge($accessFiles)->sortByDesc('created_at')->values();
+
 
         return response()->json(["files"=>$files], 200);
     }
@@ -229,7 +251,6 @@ class FileOrchestrationController extends Controller
 
         return response()->json(["files"=>$files], 200);
     }
-
     public function downloadSingleFile(Request $request){
         $validated = $request->validate([
             "fileId" => "required|uuid",

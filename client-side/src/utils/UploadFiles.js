@@ -1,8 +1,8 @@
 
-import {getCurrentUser} from "../../utils/userKeyStorage.js";
-import {deriveSelfAESKey, arrayBufferToBase64, base64ToUint8Array} from "../../crypto/keyUtils.js";
-import {hashFile} from "../../crypto/hash.js";
-import {uploadSingleFileApi} from "../../services/api/uploadService.js";
+import {getCurrentUser} from "./userKeyStorage.js";
+import {deriveSelfAESKey, arrayBufferToBase64, base64ToUint8Array} from "../crypto/keyUtils.js";
+import {hashFile} from "../crypto/hash.js";
+import {uploadSingleFileApi} from "../services/api/uploadService.js";
 
 export async function uploadSingleFile(file){
     try {
@@ -43,25 +43,11 @@ export async function uploadSingleFile(file){
         };
 
 
-        const response = await uploadSingleFileApi(payload);
-        console.log("Upload response:", response);
-
+        return await uploadSingleFileApi(payload);
 
     } catch (error) {
         console.error("File upload failed:", error);
     }
 }
 
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    console.log("[Debug] Form submitted");
-    const fileInput = document.getElementById('fileInput');
-    if (!fileInput.files.length) {
-        alert('Please select a file');
-        console.warn("[Debug] No file selected");
-        return;
-    }
-    const file = fileInput.files[0];
-    console.log("[Debug] Selected file:", file.name, file.size, file.type);
-    await uploadSingleFile(file);
-});
+
