@@ -221,6 +221,14 @@ class FileOrchestrationController extends Controller
 
         return response()->json(["files"=>$files], 200);
     }
+    public function listOwnedFiles(Request $request){
+        $validated = $request->validate([
+            "ownerId" => "required|uuid"
+        ]);
+        $files = File::where('owner_id', $validated['ownerId'])->get();
+
+        return response()->json(["files"=>$files], 200);
+    }
 
     public function downloadSingleFile(Request $request){
         $validated = $request->validate([

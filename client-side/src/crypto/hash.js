@@ -5,6 +5,10 @@ export async function hashFile(file){
     const hashBuffer = await crypto.subtle.digest("SHA-512", buffer);
     return arrayBufferToBase64(hashBuffer);
 }
+export async function computeHashFromBuffer(buffer) {
+    const hashBuffer = await crypto.subtle.digest("SHA-512", buffer);
+    return arrayBufferToBase64(hashBuffer); // Reuse your existing helper
+}
 export async function hash512(data){
     const encoder = new TextEncoder();
     const encodedData = encoder.encode(data);

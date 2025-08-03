@@ -43,12 +43,9 @@ export async function uploadSingleFile(file){
         };
 
 
-        // Call your API to upload
-
         const response = await uploadSingleFileApi(payload);
         console.log("Upload response:", response);
 
-         console.log(response);
 
     } catch (error) {
         console.error("File upload failed:", error);

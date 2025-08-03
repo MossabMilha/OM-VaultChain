@@ -18,6 +18,8 @@ Route::middleware('web')->post('/auth/login', [AuthController::class, 'login']);
 
 Route::post('/files/list', [FileOrchestrationController::class, 'listFiles']);
 
+Route::post('/files/list/owned', [FileOrchestrationController::class, 'listOwnedFiles']);
+
 Route::post('/files/upload/single', [FileOrchestrationController::class, 'uploadSingleFile']);
 Route::post('/files/upload/batch', [FileOrchestrationController::class, 'uploadBatchFile']);
 
