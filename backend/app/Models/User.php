@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,32 +9,35 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens,HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
+
     public $incrementing = false;
-    protected $keyType = 'string';
+    protected $keyType = 'string'; // Since id is CHAR(36) (UUID)
+
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'id',
         'first_name',
         'last_name',
+        'username',
         'email',
         'password',
         'wallet_address',
         'public_key',
         'encrypted_private_key',
         'iv',
-        'signup_method'
+        'signup_method',
+        'is_active',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -45,22 +47,28 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
-    public static function validatePassword(String $password):bool{
-        return strlen($password)>= 8 &&
-            preg_match('/[A-Z]/', $password) &&
-            preg_match('/[a-z]/', $password) &&
-            preg_match('/[0-9]/', $password) &&
-            preg_match('/[\W_]/', $password);
+
+    /**
+     * Validate password strength.
+     */
+    public static function validatePassword(string $password): bool
+    {
+        return strlen($password) >= 8 &&
+            preg_match('/[A-Z]/', $password) &&    // at least one uppercase
+            preg_match('/[a-z]/', $password) &&    // at least one lowercase
+            preg_match('/[0-9]/', $password) &&    // at least one number
+            preg_match('/[\W_]/', $password);      // at least one special char
     }
 }

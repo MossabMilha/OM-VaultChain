@@ -22,6 +22,7 @@ Route::post('/files/download/single', [FileOrchestrationController::class, 'down
 
 
 Route::post('/user/publicInformation', [UserController::class, 'getPublicInformation']);
+Route::post('/user/search', [UserController::class, 'search']);
 
 Route::post('/access/grantAccess', [AccessController::class, 'grantAccessSingleUser']);
 

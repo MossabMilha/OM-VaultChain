@@ -6,8 +6,9 @@ import {giveAccessSingleUserApi} from "../services/api/AccessControl.js";
 
 
 
-async function giveAccessSingleUser(userId, FileId) {
+export async function giveAccessSingleUser(userId, FileId) {
     try {
+
 
         const currentUser = await getCurrentUser();
         const user = await getUserPublicInformationApi(userId);
@@ -45,18 +46,14 @@ async function giveAccessSingleUser(userId, FileId) {
         );
         const encryptedKeyBase64 = arrayBufferToBase64(encryptedAESKeyForUser);
 
-        const respond = await giveAccessSingleUserApi(FileId,userId,encryptedKeyBase64);
-
-        console.log(respond);
+        return await giveAccessSingleUserApi(FileId,userId,encryptedKeyBase64);
 
     } catch (error) {
         console.error("Error fetching access data:", error);
     }
 }
 
-document.getElementById("test").addEventListener("click", async ()=>{
-    await giveAccessSingleUser("51cf531f-8bc4-44a9-9bfd-1183cab10d47","1301400b-1a4c-4f9a-8bbd-5c29c6df8f33");
-});
+
 
 
 

@@ -24,4 +24,17 @@ class UserController extends Controller
             "publicKey"=>$user->public_key,
         ]);
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('username');
+
+        if (!$query) {
+            return response()->json([], 200);
+        }
+
+        return User::where('username', 'like', "%{$query}%")
+            ->select('id', 'username')
+            ->limit(10)
+            ->get();
+    }
 }

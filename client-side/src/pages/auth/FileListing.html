@@ -7,12 +7,21 @@
 </head>
 <body>
 
-    <button id="uploadButton">Upload File</button>
+    <div class="container">
+        <button id="uploadButton">Upload File</button>
+        <div id="fileList" class="file-list">
+            <!-- files will be appended here -->
+        </div>
 
-    <div id="fileList" class="file-list">
-        <!-- files will be appended here -->
     </div>
-
+    <div id ="shareModal">
+        <h3>Share File Access</h3>
+        <input id="username" type="text" placeholder="Username">
+        <ul id="userSuggestions"></ul>
+        <button id="ConfirmShareBtn">Share</button>
+        <button id="CancelShareBtn">Cancel</button>
+    </div>
+    <div id="modalOverlay"></div>
     <script type="module" src="FileListing.js"></script>
 </body>
 </html>

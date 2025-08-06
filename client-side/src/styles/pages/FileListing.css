@@ -1,25 +1,33 @@
 body, html {
     margin: 0;
     padding: 0;
-    min-height: 100%; /* Allow body to grow */
+    min-height: 100%;
 }
 
 body {
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align to top so it grows downward */
+    align-items: flex-start;
     background: #fdfbf4;
     font-family: sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 95%;
+
 }
 
 .file-list {
     border: 2px solid #333;
     border-radius: 10px;
     padding: 15px;
-    margin: 5% auto; /* Auto horizontally centers */
-    width: 90%;
+    width: 100%;
     background: #fdfbf4;
-    height: auto; /* Ensure height grows with content */
+    height: auto;
+    margin-bottom: 10px; /* Space above the button */
 }
 
 .fileItem {
@@ -47,9 +55,107 @@ button {
     background: transparent;
     cursor: pointer;
     border-radius: 5px;
-    padding: 2px 6px;
+    padding: 5px 10px;
 }
 
 button:hover {
     background: #eee;
+}
+
+/* Align upload button to bottom-right */
+#uploadButton {
+    margin-bottom: 1%;
+    margin-top: 1%;
+    align-self: flex-end;
+}
+
+
+
+
+/* Modal overlay - covers entire screen with semi-transparent black */
+#modalOverlay {
+    display: none; /* hide initially */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Modal popup container styling */
+#shareModal {
+    display: none; /* hide initially */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fdfbf4;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 300px;
+    font-family: sans-serif;
+}
+
+/* Modal inputs */
+#shareModal input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #333;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Buttons inside modal */
+#shareModal button {
+    margin-right: 10px;
+    padding: 6px 12px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background: transparent;
+    cursor: pointer;
+}
+
+#shareModal button:hover {
+    background: #eee;
+}
+#userSuggestions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    border-radius: 5px;
+    background: white;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    width: calc(100% - 40px); /* match input width (minus modal padding) */
+    z-index: 1001;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    font-size: 14px;
+}
+
+/* Individual suggestion items */
+#userSuggestions li {
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+/* Hover effect for suggestions */
+#userSuggestions li:hover {
+    background: #f0f0f0;
+}
+
+/* Scrollbar styling for suggestions */
+#userSuggestions::-webkit-scrollbar {
+    width: 6px;
+}
+#userSuggestions::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
 }
