@@ -52,29 +52,5 @@ public class DownloadController {
     public ResponseEntity<Resource> downloadBatchById(@RequestBody DownloadBatchRequest request){
         return fileDownloadService.downloadBatchByFileIds(request.getFileIds());
     }
-    /**
-     * Downloads multiple files from IPFS using their CIDs.
-     *
-     * Request Body Example:
-     * {
-     *   "CIDs": [
-     *     "QmYwAPJzv5CZsnAztb8xueK8Nq8n5j9XAsr9LkUWjz6BCg",
-     *     "QmZxg12f3gJkLt9vHGFd87FJKvCYaZmbPbZsLqU7x"
-     *   ]
-     * }
-     *
-     * @return Encrypted combined file content as a downloadable resource (e.g., ZIP)
-     */
-    @GetMapping("/batch/cid")
-    public ResponseEntity<Resource> downloadBatchByCid(@RequestBody DownloadBatchRequest request){
-        return fileDownloadService.downloadBatchByCIDs(request.getCIDs());
-    }
-
-
-
-
-
-
-
-
+    
 }

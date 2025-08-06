@@ -24,4 +24,6 @@ public class AccessPermission {
     private Instant revokedAt;
     @Column(name = "is_active")
     private Boolean isActive;
+    @Column(name = "tx_hash", nullable = false)
+    private String txHash;
 }

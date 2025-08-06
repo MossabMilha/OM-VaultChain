@@ -11,11 +11,11 @@ export async function listOwnedFiles() {
         }
         const response = await listOwnedFileApi(currentUser.userId);
 
-        if (!response || !Array.isArray(response)) {
+        if (!response || !Array.isArray(response.files)) {
             throw new Error("Invalid response format from server.");
         }
 
-        return response;
+        return response.files;
     } catch (error) {
 
         throw new Error(
@@ -32,11 +32,11 @@ export async function listFiles(){
         }
         const response = await listFileApi(currentUser.userId);
 
-        if (!response || !Array.isArray(response)) {
+        if (!response || !Array.isArray(response.files)) {
             throw new Error("Invalid response format from server.");
         }
 
-        return response;
+        return response.files;
     } catch (error) {
 
         throw new Error(
@@ -44,6 +44,5 @@ export async function listFiles(){
         );
     }
 }
-
 
 

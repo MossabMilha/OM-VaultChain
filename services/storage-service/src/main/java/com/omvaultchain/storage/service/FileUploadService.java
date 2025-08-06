@@ -59,16 +59,6 @@ public class FileUploadService {
             metadata.setCid(cid);
             FileMetadata saved = fileMetadataRepository.save(metadata);
 
-            // Grant access to The owner (create access permission)
-            AccessPermission permission = new AccessPermission();
-            permission.setId(UUID.randomUUID().toString());
-            permission.setFileId(saved.getId());
-            permission.setUserId(request.getOwnerId());
-            permission.setEncryptedKey(request.getEncryptedKey());
-            permission.setCreatedAt(Instant.now());
-            permission.setIsActive(true);
-            accessPermissionRepository.save(permission);
-
 
             return new UploadResponse(saved.getId().toString(), cid, saved.getFileName(), "UPLOAD_SUCCESS");
         }catch (Exception e){

@@ -35,9 +35,13 @@ class File extends Model
     {
         return $this->hasMany(FileVersion::class, 'file_id');
     }
-
     public function currentVersion()
     {
         return $this->hasOne(FileVersion::class, 'file_id')->where('is_current', true);
     }
+    public function accessPermissions()
+    {
+        return $this->hasMany(AccessPermission::class, 'file_id');
+    }
+
 }

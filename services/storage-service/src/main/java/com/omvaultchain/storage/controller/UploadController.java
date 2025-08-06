@@ -51,7 +51,6 @@ public class UploadController {
 
     @PostMapping("/single")
     public ResponseEntity<UploadResponse> uploadSingleFile(@RequestBody UploadRequest request){
-
             byte[] fileData = Base64.getDecoder().decode(request.getFileData());
             UploadResponse response = fileUploadService.uploadSingleFile(request, fileData);
             return ResponseEntity.ok(response);
@@ -115,7 +114,6 @@ public class UploadController {
     public ResponseEntity<List<BatchUploadResponse>> uploadBatch(@RequestBody BatchUploadRequest request) {
         String ownerId = request.getOwnerId();
         List<BatchUploadRequest.FileData> files = request.getFiles();
-
         List<BatchUploadResponse> responses = fileUploadService.uploadBatchFiles(files, ownerId);
         return ResponseEntity.ok(responses);
     }

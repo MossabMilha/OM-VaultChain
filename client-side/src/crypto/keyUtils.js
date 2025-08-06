@@ -77,7 +77,6 @@ export async function exportRawKey(key) {
     return crypto.subtle.exportKey("raw",key);
 }
 
-
 export async function generateKeyPair() {
     const privateKey = crypto.getRandomValues(new Uint8Array(32)); // 32-byte private key
     const publicKey = getPublicKey(privateKey, true); // Compressed public key
@@ -89,7 +88,7 @@ export function deriveWalletAddress(publicKey) {
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
 }
-export async function deriveSelfAESKey(privateKey,publicKey ){
+export async function deriveSharedAESKey(privateKey,publicKey ){
     const sharedSecret = getSharedSecret(privateKey,publicKey,true);
     return await crypto.subtle.importKey(
         "raw",

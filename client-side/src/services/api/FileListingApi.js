@@ -5,3 +5,7 @@ export async function listOwnedFileApi(ownerId){
 export async function listFileApi(userId){
     return post('/files/list', {userId});
 }
+export async function getFileMetadata(fileId ){
+    return post('/files/metadata', {fileId });
+}
+
