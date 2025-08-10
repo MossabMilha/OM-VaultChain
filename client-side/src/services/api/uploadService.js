@@ -6,3 +6,6 @@ export async function uploadSingleFileApi(payload){
 export async function uploadBatchFileApi(payload){
     return await post('/files/upload/batch', payload);
 }
+export async function uploadNewVersionApi(payload){
+    return await post('/files/upload/newVersion', payload);
+}

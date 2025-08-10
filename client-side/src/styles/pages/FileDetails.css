@@ -1,0 +1,176 @@
+/* ===== Base Styles ===== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    padding: 10px;
+}
+
+.file-info-container {
+    max-width: 98%;
+    margin: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.file-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.file-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+#uploadButton {
+    background-color: #555;
+    color: white;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#uploadButton:hover {
+    background-color: #333;
+}
+
+/* ===== File Details Grid ===== */
+.file-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    font-size: 14px;
+}
+.file-details > div {
+    word-break: break-word;
+}
+
+.hash-box {
+    background: #f4f4f4;
+    padding: 2px;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-top: 4px;
+    word-break: break-all;
+    color: #444;
+    max-height: 90px;
+    overflow: auto;
+    border: 1px solid #ccc;
+}
+
+/* ===== Collapsible Section ===== */
+.collapsible-section {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fafafa;
+}
+.collapsible-header {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f0f0f0;
+}
+.collapsible-header:hover {
+    background: #e6e6e6;
+}
+.toggle-icon {
+    font-size: 16px;
+    user-select: none;
+}
+.collapsible-content {
+    display: none;
+    padding: 10px 15px;
+}
+
+/* ===== Version Items (and Access Items) ===== */
+.version-item,
+.access-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: white;
+}
+
+/* Clickable header for version and access */
+.version-header,
+.access-header {
+    padding: 8px 12px;
+    cursor: pointer;
+    background: #f7f7f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.version-header:hover,
+.access-header:hover {
+    background: #ececec;
+}
+
+/* Text styling */
+.access-name {
+    font-weight: 600;
+    color: #333;
+}
+
+
+
+/* Toggle icon styling */
+.toggle-icon {
+    font-weight: bold;
+    font-size: 16px;
+    user-select: none;
+    margin-left: 10px;
+}
+
+/* Details area */
+.version-details,
+.access-details {
+    padding: 0 14px;
+    font-size: 13px;
+    background: #ffffff;
+    border-top: 1px solid #eee;
+    line-height: 1.6;
+    color: #333;
+
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.version-details.show,
+.access-details.show {
+    max-height: 500px;
+    padding: 10px 14px;
+}
+
+.version-details strong,
+.access-details strong {
+    color: #555;
+}
+
+/* Current Version Badge */
+.current-badge {
+    background: linear-gradient(135deg, #4caf50, #3e8e41);
+    color: white;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 12px;
+    margin-left: 8px;
+}

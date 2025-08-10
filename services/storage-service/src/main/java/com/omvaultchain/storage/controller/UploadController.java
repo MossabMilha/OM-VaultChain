@@ -56,6 +56,14 @@ public class UploadController {
             return ResponseEntity.ok(response);
 
     }
+
+    @PostMapping("/newVersion/single")
+    public ResponseEntity<NewVersionUploadResponse> uploadNewFileVersion(@RequestBody NewVersionUploadRequest request){
+        byte[] fileData = Base64.getDecoder().decode(request.getFileData());
+        NewVersionUploadResponse response = fileUploadService.uploadNewFileVersion(request, fileData);
+        return ResponseEntity.ok(response);
+
+    }
     /**
      * Uploads multiple encrypted files to decentralized storage (IPFS) in a batch.
      *

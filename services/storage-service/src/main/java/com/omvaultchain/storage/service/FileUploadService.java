@@ -65,6 +65,44 @@ public class FileUploadService {
             throw new RuntimeException("Upload Failed : " + e.getMessage(), e);
         }
     }
+    public NewVersionUploadResponse uploadNewFileVersion(NewVersionUploadRequest request, byte[] fileData ){
+        try{
+            if (fileData == null || fileData.length == 0){
+                throw new IllegalArgumentException("Uploaded File Is Empty");
+            }
+            if (request.getFileName() == null || request.getOwnerId() == null || request.getFileId() == null) {
+                throw new IllegalArgumentException("Missing Required Metadata");
+            }
+            if (request.getIv() == null || request.getEncryptedKey() == null || request.getFileHash() == null) {
+                throw new IllegalArgumentException("Missing Required Encryption Metadata");
+            }
+
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+            String encryptedFileName = request.getEncryptedFileName(request.getFileName());
+            String cid = IPFSClient.uploadFile(inputStream, encryptedFileName);
+            if (cid == null || cid.isEmpty()) {
+                throw new RuntimeException("Failed to upload file to IPFS");
+            }
+            FileMetadata existingFile = fileMetadataRepository.findById(request.getFileId()).orElseThrow(()->new RuntimeException("File not found with ID: " + request.getFileId()));
+            existingFile.setCid(cid);
+            existingFile.setFileName(request.getFileName());
+            existingFile.setMimeType(request.getMimeType());
+            existingFile.setIv(request.getIv());
+            existingFile.setEncryptedKey(request.getEncryptedKey());
+            existingFile.setFileHash(request.getFileHash());
+
+            fileMetadataRepository.save(existingFile);
+            return new NewVersionUploadResponse(
+                    encryptedFileName,
+                    cid,
+                    existingFile.getId()
+            );
+
+
+        }catch (Exception e){
+            throw new RuntimeException("Upload Failed : " + e.getMessage(), e);
+        }
+    }
     public List<BatchUploadResponse> uploadBatchFiles(List<BatchUploadRequest.FileData> files, String ownerId) {
         List<BatchUploadResponse> results = new ArrayList<>();
 
@@ -104,84 +142,4 @@ public class FileUploadService {
     }
 
 
-    public ResumeUploadResponse  resumeUpload(String uploadId, MultipartFile newPart){
-        UploadStatus status = uploadStatusRepository.findById(uploadId).orElseThrow(()->new IllegalArgumentException("Upload ID Not Found"));
-        if (status.isCanceled()){
-            throw new IllegalArgumentException("Upload Is Canceled And Cannot Be Resumed.");
-        }
-        if(status.isCompleted()){
-            throw new IllegalStateException("Upload Already Completed");
-        }
-        Path tempFilePath = Paths.get("/tmp/uploads",uploadId+".part");
-        File tempFile = tempFilePath.toFile();
-        try{
-            try(OutputStream out = new FileOutputStream(tempFile, true)) {
-                out.write(newPart.getBytes());
-            }
-            long newUploadedBytes = status.getUploadedBytes() + newPart.getSize();
-            status.setUploadedBytes(newUploadedBytes);
-            if (newUploadedBytes >= status.getTotalBytes()) {
-                String cid = IPFSClient.uploadFile(tempFile);
-                status.setCompleted(true);
-                uploadStatusRepository.save(status);
-                tempFile.delete();
-                return ResumeUploadResponse.builder()
-                        .fileId(status.getUploadId())
-                        .fileName(status.getFileName())
-                        .status("COMPLETED")
-                        .uploadedBytes(newUploadedBytes)
-                        .totalBytes(status.getTotalBytes())
-                        .cid(cid)
-                        .build();
-            }else{
-                uploadStatusRepository.save(status);
-                return ResumeUploadResponse .builder()
-                        .fileId(status.getUploadId())
-                        .fileName(status.getFileName())
-                        .status("IN_PROGRESS")
-                        .uploadedBytes(newUploadedBytes)
-                        .totalBytes(status.getTotalBytes())
-                        .cid(null)
-                        .build();
-            }
-        }catch (IOException e){
-            throw new RuntimeException("Failed To Resume Upload",e);
-        }
-    }
-
-    public UploadStatusResponse getUploadStatus(String uploadId){
-        Optional<UploadStatus> statusOpt = uploadStatusRepository.findById(uploadId);
-        if (statusOpt.isEmpty()){
-            throw new RuntimeException("Upload Id Not Found");
-        }
-        UploadStatus status = statusOpt.get();
-        String inferredStatus;
-        if (status.isCanceled()) {
-            inferredStatus = "CANCELLED";
-        } else if (status.isCompleted()) {
-            inferredStatus = "COMPLETED";
-        } else {
-            inferredStatus = "IN_PROGRESS";
-        }
-        UploadStatusResponse response = new UploadStatusResponse();
-        response.setUploadId(status.getUploadId());
-        response.setFileName(status.getFileName());
-        response.setUploadedBytes(status.getUploadedBytes());
-        response.setTotalBytes(status.getTotalBytes());
-        response.setStatus(inferredStatus);
-        response.setStartedAt(status.getStartedAt());
-
-        return response;
-    }
-    public void cancelUpload(String uploadId){
-        Optional<UploadStatus> statusOpt = uploadStatusRepository.findById(uploadId);
-        if(statusOpt.isEmpty()){
-            throw new RuntimeException("Upload ID Not Found : " + uploadId);
-        }
-        UploadStatus status = statusOpt.get();
-        if(!status.isCompleted() && !status.isCanceled()){
-            status.setCanceled(true);
-            uploadStatusRepository.save(status);
-        }
-    }
 }

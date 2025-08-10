@@ -23,6 +23,7 @@ function closeShareModel() {
     document.getElementById("modalOverlay").style.display = "none";
     document.getElementById("username").value = "";
 }
+
 function getFileIcon(mime) {
     if (mime.startsWith("image/")) return "🖼️";
     if (mime.startsWith("application/pdf")) return "📄";
@@ -42,6 +43,10 @@ function displayFiles(files) {
         const name = document.createElement("div");
         name.className = "name";
         name.textContent = file.name;
+        name.style.cursor = "pointer";
+        name.addEventListener("click", () => {
+            window.location.href = `FileDetails.html?id=${file.id}`;
+        });
 
         const downloadBtn = document.createElement("button");
         downloadBtn.innerHTML = "⬇️";

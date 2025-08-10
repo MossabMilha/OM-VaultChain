@@ -8,6 +8,7 @@ use App\Models\FileBlockchainTransaction;
 use App\Models\FileVersion;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -62,7 +63,12 @@ class FileOrchestrationController extends Controller
             "version_number" => 1,
             "cid" => $storageData['cid'],
             "file_hash" => $validated["metadata"]["hash"],
-            "is_current" => true
+            "size_bytes" => $validated["metadata"]["size"],
+            "iv" => $validated["metadata"]["iv"],
+            "owner_encrypted_key" => $validated["metadata"]["encryptionKey"],
+            "encryption_algorithm" => $validated["metadata"]["encryptionAlgorithm"] ?? 'AES-256-GCM',
+            "is_current" => true,
+            "created_at" => now()
         ]);
 
         // 🏗️ Prepare blockchain data
@@ -208,6 +214,155 @@ class FileOrchestrationController extends Controller
         ]);
 
 
+
+    }//Not Complete Yet It should Match The New Struct Of Uploading
+    public function uploadNewVersionFile(Request $request){
+        $validated = $request->validate([
+            'fileId' => 'required|uuid|exists:files,id',
+            'encryptedFile' => 'required|string',
+
+            'metadata' => 'required|array',
+            'metadata.ownerId' => 'required|uuid|exists:users,id',
+            'metadata.name' => 'required|string|max:255',
+            'metadata.mimeType' => 'required|string|max:255',
+            'metadata.size' => 'required|integer|min:1',
+            'metadata.iv' => 'required|string|max:255',
+            'metadata.encryptionKey' => 'required|string|max:1024',
+            'metadata.hash' => 'required|string|max:255',
+
+
+            'encryptionKeys' => 'required|array',
+            'encryptionKeys.*' => 'required|string'
+        ]);
+
+
+        $file = File::findOrFail($validated['fileId']);
+
+        if ($file->owner_id !== $validated['metadata']['ownerId']) {
+            return response()->json(['error' => 'Unauthorized: You are not the owner of this file.'], 403);
+        }
+        DB::beginTransaction();
+        try{
+            $payload = [
+                "ownerId" => $validated["metadata"]["ownerId"],
+                "fileData" => $validated["encryptedFile"],
+                "fileName" => $validated["metadata"]["name"],
+                "mimeType" => $validated["metadata"]["mimeType"],
+                "iv" => $validated["metadata"]["iv"],
+                "encryptedKey" => $validated["metadata"]["encryptionKey"],
+                "fileHash" => $validated["metadata"]["hash"],
+            ];
+            $storageResponse = Http::post("{$this->storageBase}/upload/single", $payload);
+            if (!$storageResponse->successful()) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Storage service failed',
+                    'error' => $storageResponse->body()
+                ], 500);
+            }
+            $storageData = $storageResponse->json();
+            $cid = $storageData['cid'] ?? null;
+
+            if (!$cid) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Storage service did not return CID'
+                ], 500);
+            }
+            $latestVersion = $file->versions()->orderByDesc('version_number')->first();
+            $newVersionNumber = $latestVersion ? $latestVersion->version_number + 1 : 1;
+            $file->versions()->where('is_current', true)->update(['is_current' => false]);
+            $fileVersion = $file->versions()->create([
+                'id' => Str::uuid(),
+                'version_number' => $newVersionNumber,
+                'cid' => $cid,
+                'file_hash' => $validated['metadata']['hash'],
+                'size_bytes' => $validated['metadata']['size'],
+                'iv' => $validated['metadata']['iv'],
+                'owner_encrypted_key' => $validated['metadata']['encryptionKey'],
+                'encryption_algorithm' => 'AES-256-GCM',
+                'is_current' => true,
+                'created_at' => now(),
+            ]);
+            $file->update([
+                'name' => $validated['metadata']['name'],
+                'mime_type' => $validated['metadata']['mimeType'],
+                'size_bytes' => $validated['metadata']['size'],
+                'cid' => $cid,
+                'file_hash' => $validated['metadata']['hash'],
+                'iv' => $validated['metadata']['iv'],
+                'owner_encrypted_key' => $validated['metadata']['encryptionKey'],
+                'encryption_algorithm' => 'AES-256-GCM',
+            ]);
+            $user = User::find($validated['metadata']['ownerId']);
+            if (!$user || !$user->wallet_address) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Uploader wallet address not found for user.'
+                ], 400);
+            }
+            $blockchainResponse = Http::post("{$this->blockchainBase}/register-file", [
+                "uploaderWallet" => $user->wallet_address,
+                "cid" => $cid,
+                "fileHash" => $validated['metadata']['hash'],
+                "version" => $newVersionNumber
+            ]);
+            if (!$blockchainResponse->successful()) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Blockchain Service Failed',
+                    'error' => $blockchainResponse->body()
+                ], 500);
+            }
+            $blockchainData = $blockchainResponse->json();
+
+            FileBlockchainTransaction::create([
+                "id" => Str::uuid(),
+                "file_version_id" => $fileVersion->id,
+                "tx_hash" => $blockchainData["data"]['transactionHash'],
+                "block_number" => $blockchainData["data"]['blockNumber'],
+                "chain_id" => $blockchainData["data"]['chainId'],
+                "tx_status" => $blockchainData["data"]['transactionStatus']
+            ]);
+            foreach ($validated['encryptionKeys'] as $userId => $encryptedKey) {
+                $permission = AccessPermission::where('file_id', $file->id)
+                    ->where('user_id', $userId)
+                    ->active()
+                    ->first();
+
+                if ($permission) {
+                    $permission->update([
+                        'encrypted_key' => $encryptedKey,
+                        'granted_at' => now()
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                "success" => true,
+                "message" => "New file version uploaded and registered successfully.",
+                "data" => [
+                    "fileId" => $file->id,
+                    "fileName" => $validated["metadata"]["name"],
+                    "mimeType" => $validated["metadata"]["mimeType"],
+                    "sizeBytes" => $validated["metadata"]["size"],
+                    "ipfsCid" => $cid,
+                    "blockchainTxHash" => $blockchainData["data"]['transactionHash'],
+                    "version" => $newVersionNumber,
+                    "ownerId" => $validated["metadata"]["ownerId"],
+                    "timestamp" => now()->toIso8601String(),
+                    "fileHash" => $validated["metadata"]["hash"]
+                ]
+            ]);
+        }catch (\Exception $e){
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
 
     }
     public function listFiles(Request $request)
@@ -366,5 +521,87 @@ class FileOrchestrationController extends Controller
             ]
         ]);
     }
+    public function getCurrentVersion(Request $request)
+    {
+        $validated = $request->validate([
+            "fileId" => "required|uuid",
+            "userId" => "required|uuid"
+        ]);
 
+        $file = File::find($validated['fileId']);
+
+        if (!$file) {
+            return response()->json([
+                'message' => 'File not found.',
+            ], 404);
+        }
+
+        $userId = $validated['userId'];
+
+        // Access check
+        if ($file->owner_id === $userId) {
+            $accessType = 'owned';
+        } else {
+            $hasAccess = AccessPermission::where('file_id', $file->id)
+                ->where('user_id', $userId)
+                ->active()
+                ->exists();
+
+            if (!$hasAccess) {
+                return response()->json([
+                    'message' => 'Access denied to this file.',
+                ], 403);
+            }
+
+            $accessType = 'shared';
+        }
+        // Return file info from `files` table
+        return response()->json([
+            'file' => [
+                'id' => $file->id,
+                'owner_id' => $file->owner_id,
+                'name' => $file->name,
+                'mime_type' => $file->mime_type,
+                'size_bytes' => $file->size_bytes,
+                'cid' => $file->cid,
+                'file_hash' => $file->file_hash,
+                'iv' => $file->iv,
+                'owner_encrypted_key' => $file->owner_encrypted_key,
+                'encryption_algorithm' => $file->encryption_algorithm,
+                'created_at' => $file->created_at,
+                'updated_at' => $file->updated_at,
+            ],
+            'accessType' => $accessType,
+        ]);
+    }
+    public function getAllVersions(Request $request)
+    {
+        $validated = $request->validate([
+            'fileId' => 'required|uuid',
+            'userId' => 'required|uuid',
+        ]);
+
+        $file = File::find($validated['fileId']);
+
+        if (!$file) {
+            return response()->json([
+                'message' => 'File not found.',
+            ], 404);
+        }
+
+        if ($file->owner_id !== $validated['userId']) {
+            return response()->json([
+                'message' => 'Only the owner can view all versions.',
+            ], 403);
+        }
+
+        $versions = $file->versions()
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->makeHidden(['iv', 'owner_encrypted_key']);
+
+        return response()->json([
+            'versions' => $versions,
+        ]);
+    }
 }

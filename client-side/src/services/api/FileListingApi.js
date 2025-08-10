@@ -8,4 +8,9 @@ export async function listFileApi(userId){
 export async function getFileMetadata(fileId ){
     return post('/files/metadata', {fileId });
 }
-
+export async function getCurrentVersionFileApi(userId,fileId){
+    return post('/files/currentVersion', {userId,fileId});
+}
+export async function getAllVersionFileApi(userId,fileId){
+    return post('/files/allVersions', {userId,fileId});
+}

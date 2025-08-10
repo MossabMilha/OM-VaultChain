@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>File Details</title>
+    <link rel="stylesheet" href="../../styles/pages/FileDetails.css" />
+</head>
+<body>
+    <!-- ===== File Info ===== -->
+    <div class="file-info-container">
+        <div class="file-header">
+            <h1 id="fileName" class="file-title">📄 File Name</h1>
+            <input type="file" id="fileInput" style="display: none" />
+            <button id="uploadButton">Upload New Version</button>
+        </div>
+        <div class="file-details">
+            <div><strong>ID:</strong> <span id="id"></span></div>
+            <div><strong>Size:</strong> <span id="size"></span></div>
+            <div><strong>Created At:</strong> <span id="createdAt"></span></div>
+            <div><strong>Updated At:</strong> <span id="updatedAt"></span></div>
+            <div><strong>CID:</strong> <span id="cid"></span></div>
+            <div><strong>Encryption:</strong> <span id="encryptionAlgo"></span></div>
+            <div><strong>File Hash:</strong> <div id="fileHash" class="hash-box"></div></div>
+        </div>
+    </div>
+
+    <!-- ===== Version History ===== -->
+    <div id="versionHistoryContainer" class="collapsible-section">
+        <div class="collapsible-header">
+            <span>Version History</span>
+            <span class="toggle-icon">+</span>
+        </div>
+        <div class="collapsible-content">
+            <div id="versionHistoryList"></div>
+        </div>
+    </div>
+
+    <!-- ===== Who Has Access ===== -->
+    <div id="accessListContainer" class="collapsible-section">
+        <div class="collapsible-header">
+            <span>Who Has Access</span>
+            <span class="toggle-icon">+</span>
+        </div>
+        <div class="collapsible-content">
+            <div id="accessList"></div>
+        </div>
+    </div>
+
+    <script type="module" src="FileDetails.js"></script>
+</body>
+</html>
