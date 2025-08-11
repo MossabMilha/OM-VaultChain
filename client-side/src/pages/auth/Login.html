@@ -1,17 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="../../styles/pages/Login.css">
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="../../styles/pages/Login.css" />
 </head>
 <body>
-    <h2>Login</h2>
-    <form id="loginForm">
-        <input type="email" id="email" placeholder="Email" required /><br />
-        <input type="password" id="password" placeholder="Password" required /><br />
-        <button type="submit" id="login_btn">Login</button>
-    </form>
+    <div class="container">
+        <section class="login-box" role="main" aria-labelledby="loginTitle">
+            <h2 id="loginTitle">Login</h2>
+            <form id="loginForm" autocomplete="off" novalidate>
+                <input type="email" id="email" placeholder="Email" required autocomplete="username" aria-label="Email"/>
+                <input type="password" id="password" placeholder="Password" required aria-label="Password"/>
+                <label class="remember-me" for="remember">
+                    <input type="checkbox" id="remember" name="remember" />
+                    Remember Me
+                </label>
+                <button type="submit" id="login_btn">Login</button>
+            </form>
+        </section>
+    </div>
+
+    <!-- Backup Code Modal -->
+    <div id="backupCodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="backupCodeTitle">
+        <div class="modal-content" role="document" tabindex="-1">
+            <h3 id="backupCodeTitle">Enter your 64-character backup code</h3>
+            <form id="backupCodeForm" autocomplete="off" novalidate>
+                <input id="backupCodeInput" type="text" maxlength="79" autocomplete="off" placeholder="XXXX-XXXX-XXXX-...." aria-label="Backup Code"/>
+                <button type="submit" id="backupCodeSubmit" disabled>Submit</button>
+            </form>
+            <button id="modalCloseBtn" aria-label="Close modal">&times;</button>
+        </div>
+    </div>
+
+    <div id="modalOverlay" class="hidden"></div>
+
     <script type="module" src="Login.js"></script>
 </body>
 </html>

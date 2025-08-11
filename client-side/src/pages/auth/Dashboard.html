@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OMVC Dashboard</title>
+  <link rel="stylesheet" href="../../styles/pages/Dashboard.css">
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar" id="userAvatar"></div>
+      <div class="user-info">
+        <span id="userName"></span>
+        <small id="userEmail"></small>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#">All Files</a>
+      <a href="#">Recent</a>
+      <a href="#">Favorites</a>
+      <a href="#">Shared</a>
+      <a href="#">Tags</a>
+    </nav>
+
+    <button class="logout-btn" id="logoutBtn">Log out</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <h1>Welcome to OMVC Dashboard</h1>
+    <!-- File Listing Section -->
+    <div class="file-listing-section">
+      <div class="file-listing-header">
+        <h2>File Management</h2>
+        <a href="file-listing.html" class="file-listing-btn" id="fileListingBtn">View All Files</a>
+      </div>
+      <p class="file-listing-description">
+        Access and manage all your files in one place. Upload, organize, and share your documents with ease.
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<!-- Logout Confirmation Overlay -->
+<div id="logoutOverlay" class="overlay hidden">
+  <div class="overlay-content">
+    <p>
+      You have enabled 'Remember Me'.<br><br>
+      Keeping your account remembered on this PC reduces security.<br><br>
+      Are you sure you want to keep your account remembered here?
+    </p>
+    <div class="buttons">
+      <button id="keepRememberedBtn" class="btn primary">Keep Remembered</button>
+      <button id="removeRememberedBtn" class="btn secondary">Logout and Remove</button>
+      <button id="cancelLogoutBtn" class="btn cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="Dashboard.js"></script>
+</body>
+</html>

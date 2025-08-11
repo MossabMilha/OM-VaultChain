@@ -2,50 +2,139 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Details</title>
     <link rel="stylesheet" href="../../styles/pages/FileDetails.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 </head>
 <body>
+<div class="container">
     <!-- ===== File Info ===== -->
     <div class="file-info-container">
         <div class="file-header">
-            <h1 id="fileName" class="file-title">📄 File Name</h1>
-            <input type="file" id="fileInput" style="display: none" />
-            <button id="uploadButton">Upload New Version</button>
+            <div class="file-title-section">
+                <div class="file-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div>
+                    <h1 id="fileName" class="file-title">File Name</h1>
+                    <div class="file-subtitle">Document Details & Management</div>
+                </div>
+            </div>
+            <div class="file-actions">
+                <input type="file" id="fileInput" style="display: none" />
+                <button id="uploadButton" class="btn btn-primary">
+                    <i class="fas fa-upload"></i>
+                    Upload New Version
+                </button>
+            </div>
         </div>
-        <div class="file-details">
-            <div><strong>ID:</strong> <span id="id"></span></div>
-            <div><strong>Size:</strong> <span id="size"></span></div>
-            <div><strong>Created At:</strong> <span id="createdAt"></span></div>
-            <div><strong>Updated At:</strong> <span id="updatedAt"></span></div>
-            <div><strong>CID:</strong> <span id="cid"></span></div>
-            <div><strong>Encryption:</strong> <span id="encryptionAlgo"></span></div>
-            <div><strong>File Hash:</strong> <div id="fileHash" class="hash-box"></div></div>
+
+        <div class="file-details-grid">
+            <div class="detail-card">
+                <div class="detail-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="detail-content">
+                    <label>ID</label>
+                    <span id="id" class="detail-value"></span>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-icon">
+                    <i class="fas fa-weight-hanging"></i>
+                </div>
+                <div class="detail-content">
+                    <label>Size</label>
+                    <span id="size" class="detail-value"></span>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <div class="detail-content">
+                    <label>Created At</label>
+                    <span id="createdAt" class="detail-value"></span>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="detail-content">
+                    <label>Updated At</label>
+                    <span id="updatedAt" class="detail-value"></span>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-icon">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <div class="detail-content">
+                    <label>CID</label>
+                    <span id="cid" class="detail-value code-text"></span>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="detail-content">
+                    <label>Encryption</label>
+                    <span id="encryptionAlgo" class="detail-value"></span>
+                </div>
+            </div>
+
+            <div class="detail-card full-width">
+                <div class="detail-icon">
+                    <i class="fas fa-hashtag"></i>
+                </div>
+                <div class="detail-content">
+                    <label>File Hash</label>
+                    <div id="fileHash" class="hash-display"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- ===== Version History ===== -->
-    <div id="versionHistoryContainer" class="collapsible-section">
-        <div class="collapsible-header">
-            <span>Version History</span>
-            <span class="toggle-icon">+</span>
+    <div id="versionHistoryContainer" class="section-card">
+        <div class="section-header" data-target="versionHistoryContent">
+            <div class="section-title">
+                <i class="fas fa-history"></i>
+                <span>Version History</span>
+                <span class="section-badge" id="versionCount">0 versions</span>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
         </div>
-        <div class="collapsible-content">
-            <div id="versionHistoryList"></div>
+        <div class="section-content" id="versionHistoryContent">
+            <div id="versionHistoryList" class="items-list"></div>
         </div>
     </div>
 
     <!-- ===== Who Has Access ===== -->
-    <div id="accessListContainer" class="collapsible-section">
-        <div class="collapsible-header">
-            <span>Who Has Access</span>
-            <span class="toggle-icon">+</span>
+    <div id="accessListContainer" class="section-card">
+        <div class="section-header" data-target="accessListContent">
+            <div class="section-title">
+                <i class="fas fa-users"></i>
+                <span>Who Has Access</span>
+                <span class="section-badge" id="accessCount">0 users</span>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
         </div>
-        <div class="collapsible-content">
-            <div id="accessList"></div>
+        <div class="section-content" id="accessListContent">
+            <div id="accessList" class="items-list"></div>
         </div>
     </div>
+</div>
 
-    <script type="module" src="FileDetails.js"></script>
+<script type="module" src="FileDetails.js"></script>
 </body>
 </html>
